@@ -1,3 +1,20 @@
-# silent-cat
-Trabajo Final POO, Grupo 1
-hhola kskari 
+**Proyecto: Silent Cat**
+
+
+
+**1. Integrantes del Equipo** 
+
+
+
+\- Godoy, Aldana 
+
+\- Lacho, Melisa 
+
+\- Pardo, Iskari 
+
+\- Ugarte, Micaela
+
+
+
+
+
