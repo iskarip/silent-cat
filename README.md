@@ -11,7 +11,7 @@
 
 ### Descripcion del problema 
 
-Se buscara desarollar un videojuego de escritorio basandose en conceptos relacionados con el juego "Silent Hill". La tematica se basara en la eleccion de uno de los dos personajes que ofrecemos,junto con un tercer personaje, el cual sera su mascota - un gato -. Se buscara desarrollar un juego de estrategia y habilidades mediante la resolucion de acertijos paea cumplir con el objetivo. 
+Se buscara desarollar un videojuego de escritorio basandose en conceptos relacionados con el juego "Silent Hill". La tematica se basara en la eleccion de uno de los dos personajes que ofrecemos,junto con un tercer personaje, el cual sera su mascota - un gato -. Se buscara desarrollar un juego de estrategia y habilidades mediante la resolucion de acertijos para cumplir con el objetivo. 
 
 ## Objetivo del Sistema 
 
