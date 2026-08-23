@@ -15,7 +15,7 @@ public class Personaje extends Entidad {
         super(100,10);
         this.nombrePersonaje = nombrePersonaje;
         this.ninvelEstamina = 100;
-        this.Arma = arma;
+        this.Arma = new Arma();
         this.linterna = linterna;
     }
 
@@ -36,6 +36,11 @@ public class Personaje extends Entidad {
     public void moverPersonaje(int deltaX,int deltaY){  // Cuando tengamos definida las entidades de Enemigo, definimos si este metodo vale la pena que este en personaje o en Entidad
         this.posicionX += deltaX;
         this.posicionY += deltaY;
+    }
+    @Override
+    public void atacar(Entidad objetivo){
+        int danio = this.arma.calcularDanio();
+        objetivo.recibirDanio(danio);
     }
 
 
