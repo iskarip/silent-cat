@@ -8,7 +8,7 @@ public class Nivel {
 
 private int numeroNivel;
 private List<Enemigo> listaEnemigos; //esta seria mi lista dinamica para los enemigos.
-//private Acertijo acertijo;  nos falta definir la clase acertijo.
+private Acertijo acertijo; 
 private boolean nivelSuperado;
 private boolean checkpoint; //va a ser una bandera, si es falso no se activa, verdadero activado
 
@@ -17,7 +17,7 @@ private boolean checkpoint; //va a ser una bandera, si es falso no se activa, ve
 
 public Nivel (int numeroNivel, Acertijo acertijo){ //aca va a marcar error hasta que este definida la clase acertijo
     this.numeroNivel= numeroNivel;
-    //this.acertijo = acertijo;
+    this.acertijo = acertijo;
     this.nivelSuperado = false;
     this.checkpoint = false; //arranca desactivado por defecto
     this.listaEnemigos = new ArrayList<>();
@@ -29,7 +29,28 @@ public void guardarCheckpoint(){
     this.checkpoint = true;
     System.out.println("Checkpoint activado en el nivel "+ this.numeroNivel + "!!!");
 }
-//--GET--
+
+public void agregarEnemigo(Enemigo e) {
+    if (e != null) {
+        this.listaEnemigos.add(e);
+    }
+}
+
+public void movimientoEntidad() {
+    System.out.println("Moviendo entidades enemigas en el nivel " + this.numeroNivel);
+    for (Enemigo e : listaEnemigos) {
+        e.patrullar();
+    }
+}
+
+//--SET Y GET--
+
+// para marcar el nivel como completado cuando ganen
+public void setNivelSuperado(boolean nivelSuperado) {
+    this.nivelSuperado = nivelSuperado;
+}
+
+
 //va a preguntar si es checkpoint o no
 public boolean getCheckpoint(){
     return this.checkpoint;
