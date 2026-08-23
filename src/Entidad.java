@@ -34,10 +34,4 @@ public abstract class Entidad {
     public abstract void atacar(Entidad objetivo);  // método SIN cuerpo, termina en ";" — cada subclase decide cómo atacar
 
 
-
-
-
-
-
-
 }
