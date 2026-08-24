@@ -2,10 +2,10 @@ public class Personaje extends Entidad {
 
 // -- ATRIBUTOS --
 
-    private Int posicionX;
-    private Int posicionY;
+    private int posicionX;
+    private int posicionY;
     private String nombrePersonaje; 
-    private Int nivelEstamina;
+    private int nivelEstamina;
     private Arma arma;          //definir
     private Linterna linterna;  //definir
 
@@ -14,22 +14,28 @@ public class Personaje extends Entidad {
     public Personaje (String nombrePersonaje, Arma arma, Linterna linterna){
         super(100,10);
         this.nombrePersonaje = nombrePersonaje;
-        this.ninvelEstamina = 100;
-        this.Arma = new Arma();
+        this.nivelEstamina = 100;
+        this.arma = arma;
         this.linterna = linterna;
     }
 
 // -- Getters y Setters --
 
-    public getNombrePersonaje(){
-        return puntosVida;
+    public String getNombrePersonaje(){
+        return nombrePersonaje;
     }
 
-    public getNivelEstamina(){
-        return danioBase;
+    public int getNivelEstamina(){
+        return nivelEstamina;
     }
 
-    // getter arma y linterna
+    public Arma getArma(){
+        return arma;
+    }
+
+    public Linterna getLinterna(){
+        return linterna;
+    }
 
 // -- METODOS -- 
 
@@ -38,9 +44,27 @@ public class Personaje extends Entidad {
         this.posicionY += deltaY;
     }
     @Override
-    public void atacar(Entidad objetivo){
-        int danio = this.arma.calcularDanio();
-        objetivo.recibirDanio(danio);
+    public void atacar(Entidad objetivo) {
+        if (arma.usarArma()) {
+            int danio = arma.calcularDanio();
+            objetivo.recibirDanio(danio);
+        }
+    }
+
+    public void usarLinterna(){
+        if (linterna.getEncendido()){
+            linterna.apagarLinterna();
+        } else {
+            linterna.encenderLinterna();
+        }
+    }
+   
+    public boolean revisarBateria() {
+        return linterna.bateriaBaja();
+    }
+    
+    public void recargarLinterna(int cantidad) {
+       linterna.recargarLinterna(cantidad); // si bateria es un item q el personaje obtiene, ese item le da la cantidad a recargar
     }
 
 
