@@ -37,6 +37,7 @@ public class Personaje extends Entidad {
         return linterna;
     }
 
+
 // -- METODOS -- 
 
     public void moverPersonaje(int deltaX,int deltaY){  // Cuando tengamos definida las entidades de Enemigo, definimos si este metodo vale la pena que este en personaje o en Entidad
@@ -44,6 +45,7 @@ public class Personaje extends Entidad {
         this.posicionY += deltaY;
     }
     @Override
+
     public void atacar(Entidad objetivo) {
         if (arma.usarArma()) {
             int danio = arma.calcularDanio();
