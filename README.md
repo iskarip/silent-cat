@@ -47,6 +47,10 @@ El sistema sera un juego que permitira al usuario la eleccion de uno de los dos 
 
 ![Prototipo de IGu](./imagen/pantalla_juego.jpg)
 
+## 4. Diagrama de Clases UML (Conceptual)
+
+Enlace a CANVA: https://canva.link/c4rd5agxm72r0ff
+
 
 
 

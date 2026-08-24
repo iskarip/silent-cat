@@ -39,7 +39,8 @@ public abstract class Entidad {
         setPuntosVida(this.puntosVida - cantidad);
     }
 
-    public abstract void atacar(Entidad objetivo);  // método SIN cuerpo, termina en ";" — cada subclase decide cómo atacar
+    public abstract void atacar(Entidad objetivo);
+    // método SIN cuerpo, termina en ";" — cada subclase decide cómo atacar
 
 
 }
