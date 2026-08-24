@@ -1,4 +1,6 @@
-public abstract class Acertijo {  // public abstract class? creo que lo vemos mas adelante.
+package Modelo;
+
+public abstract class Acertijo implements Interactuable {  // public abstract class? creo que lo vemos mas adelante.
 
 // -- METODOS --
 
@@ -55,11 +57,9 @@ public abstract class Acertijo {  // public abstract class? creo que lo vemos ma
 
     // -- PARTE INTERACTUABLE --
     @Override
-    public void interactuar(Personaje perso) {
+    public void interactuar(Personaje p) {
         mostrarEnunciado();
         // TODO: Aca se debe mostrar un cuadro de texto para que el jugador escriba su respuesta
     }
-
-
 
 }

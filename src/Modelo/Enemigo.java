@@ -1,3 +1,5 @@
+package Modelo;
+
 public class Enemigo extends Entidad {
     
 //como vamos a tener diferentes enemigos definimos usar id enemigo

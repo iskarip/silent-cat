@@ -1,3 +1,5 @@
+package Modelo;
+
 public class Personaje extends Entidad {
 
 // -- ATRIBUTOS --
@@ -15,7 +17,7 @@ public class Personaje extends Entidad {
         super(100,10);
         this.nombrePersonaje = nombrePersonaje;
         this.nivelEstamina = 100;
-        this.arma = arma;
+        this.arma = new Arma();
         this.linterna = linterna;
     }
 
