@@ -10,6 +10,7 @@ public class Personaje extends Entidad {
     private int nivelEstamina;
     private Arma arma;          //definir
     private Linterna linterna;  //definir
+    private Inventario inventario;
 
 // -- CONSTRUCTOR --
 
@@ -19,6 +20,7 @@ public class Personaje extends Entidad {
         this.nivelEstamina = 100;
         this.arma = new Arma();
         this.linterna = linterna;
+        this.inventario = new Inventario();
     }
 
 // -- Getters y Setters --
@@ -39,6 +41,9 @@ public class Personaje extends Entidad {
         return linterna;
     }
 
+    public Inventario getInventario(){
+        return inventario;
+    }
 
 // -- METODOS -- 
 
@@ -71,5 +76,11 @@ public class Personaje extends Entidad {
        linterna.recargarLinterna(cantidad); // si bateria es un item q el personaje obtiene, ese item le da la cantidad a recargar
     }
 
+    public void interactuarCon(Interactuable objeto) {
+        objeto.interactuar(this);
+    }
 
+    public void agregarAlInventario(Item item){
+        inventario.agregarItem(item);
+    }
 }
