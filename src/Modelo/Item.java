@@ -1,6 +1,6 @@
 package Modelo;
 
-public abstract class Item implements Interactuable {
+public class Item implements Interactuable { // item no tiene la necesidad de ser una clase abstracta
 
     // -- ATRIBUTOS --
     protected String nombre;

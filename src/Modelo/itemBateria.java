@@ -3,12 +3,12 @@ package Modelo;
 public class itemBateria extends Item {
 
 // -- ATRIBUTOS --
-    
+
     private int cantidadCarga;
 
 // -- CONSTRUCTOR --
     public itemBateria(){
-        super();
+        super("Batería");
         cantidadCarga = 10;
     }
 
@@ -18,6 +18,14 @@ public class itemBateria extends Item {
         return cantidadCarga;
     }
 
-// --  METODOS --
-    
-}
+// -- METODOS --
+
+    public void aplicarCarga(Personaje p) {
+        p.recargarLinterna(this.cantidadCarga);
+    }
+
+    @Override
+    public void interactuar(Personaje p) {
+        aplicarCarga(p);
+    }
+}    
