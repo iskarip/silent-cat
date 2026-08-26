@@ -5,6 +5,8 @@ public abstract class Entidad {
     // -- ATRIBUTOS --
     protected int puntosVida;
     protected int danioBase;
+    private int posicionX;
+    private int posicionY;
 
     // -- CONSTRUCTOR --
     public Entidad (int puntosVida,int danioBase) {
@@ -21,6 +23,21 @@ public abstract class Entidad {
         return danioBase;
     }
 
+    public int getPosicionX() {
+        return posicionX;
+    }
+
+    public int getPosicionY() {
+        return posicionY;
+    }
+
+    public void setPosicionX(int posicionX) {
+        this.posicionX = posicionX;
+    }
+
+    public void setPosicionY(int posicionY) {
+        this.posicionY = posicionY;
+    }
 
     public void setPuntosVida(int puntosVida) {
         if (puntosVida < 0 ) {
@@ -37,6 +54,11 @@ public abstract class Entidad {
 
     public void recibirDanio (int cantidad){
         setPuntosVida(this.puntosVida - cantidad);
+    }
+
+    public void mover(int deltaX, int deltaY) {
+        this.posicionX += deltaX;
+        this.posicionY += deltaY;
     }
 
     public abstract void atacar(Entidad objetivo);
