@@ -6,15 +6,19 @@ public class Enemigo extends Entidad {
 //para diferenciar lo que hace cada uno.
 
 //--ATRIBUTOS--
-
+private int posicionX;
+private int posicionY;
 private int idEnemigo;
-
+private int direccion = 1; 
 //--CONSTRUCTOR--
 
 public Enemigo(int puntosVida, int danioBase, int idEnemigo){
 super(puntosVida, danioBase);
 
 this.idEnemigo= idEnemigo;
+this.posicionX= posicionX;
+this.posicionY= posicionY;
+
 }
 
 //--GET Y SET--
@@ -46,6 +50,12 @@ public void moverHaciaJugador(){
 public void patrullar(){
     System.out.println("El enemigo " + this.idEnemigo + "esta patrullando la zona cercana al jugador. ");
 }
+
+ public void moverEnemigo(int deltaX,int deltaY){ 
+    this.posicionX += deltaX;
+    this.posicionY += deltaY;
+}
+
 
 
 }

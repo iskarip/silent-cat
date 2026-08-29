@@ -1,3 +1,4 @@
+package Modelo;
 public class Item {
 // -- ATRIBUTOS --
     protected boolean recogido;
