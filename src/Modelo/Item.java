@@ -1,13 +1,26 @@
 package Modelo;
+
 public class Item {
 // -- ATRIBUTOS --
+
+public class Item implements Interactuable { // item no tiene la necesidad de ser una clase abstracta
+
+    // -- ATRIBUTOS --
+    protected String nombre;
     protected boolean recogido;
 
-    public Item (){
+    // --CONSTRUCTOR --
+
+    public Item (String nombre){
         this.recogido = false;
+        this.nombre = nombre;
     }
 
-// -- GET y SET --
+    // -- GET y SET --
+
+    public String getNombre () {
+        return nombre;
+    }
 
     public boolean isRecogido(){
         return recogido;
@@ -17,9 +30,19 @@ public class Item {
         recogido = valor;
     }
 
-// -- METODOS --
+    // -- METODOS --
 
     public void recoger(){
        recogido = true;
     }
+
+    @Override
+    public void interactuar(Personaje p) {
+        recoger();
+        p.getInventario().agregarItem(this);
+    }
+
+    // Este metodo hace que al interactuar (de la clase Interactuable), el elemento
+    // se guarde en el inventario. Cada subclase (como Medicina) lo define respectivamente
+    // si necesita una reaccion distinta.
 }

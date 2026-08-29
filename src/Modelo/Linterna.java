@@ -2,7 +2,6 @@ package Modelo;
 
 public class Linterna {
 
-// HOLA MELIIII
 
 // -- ATRIBUTOS -- owo
 

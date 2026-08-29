@@ -51,7 +51,6 @@ public void setNivelSuperado(boolean nivelSuperado) {
     this.nivelSuperado = nivelSuperado;
 }
 
-
 //va a preguntar si es checkpoint o no
 public boolean getCheckpoint(){
     return this.checkpoint;

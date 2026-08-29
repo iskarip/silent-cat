@@ -1,6 +1,6 @@
 package Modelo;
 
-public class AcertijoNumerico extends Acertijo{
+public class AcertijoNumerico extends Acertijo {
 
 // -- ATRIBUTOS -- 
 
@@ -15,13 +15,16 @@ public class AcertijoNumerico extends Acertijo{
 
 // -- GET y SET
 
+    public int getRespuesta(){
+        return this.respuesta;
+    }
+    
 // -- METODOS --
 
     @Override
-    public boolean validarRespuesta(String respuesta) {
-        int intento = Integer.parseInt(respuesta); // convertís el String a int
-        this.resuelto = (intento == this.respuesta);
-        return resuelto;
+    protected boolean verificarRespuesta(String respuesta) {
+        int intento = Integer.parseInt(respuesta);
+        return intento == this.respuesta;
     }
 
     }

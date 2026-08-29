@@ -14,7 +14,16 @@ public class AcertijoObjeto extends Acertijo {
 
     // -- GET's y SET's--
 
-    // -- METODOS --
+    public String getRespuesta(){
+        return this.respuesta;
+    }
+
+    // -- METODOS HEREDADOS --
+    @Override
+    protected boolean verificarRespuesta(String respuesta) {
+        return this.respuesta.equalsIgnoreCase(respuesta);
+    }
+
 
 
 

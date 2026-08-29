@@ -1,6 +1,6 @@
 package Modelo;
 
-public abstract class Acertijo implements Interactuable {  // public abstract class? creo que lo vemos mas adelante.
+public abstract class Acertijo implements Interactuable { 
 
 // -- METODOS --
 

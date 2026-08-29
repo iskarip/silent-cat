@@ -1,4 +1,5 @@
 package Modelo;
+
 public class Medicina extends Item{
     
 //ATRIBUTOS
@@ -6,8 +7,8 @@ public class Medicina extends Item{
     private int curacion;
 
 //CONSTRUCTOR
-    public Medicina(int curacion){
-        super (); //aca lo que hace es llamar al constructor de item y pone recogido con false
+    public Medicina(String nombre,int curacion){
+        super (nombre); //aca lo que hace es llamar al constructor de item y pone recogido con false
     this.curacion = curacion;
     }
 
@@ -29,6 +30,11 @@ public void aplicarCuracion(Personaje personaje){
         personaje.setPuntosVida(nuevaVida);
     }
 
+}
+
+@Override
+    public void interactuar(Personaje p){
+        aplicarCuracion(p);
 }
     
 }
