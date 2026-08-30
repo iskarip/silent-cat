@@ -31,8 +31,18 @@ public class Linterna {
         return alcance;
     }
 
-    public void setBateria (int bateria){
-        this.bateria = bateria;
+    public void setBateria (int bateria){ //consistencia 
+        if (bateria>= 100){
+            this.bateria= 100;
+        }
+        else if (bateria <= 0){
+            this.bateria=0;
+            this.encendido = false;//se apagaria la bateria si llega a 0
+        }
+        else{
+            this.bateria= bateria;
+        }
+  
     }
 
     public void setEncendido (boolean encendido) {
@@ -42,13 +52,17 @@ public class Linterna {
 // -- METODOS -- :3
 
 
-    public void encenderLinterna (){
-        if ( getBateria() == 0) {
+    public void encenderLinterna (){ 
+           if(this.bateria >0){ 
+        setEncendido(true);
+        }
+    }
+        /*        if ( getBateria() == 0) {
             setEncendido(false);
         } else {
             setEncendido(true);
-        }
-    }
+        }*/
+    
 
     public void apagarLinterna (){
         setEncendido(false);
@@ -59,7 +73,10 @@ public class Linterna {
     }
 
     public void recargarLinterna (int recargaLinterna){
-        int nuevaBateria = getBateria() + recargaLinterna;
+      setBateria(this.bateria + recargaLinterna); //como ya esta la consistencia en el set bateria ya se valida que no supere el 100 ni baje del 0.
+
+      
+        /*  int nuevaBateria = getBateria() + recargaLinterna;
         if (nuevaBateria > 100) {
             setBateria (100);
         } else if (nuevaBateria < 0){
@@ -68,6 +85,7 @@ public class Linterna {
         } else {
         setBateria (nuevaBateria);    
         }
+    */
     }
 
     public void gastarBateria (){
