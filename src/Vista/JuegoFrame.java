@@ -18,6 +18,7 @@ public class JuegoFrame extends JFrame {
 
         panelContenedor.add (new MenuPanel(this), "menu");
         panelContenedor.add (new SeleccionPersonajePanel(this), "seleccion");
+        panelContenedor.add (new AcertijoPanel(this), "acertijo");
 
         add(panelContenedor);
 
