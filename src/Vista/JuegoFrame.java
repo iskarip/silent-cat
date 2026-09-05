@@ -17,7 +17,7 @@ public class JuegoFrame extends JFrame {
         panelContenedor = new JPanel(cardLayout);
 
         panelContenedor.add (new MenuPanel(this), "menu");
-        panelContenedor.add (new SeleccionPersonajePanel(this), "seleccion");
+       // panelContenedor.add (new SeleccionPersonajePanel(this), "seleccion");
 
         add(panelContenedor);
 
