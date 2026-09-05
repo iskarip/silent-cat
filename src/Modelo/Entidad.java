@@ -4,23 +4,17 @@ public abstract class Entidad {
 
     // -- ATRIBUTOS --
     protected int puntosVida;
-    protected int danioBase;
     private int posicionX;
     private int posicionY;
 
     // -- CONSTRUCTOR --
-    public Entidad (int puntosVida,int danioBase) {
+    public Entidad (int puntosVida) {
         this.puntosVida = puntosVida;
-        this.danioBase = danioBase;
     }
 
     // -- SET's y GET's --
     public int getPuntosVida (){
         return puntosVida;
-    }
-
-    public int getDanioBase() {
-        return danioBase;
     }
 
     public int getPosicionX() {

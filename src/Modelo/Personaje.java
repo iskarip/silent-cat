@@ -33,7 +33,7 @@ public class Personaje extends Entidad {
     // Recibe arma y linterna ya construidas (no las crea el personaje),
     // así queda desacoplado de cómo se arman esos objetos.
     public Personaje (String nombrePersonaje, Arma arma, Linterna linterna){
-        super(100,10); // Asignación de Vida y daño base (heredado de Entidad)
+        super(100); // Asignación de Vida y daño base (heredado de Entidad)
         this.nombrePersonaje = nombrePersonaje;
         this.nivelEstamina = 100;
         this.arma = arma;

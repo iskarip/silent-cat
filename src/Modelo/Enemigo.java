@@ -6,18 +6,17 @@ public class Enemigo extends Entidad {
 //para diferenciar lo que hace cada uno.
 
 //--ATRIBUTOS--
-private int posicionX;
-private int posicionY;
+
 private int idEnemigo;
-private int direccion = 1; 
+private int direccion = 1;
+private int danioBase;
 //--CONSTRUCTOR--
 
-public Enemigo(int puntosVida, int danioBase, int idEnemigo){
-super(puntosVida, danioBase);
 
-this.idEnemigo= idEnemigo;
-this.posicionX= posicionX;
-this.posicionY= posicionY;
+public Enemigo(int puntosVida, int danioBase, int idEnemigo){
+super(puntosVida);
+    this.danioBase= danioBase;
+    this.idEnemigo= idEnemigo;
 
 }
 
@@ -31,8 +30,13 @@ public void setIdEnemigo(int idEnemigo){
     this.idEnemigo = idEnemigo;
 }
 
+public int getDanioBase() {
+    return this.danioBase;
+}
+
 //uso de override para los metodos heredados, atacar y recibirDanio
 
+//sacar este println cuando la Vista (Swing) muestre el ataque visualmente
 @Override
 public void atacar(Entidad objetivo){
     if(objetivo !=null){
@@ -43,17 +47,29 @@ public void atacar(Entidad objetivo){
 
 //metodo propio del enemigo (mover, patrullar)
 
-public void moverHaciaJugador(){
-    System.out.println("El enemigo " + this.idEnemigo + " se mueve hacia la posicion del jugador. ");
+public void moverHaciaJugador(Personaje jugador) {
+    int deltaX = 0;
+    int deltaY = 0;
+
+    if (jugador.getPosicionX() > this.getPosicionX()) {
+        deltaX = 1;
+    } else if (jugador.getPosicionX() < this.getPosicionX()) {
+        deltaX = -1;
+    }
+
+    if (jugador.getPosicionY()> this.getPosicionY()) {
+        deltaY = 1;
+    } else if (jugador.getPosicionY() < this.getPosicionY()) {
+        deltaY = -1;
+    }
+
+    mover (deltaX, deltaY);
+    System.out.println("El enemigo se acerca. Ten cuidado!");
 }
+
 
 public void patrullar(){
     System.out.println("El enemigo " + this.idEnemigo + "esta patrullando la zona cercana al jugador. ");
-}
-
- public void moverEnemigo(int deltaX,int deltaY){ 
-    this.posicionX += deltaX;
-    this.posicionY += deltaY;
 }
 
 
