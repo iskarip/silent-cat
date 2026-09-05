@@ -1,8 +1,5 @@
 package Modelo;
-<<<<<<< HEAD
-=======
 
->>>>>>> b0ed4b292c565788679ead94bfd448d132b2c038
 public class Gato {
     
 //ATRIBUTOS

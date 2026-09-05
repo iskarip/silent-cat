@@ -1,6 +1,5 @@
 package Modelo;
 
-public class Item {
 // -- ATRIBUTOS --
 
 public class Item implements Interactuable { // item no tiene la necesidad de ser una clase abstracta

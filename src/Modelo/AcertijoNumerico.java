@@ -23,8 +23,12 @@ public class AcertijoNumerico extends Acertijo {
 
     @Override
     protected boolean verificarRespuesta(String respuesta) {
-        int intento = Integer.parseInt(respuesta);
-        return intento == this.respuesta;
+      try {
+           int intento = Integer.parseInt(respuesta);
+           return intento == this.respuesta;
+        }  catch (NumberFormatException error) { // para que el juego no se rompa si ingresan algo distinto a un numero
+           return false;
+        }
     }
 
     }
