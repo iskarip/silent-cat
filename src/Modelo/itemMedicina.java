@@ -1,13 +1,13 @@
 package Modelo;
 
-public class Medicina extends Item{
+public class itemMedicina extends Item{
     
 //ATRIBUTOS
 
     private int curacion;
 
 //CONSTRUCTOR
-    public Medicina(String nombre,int curacion){
+    public itemMedicina(String nombre,int curacion){
         super (nombre); //aca lo que hace es llamar al constructor de item y pone recogido con false
     this.curacion = curacion;
     }
