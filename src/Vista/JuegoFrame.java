@@ -1,12 +1,14 @@
 package Vista;
 import javax.swing.*;
 import java.awt.*;
+import Modelo.Personaje;
 
 
 public class JuegoFrame extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel panelContenedor;
+    private NivelPanel nivelPanel;
 
     public JuegoFrame() {
         setTitle("Silent Cat");
@@ -16,11 +18,13 @@ public class JuegoFrame extends JFrame {
         cardLayout = new CardLayout();
         panelContenedor = new JPanel(cardLayout);
 
-        panelContenedor.add (new MenuPanel(this), "menu");
 
-       // panelContenedor.add (new SeleccionPersonajePanel(this), "seleccion");
+        panelContenedor.add (new MenuPanel(this), "menu");
         panelContenedor.add (new SeleccionPersonajePanel(this), "seleccion");
         panelContenedor.add (new AcertijoPanel(this), "acertijo");
+
+        nivelPanel = new NivelPanel();
+        panelContenedor.add(nivelPanel, "nivel");
 
         add(panelContenedor);
 
@@ -31,6 +35,11 @@ public class JuegoFrame extends JFrame {
     // para pedirle a la ventana "mostrame otra carta"
     public void mostrarPantalla (String pantalla){
         cardLayout.show(panelContenedor, pantalla);
+    }
+
+    public void iniciarNivelConPersonaje(Personaje personaje) {
+        nivelPanel.setPersonaje(personaje);
+        mostrarPantalla("nivel");
     }
 
 

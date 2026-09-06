@@ -19,8 +19,12 @@ public class AcertijoPanel extends JPanel {
         labelEnunciado = new JLabel("..."); 
         campoRespuesta = new JTextField(15);
 
+        JButton botonResponder = new JButton( "Responder");
+        botonResponder.addActionListener((e -> validarRespuesta()));
+
         add(labelEnunciado);
         add(campoRespuesta);
+        add(botonResponder);
 
     }
 
@@ -32,6 +36,20 @@ public class AcertijoPanel extends JPanel {
         this.acertijoActual = acertijo;
         labelEnunciado.setText(acertijo.getDescripcion());
         campoRespuesta.setText("");
+    }
+
+    private void validarRespuesta() {
+        if (acertijoActual == null) return;
+
+        boolean esCorrecta = acertijoActual.validarRespuesta(campoRespuesta.getText());
+        if(esCorrecta) {
+            System.out.println("¡Correcto!");
+            ventanaPrincipal.mostrarPantalla("nivel"); //vuelve al nivel
+        } else {
+            System.out.println("Incorrecto, intenta de nuevo!");
+            campoRespuesta.setText("");
+            campoRespuesta.requestFocus();
+        }
     }
 
     /* TODO: 1. agregar un elemento para validar la respuesta (boton "responder", tecla enter, etc)
