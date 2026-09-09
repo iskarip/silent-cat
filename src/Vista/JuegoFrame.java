@@ -37,9 +37,11 @@ public class JuegoFrame extends JFrame {
         cardLayout.show(panelContenedor, pantalla);
     }
 
-    public void iniciarNivelConPersonaje(Personaje personaje) {
+    public void iniciarNivelConPersonaje(Personaje personaje, Color color) {
         nivelPanel.setPersonaje(personaje);
+        nivelPanel.setColorPersonaje(color);
         mostrarPantalla("nivel");
+        nivelPanel.requestFocusInWindow();
     }
 
 

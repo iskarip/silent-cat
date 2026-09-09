@@ -6,6 +6,7 @@ import Modelo.Linterna;
 import Modelo.Personaje;
 
 import javax.swing.*;
+import java.awt.*;
 
 /*La pantalla que definimos donde el usuario va a elegir
 con que personaje (hombre o mujer) va a ir a buscar al gato. */
@@ -21,14 +22,14 @@ public class SeleccionPersonajePanel extends JPanel {
         JButton botonHombre = new JButton("Hombre");
         JButton botonMujer = new JButton("Mujer");
 
-        botonHombre.addActionListener(e -> elegirPersonaje("Protagonista"));
-        botonMujer.addActionListener(e -> elegirPersonaje ("Protagonista"));
+        botonHombre.addActionListener(e -> elegirPersonaje("Protagonista", Color.GREEN));
+        botonMujer.addActionListener(e -> elegirPersonaje ("Protagonista", Color.BLUE));
 
         add(botonHombre);
         add(botonMujer);
     }
 
-    private void elegirPersonaje(String nombre) {
+    private void elegirPersonaje(String nombre, Color color) {
         //TODO: aca se agrega el personaje real
 
         Arma arma = new Arma();
@@ -38,7 +39,7 @@ public class SeleccionPersonajePanel extends JPanel {
         //TODO: falta decidir como este Personaje llega hasta NivelPanel.
         // Ahora mismo NivelPanel no tiene forma de recibirlo
 
-        ventanaPrincipal.iniciarNivelConPersonaje(personaje);
+        ventanaPrincipal.iniciarNivelConPersonaje(personaje, color);
     }
 
 
