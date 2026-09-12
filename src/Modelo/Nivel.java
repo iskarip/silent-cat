@@ -41,10 +41,10 @@ public Nivel (int numeroNivel, Acertijo acertijo){ //aca va a marcar error hasta
         }
     }
 
-    public void movimientoEntidad() {
+    public void movimientoEntidad(Personaje jugador, boolean linternaEncendida) {
         System.out.println("Moviendo entidades enemigas en el nivel " + this.numeroNivel);
         for (Enemigo e : listaEnemigos) {
-            e.patrullar();
+            e.actualizarComportamiento(jugador, linternaEncendida);
         }
     }
 

@@ -10,6 +10,9 @@ public class Enemigo extends Entidad {
 private int idEnemigo;
 private int direccion = 1;
 private int danioBase;
+private int radioDeteccion = 80; // distancia en pixeles a la que "nota" al jugador (80 para probar)
+private boolean alertado = false; // si ya vio al jugador o no
+
 //--CONSTRUCTOR--
 
 
@@ -72,6 +75,26 @@ public void patrullar(){
     System.out.println("El enemigo " + this.idEnemigo + "esta patrullando la zona cercana al jugador. ");
 }
 
+// metodo que decide si se detecta al jugador
+public boolean detectaAlJugador (Personaje jugador, boolean linternaEncendida) {
+    double dx = jugador.getPosicionX() - this.getPosicionX();
+    double dy = jugador.getPosicionY() - this.getPosicionY();
+    double distancia = Math.hypot(dx, dy);
 
+    int radioEfectivo = linternaEncendida ? radioDeteccion + 40 : radioDeteccion;
+
+    return distancia <= radioEfectivo;
+}
+
+public void actualizarComportamiento (Personaje jugador, boolean linternaEncendida) {
+    if (detectaAlJugador(jugador, linternaEncendida)) {
+        alertado = true;
+        moverHaciaJugador(jugador);
+    } else if (alertado) { // perdió de vista al jugador, pero sigue en alerta un rato antes de volver a patrullar
+        patrullar();
+    } else {
+        patrullar();
+    }
+}
 
 }
