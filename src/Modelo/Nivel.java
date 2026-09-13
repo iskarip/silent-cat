@@ -42,10 +42,10 @@ public Nivel (int numeroNivel, Acertijo acertijoNivel, String rutaGrid){ //aca v
         }
     }
 
-    public void movimientoEntidad() {
+    public void movimientoEntidad(Personaje jugador, boolean linternaEncendida) {
         System.out.println("Moviendo entidades enemigas en el nivel " + this.numeroNivel);
         for (Enemigo e : listaEnemigos) {
-            e.patrullar();
+            e.actualizarComportamiento(jugador, linternaEncendida);
         }
     }
 

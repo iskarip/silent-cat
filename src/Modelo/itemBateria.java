@@ -8,7 +8,7 @@ public class itemBateria extends Item {
 
 // -- CONSTRUCTOR --
     public itemBateria(){
-        super("Batería");
+        super("Bateria");
         cantidadCarga = 10;
     }
 
