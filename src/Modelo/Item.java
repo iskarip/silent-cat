@@ -2,11 +2,13 @@ package Modelo;
 
 // -- ATRIBUTOS --
 
-public class Item implements Interactuable { // item no tiene la necesidad de ser una clase abstracta
+public class Item implements Interactuable, Posicionable { // item no tiene la necesidad de ser una clase abstracta
 
     // -- ATRIBUTOS --
     protected String nombre;
     protected boolean recogido;
+    protected int posicionX;
+    protected int posicionY;
 
     // --CONSTRUCTOR --
 
@@ -27,6 +29,22 @@ public class Item implements Interactuable { // item no tiene la necesidad de se
 
     public void setRecogido(boolean valor){
         recogido = valor;
+    }
+
+    public int getPosicionX() {
+        return posicionX;
+    }
+
+    public void setPosicionX(int posicionX) {
+        this.posicionX = posicionX;
+    }
+
+    public int getPosicionY() {
+        return posicionY;
+    }
+
+    public void setPosicionY(int posicionY) {
+        this.posicionY = posicionY;
     }
 
     // -- METODOS --

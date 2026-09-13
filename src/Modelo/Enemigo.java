@@ -17,7 +17,6 @@ public Enemigo(int puntosVida, int danioBase, int idEnemigo){
 super(puntosVida);
     this.danioBase= danioBase;
     this.idEnemigo= idEnemigo;
-
 }
 
 //--GET Y SET--

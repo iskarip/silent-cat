@@ -1,6 +1,6 @@
 package Modelo;
 
-public abstract class Entidad {
+public abstract class Entidad implements Posicionable { // Entidad es abstracta porque no se puede instanciar directamente, solo a través de sus subclases
 
     // -- ATRIBUTOS --
     protected int puntosVida;
