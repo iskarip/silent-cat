@@ -2,6 +2,10 @@ package Vista;
 import javax.swing.*;
 import java.awt.*;
 import Modelo.Personaje;
+import Modelo.Enemigo;
+import java.util.ArrayList;
+import java.util.List;
+import Controlador.ControladorNivel;
 
 
 public class JuegoFrame extends JFrame {
@@ -24,6 +28,7 @@ public class JuegoFrame extends JFrame {
         panelContenedor.add (new AcertijoPanel(this), "acertijo");
 
         nivelPanel = new NivelPanel();
+        new ControladorNivel(nivelPanel); // se arma el controlador junto con la vista.
         panelContenedor.add(nivelPanel, "nivel");
 
         add(panelContenedor);
@@ -37,11 +42,19 @@ public class JuegoFrame extends JFrame {
         cardLayout.show(panelContenedor, pantalla);
     }
 
-    public void iniciarNivelConPersonaje(Personaje personaje, Color color) {
+    public void iniciarNivelConPersonaje(Personaje personaje, GestorSprites sprites) {
         nivelPanel.setPersonaje(personaje);
-        nivelPanel.setColorPersonaje(color);
+        nivelPanel.setGestorSprites(sprites);
+
+        List<Enemigo> listaEnemigos = new ArrayList<>();
+        listaEnemigos.add(new Enemigo(100, 10, 1, 400, 150));
+        listaEnemigos.add(new Enemigo(100, 10, 2, 550, 320));
+
+        GestorSprites spritesEnfermera = new GestorSprites("/Recursos/Sprites/EnemigosNurse/");
+        nivelPanel.setEnemigos(listaEnemigos, spritesEnfermera);
+
         mostrarPantalla("nivel");
-        nivelPanel.requestFocusInWindow();
+        SwingUtilities.invokeLater(() -> nivelPanel.requestFocusInWindow());
     }
 
 

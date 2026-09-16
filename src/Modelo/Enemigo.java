@@ -1,4 +1,5 @@
 package Modelo;
+import Vista.Direccion;
 
 public class Enemigo extends Entidad {
     
@@ -8,15 +9,15 @@ public class Enemigo extends Entidad {
 //--ATRIBUTOS--
 
 private int idEnemigo;
-private int direccion = 1;
 private int danioBase;
 private int radioDeteccion = 80; // distancia en pixeles a la que "nota" al jugador (80 para probar)
 private boolean alertado = false; // si ya vio al jugador o no
+    private Direccion direccion = Direccion.ABAJO;
 
 //--CONSTRUCTOR--
 
 
-public Enemigo(int puntosVida, int danioBase, int idEnemigo){
+public Enemigo(int puntosVida, int danioBase, int idEnemigo, int xInicial, int yInicial){
 super(puntosVida);
     this.danioBase= danioBase;
     this.idEnemigo= idEnemigo;
@@ -34,6 +35,18 @@ public void setIdEnemigo(int idEnemigo){
 
 public int getDanioBase() {
     return this.danioBase;
+}
+
+public boolean estaVivo() {
+    return getPuntosVida()>0;
+}
+
+public Direccion getDireccion(){
+    return this.direccion;
+}
+
+public void setDireccion(Direccion direccion) {
+    this.direccion = direccion;
 }
 
 //uso de override para los metodos heredados, atacar y recibirDanio
