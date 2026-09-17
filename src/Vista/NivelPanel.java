@@ -3,11 +3,19 @@ package Vista;
 import Modelo.Gato;
 import Modelo.Nivel;
 import Modelo.Personaje;
+import Modelo.Enemigo;
+import java.util.List;
+import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,102 +31,210 @@ private Image imagenFlashback4= new ImageIcon("Recursos/imagenes_gato/4flashback
 private int poseActual = 0; // guarda cual de las 4 imágenes toca mostrar ahora
 private java.util.Random random = new java.util.Random(); // para elegir al azar
 
-    private Personaje personaje;
-    private Color colorPersonaje = Color.RED; // color por defecto
-    private Set<Integer> teclasPresionadas = new HashSet<>();
 
-    private Timer bucleDeJuego;
+    // --- VARIABLES DE ENTIDADES Y SPRITES ---
+    private Personaje personaje;
+    private GestorSprites gestorSprites;
+
+    private List<Enemigo> enemigos = new ArrayList<>();
+    private GestorSprites spritesEnemigo;
+
+    // --- VARIABLES DE ESTADO Y ANIMACIÓN ---
+    private EstadoPersonaje estadoActual = EstadoPersonaje.IDLE;
+    private Direccion direccionActual = Direccion.ABAJO;
+
+    private int cuadroAnimacion = 0;
+    private int contadorTick = 0;
+
+    public static final double ESCALA = 2.5;
+    public static final int ANCHO_CUADRO = 48;
+    public static final int ALTO_CUADRO = 48;
 
     public NivelPanel() {
         setFocusable(true);
-        configurarTeclas();
-        iniciarBucle();
+        setDoubleBuffered(true);
     }
 
-    private void configurarTeclas() {
-        InputMap inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap actionMap = this.getActionMap();
+    // --- GETTERS Y SETTERS ---
 
-        addKeyListener(new java.awt.event.KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                teclasPresionadas.add(e.getKeyCode());
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                teclasPresionadas.remove(e.getKeyCode());
-            }
-        });
-
+    public Personaje getPersonaje() {
+        return personaje;
     }
 
-    public void iniciarBucle () {
-        // Timer de Swing: ejecuta el codigo de adentro cada 16mls
-        bucleDeJuego = new Timer(16, e -> actualizarMovimiento());
-        bucleDeJuego.start();
-    }
-
-    private void actualizarMovimiento() {
-        if (personaje == null) return;
-
-        int deltaX = 0;
-        int deltaY = 0;
-
-        int velocidadBase = 4;
-        int velocidad = (int)(velocidadBase * personaje.getMultiplicadorVelocidad());
-//modifique los valores que reciben las variables para poder agregarle la lentitud al personaje, por eso quedo velocidad y no el 4 de la velocidad base
-        if (teclasPresionadas.contains(KeyEvent.VK_UP)) deltaY -= velocidad;
-        if (teclasPresionadas.contains(KeyEvent.VK_DOWN)) deltaY += velocidad;
-        if (teclasPresionadas.contains(KeyEvent.VK_LEFT)) deltaX -= velocidad;
-        if (teclasPresionadas.contains(KeyEvent.VK_RIGHT)) deltaX += velocidad;
-
-        if (deltaX != 0 || deltaY != 0) {
-            moverConLimites(deltaX, deltaY);
-            repaint();
-        }
-    }
-
-        // Mueve el personaje impidiendo salir del recuadro
-
-        private void moverConLimites(int deltaX, int deltaY) {
-            int nuevoX = personaje.getPosicionX() + deltaX;
-            int nuevoY = personaje.getPosicionY() + deltaY;
-
-            int diametro = 30; // mismo valor que usamos en fillOval
-
-            // Clamp horizontal: no menos de 0, no más que el ancho del panel menos el círculo
-            if (nuevoX < 0) nuevoX = 0;
-            if (nuevoX > getWidth() - diametro) nuevoX = getWidth() - diametro;
-
-            // Clamp vertical
-            if (nuevoY < 0) nuevoY = 0;
-            if (nuevoY > getHeight() - diametro) nuevoY = getHeight() - diametro;
-
-            personaje.setPosicionX(nuevoX);
-            personaje.setPosicionY(nuevoY);
-        }
-
-
-        public void setPersonaje (Personaje personaje) {
-            this.personaje = personaje;
-            repaint(); // redibuja ahora que ya hay un personaje para mostrar
-        }
-
-        public void setColorPersonaje (Color color ) {
-        this.colorPersonaje = color;
+    public void setPersonaje(Personaje personaje) {
+        this.personaje = personaje;
         repaint();
+    }
+
+    public void setGestorSprites(GestorSprites gestorSprites) {
+        this.gestorSprites = gestorSprites;
+        repaint();
+    }
+
+    public void setEnemigos(List<Enemigo> enemigos, GestorSprites spritesEnemigo) {
+        this.enemigos = enemigos;
+        this.spritesEnemigo = spritesEnemigo;
+        repaint();
+    }
+
+    public List<Enemigo> getEnemigos() {
+        return this.enemigos;
+    }
+
+    public void setEstado(EstadoPersonaje estado) {
+        this.estadoActual = estado;
+        repaint();
+    }
+
+    public void setDireccion(Direccion direccion) {
+        this.direccionActual = direccion;
+    }
+
+    // --- ANIMACIÓN ---
+
+    public void actualizarAnimacion(boolean moviendose) {
+        if (moviendose) {
+            contadorTick++;
+            if (contadorTick % 6 == 0) {
+                cuadroAnimacion = (cuadroAnimacion + 1) % 6;
+            }
+        } else {
+            cuadroAnimacion = 0;
         }
+    }
+
+    // --- HITBOXES ---
+
+    // Hitbox en los pies del personaje
+    public Rectangle getHitbox(int x, int y) {
+        int anchoHitbox = (int) (16 * ESCALA);
+        int altoHitbox = (int) (10 * ESCALA);
+        int offsetX = (int) (16 * ESCALA);
+        int offsetY = (int) (38 * ESCALA);
+        return new Rectangle(x + offsetX, y + offsetY, anchoHitbox, altoHitbox);
+    }
+
+    // Hitbox en los pies enemigo
+    public Rectangle getHitboxEnemigo(Enemigo enemigo) {
+        int anchoHitbox = (int) (16 * ESCALA);
+        int altoHitbox = (int) (10 * ESCALA);
+        int offsetX = (int) (16 * ESCALA);
+        int offsetY = (int) (38 * ESCALA);
+        return new Rectangle(enemigo.getPosicionX() + offsetX, enemigo.getPosicionY() + offsetY, anchoHitbox, altoHitbox);
+    }
+
+    // Hitbox de ataque frontal según hacia dónde mira el personaje
+    public Rectangle getHitboxAtaque(int x, int y) {
+        int alcance = (int) (18 * ESCALA);
+        Rectangle base = getHitbox(x, y);
+
+        switch (direccionActual) {
+            case ARRIBA:
+                return new Rectangle(base.x, base.y - alcance, base.width, alcance);
+            case ABAJO:
+                return new Rectangle(base.x, base.y + base.height, base.width, alcance);
+            case IZQUIERDA:
+                return new Rectangle(base.x - alcance, base.y, alcance, base.height);
+            case DERECHA:
+            default:
+                return new Rectangle(base.x + base.width, base.y, alcance, base.height);
+        }
+    }
 
 
 
     @Override
-    protected void paintComponent (Graphics g) {
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if(personaje != null) {
-            g.setColor (colorPersonaje);
-            g.fillOval(personaje.getPosicionX(), personaje.getPosicionY(), 30, 30);
+        if (personaje == null) return;
 
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+        BufferedImage hoja = (gestorSprites != null) ? gestorSprites.obtener(estadoActual) : null;
+        int posX = personaje.getPosicionX();
+        int posY = personaje.getPosicionY();
+
+
+        if (hoja != null) {
+            int frame = cuadroAnimacion % 6;
+            int fila = direccionActual.getFila();
+
+            int srcX1 = frame * ANCHO_CUADRO;
+            int srcY1 = fila * ALTO_CUADRO;
+            int srcX2 = srcX1 + ANCHO_CUADRO;
+            int srcY2 = srcY1 + ALTO_CUADRO;
+
+            int anchoPantalla = (int) (ANCHO_CUADRO * ESCALA);
+            int altoPantalla = (int) (ALTO_CUADRO * ESCALA);
+
+            if (direccionActual == Direccion.DERECHA && fila == 1) {
+                g2d.drawImage(hoja,
+                        posX + anchoPantalla, posY, posX, posY + altoPantalla,
+                        srcX1, srcY1, srcX2, srcY2,
+                        this
+                );
+            } else {
+                g2d.drawImage(hoja,
+                        posX, posY, posX + anchoPantalla, posY + altoPantalla,
+                        srcX1, srcY1, srcX2, srcY2,
+                        this
+                );
+            }
+
+
+            Rectangle hb = getHitbox(posX, posY);
+            g2d.setColor(Color.RED);
+            g2d.drawRect(hb.x, hb.y, hb.width, hb.height);
+
+        } else {
+            g2d.setColor(Color.RED);
+            g2d.fillOval(posX, posY, 40, 40);
+        }
+
+
+        if (spritesEnemigo != null && enemigos != null) {
+
+            for (Enemigo e : enemigos) {
+                if (!e.estaVivo()) continue;
+
+                int ex = e.getPosicionX();
+                int ey = e.getPosicionY();
+
+                EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
+                BufferedImage hojaEnemigo = spritesEnemigo.obtener(estadoEnemigo);
+
+                if (hojaEnemigo != null) {
+                    int frame = e.getCuadroAnimacion() % 6;
+                    int fila = e.getDireccion().getFila();
+
+                    int srcX1 = frame * ANCHO_CUADRO;
+                    int srcY1 = fila * ALTO_CUADRO;
+                    int srcX2 = srcX1 + ANCHO_CUADRO;
+                    int srcY2 = srcY1 + ALTO_CUADRO;
+
+                    int anchoDestino = (int) (ANCHO_CUADRO * ESCALA);
+                    int altoDestino = (int) (ALTO_CUADRO * ESCALA);
+
+                    if (e.getDireccion() == Direccion.DERECHA && fila == 1) {
+                        g2d.drawImage(hojaEnemigo,
+                                ex + anchoDestino, ey, ex, ey + altoDestino,
+                                srcX1, srcY1, srcX2, srcY2, this);
+                    } else {
+                        g2d.drawImage(hojaEnemigo,
+                                ex, ey, ex + anchoDestino, ey + altoDestino,
+                                srcX1, srcY1, srcX2, srcY2, this);
+                    }
+
+
+                    int anchoBarra = (int) (20 * ESCALA);
+                    g2d.setColor(Color.BLACK);
+                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
+                    g2d.setColor(Color.RED);
+                    int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
+                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
+                }
+            }
         }
     if (mostrandoFlashback) {
       Image imagenAMostrar;
@@ -169,3 +285,5 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
     }
 
 }
+
+

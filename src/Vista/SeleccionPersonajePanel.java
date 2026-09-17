@@ -22,14 +22,20 @@ public class SeleccionPersonajePanel extends JPanel {
         JButton botonHombre = new JButton("Hombre");
         JButton botonMujer = new JButton("Mujer");
 
-        botonHombre.addActionListener(e -> elegirPersonaje("Protagonista", Color.GREEN));
-        botonMujer.addActionListener(e -> elegirPersonaje ("Protagonista", Color.BLUE));
+        //botonHombre.addActionListener(e -> elegirPersonaje("Protagonista", Color.GREEN));
+        botonMujer.addActionListener(e -> {
+                    GestorSprites sprites = new GestorSprites("/Recursos/Sprites/Personajes/Chica/");
+                    elegirPersonaje("Protagonista", sprites);
+                });
 
-        add(botonHombre);
+
+        //add(botonHombre);
         add(botonMujer);
+
+        GestorSprites sprites = new GestorSprites("/Recursos/Sprites/Personajes/Chica/");
     }
 
-    private void elegirPersonaje(String nombre, Color color) {
+    private void elegirPersonaje(String nombre, GestorSprites sprites) {
         //TODO: aca se agrega el personaje real
 
         Arma arma = new Arma();
@@ -39,7 +45,7 @@ public class SeleccionPersonajePanel extends JPanel {
         //TODO: falta decidir como este Personaje llega hasta NivelPanel.
         // Ahora mismo NivelPanel no tiene forma de recibirlo
 
-        ventanaPrincipal.iniciarNivelConPersonaje(personaje, color);
+        ventanaPrincipal.iniciarNivelConPersonaje(personaje, sprites);
     }
 
 
