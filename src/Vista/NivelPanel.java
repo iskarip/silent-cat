@@ -181,7 +181,6 @@ public class NivelPanel extends JPanel {
 
 
         if (spritesEnemigo != null && enemigos != null) {
-            BufferedImage hojaEnemigo = spritesEnemigo.obtener(EstadoPersonaje.CAMINANDO);
 
             for (Enemigo e : enemigos) {
                 if (!e.estaVivo()) continue;
@@ -189,8 +188,11 @@ public class NivelPanel extends JPanel {
                 int ex = e.getPosicionX();
                 int ey = e.getPosicionY();
 
+                EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
+                BufferedImage hojaEnemigo = spritesEnemigo.obtener(estadoEnemigo);
+
                 if (hojaEnemigo != null) {
-                    int frame = cuadroAnimacion % 6;
+                    int frame = e.getCuadroAnimacion() % 6;
                     int fila = e.getDireccion().getFila();
 
                     int srcX1 = frame * ANCHO_CUADRO;
