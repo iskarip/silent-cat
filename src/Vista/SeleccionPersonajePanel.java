@@ -24,7 +24,7 @@ public class SeleccionPersonajePanel extends JPanel {
 
         //botonHombre.addActionListener(e -> elegirPersonaje("Protagonista", Color.GREEN));
         botonMujer.addActionListener(e -> {
-                    GestorSprites sprites = new GestorSprites("/Recursos/Sprites/PersonajesChica");
+                    GestorSprites sprites = new GestorSprites("/Recursos/Sprites/Personajes/Chica/");
                     elegirPersonaje("Protagonista", sprites);
                 });
 
@@ -32,7 +32,7 @@ public class SeleccionPersonajePanel extends JPanel {
         //add(botonHombre);
         add(botonMujer);
 
-        GestorSprites sprites = new GestorSprites("/Recursos/Sprites/PersonajesChica/");
+        GestorSprites sprites = new GestorSprites("/Recursos/Sprites/Personajes/Chica/");
     }
 
     private void elegirPersonaje(String nombre, GestorSprites sprites) {

@@ -50,7 +50,7 @@ public class JuegoFrame extends JFrame {
         listaEnemigos.add(new Enemigo(100, 10, 1, 400, 150));
         listaEnemigos.add(new Enemigo(100, 10, 2, 550, 320));
 
-        GestorSprites spritesEnfermera = new GestorSprites("/Recursos/Sprites/EnemigosNurse/");
+        GestorSprites spritesEnfermera = new GestorSprites("/Recursos/Sprites/Enemigos/Nurse/");
         nivelPanel.setEnemigos(listaEnemigos, spritesEnfermera);
 
         mostrarPantalla("nivel");

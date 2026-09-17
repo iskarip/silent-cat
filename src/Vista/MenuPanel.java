@@ -20,59 +20,29 @@ public class MenuPanel extends JPanel {
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(12, 0, 12, 0);
-        gbc.gridx = 0;
 
-        JButton botonIniciar = crearBotonTematico("INICIAR");
-        botonIniciar.addActionListener(e -> ventanaPrincipal.mostrarPantalla("seleccion"));
+        BotonJuego botonNuevaPartida = new BotonJuego("/Recursos/UI/Menu/Botones/NuevaPartida.png","/Recursos/UI/Menu/Botones/NuevaPartidaHover.png", "Recursos/UI/Menu/Sonidos/sonido3.wav");
+        botonNuevaPartida.addActionListener((e -> ventanaPrincipal.mostrarPantalla("seleccion")));
 
-        JButton botonReiniciar = crearBotonTematico("REINICIAR");
-        botonReiniciar.addActionListener(e-> {System.out.println("Reiniciar presionado");});
-
-        JButton botonSalir = crearBotonTematico("SALIR DEL JUEGO");
+        BotonJuego botonAjustes= new BotonJuego("/Recursos/UI/Menu/Botones/Ajustes.png", "/Recursos/UI/Menu/Botones/AjustesHover.png", "Recursos/UI/Menu/Sonidos/sonido3.wav");
+        
+        BotonJuego botonSalir = new BotonJuego("/Recursos/UI/Menu/Botones/Salir.png", "/Recursos/UI/Menu/Botones/SalirHover.png", "Recursos/UI/Menu/Sonidos/sonido3.wav");
         botonSalir.addActionListener((e -> System.exit(0)));
 
         gbc.gridy = 0;
-        add(botonIniciar, gbc);
+        gbc.insets = new Insets(200, 0, 0, 0);
+        add(botonNuevaPartida, gbc);
         gbc.gridy = 1;
-        add(botonReiniciar, gbc);
+        gbc.insets = new Insets(0, 0, 0, 0);
+        add(botonAjustes, gbc);
         gbc.gridy = 2;
         add(botonSalir, gbc);
     }
 
-    private JButton crearBotonTematico(String texto) {
-        JButton boton = new JButton(texto);
-        boton.setPreferredSize(new Dimension(240, 55));
-        boton.setFont(new Font("Georgia", Font.BOLD, 20));
-
-        // Paleta oscura, tipo madera vieja / sangre, acorde al fondo
-        boton.setBackground(new Color(30, 10, 10));
-        boton.setForeground(new Color(220, 60, 40)); // rojo apagado, como el título
-        boton.setFocusPainted(false);
-        boton.setBorder(BorderFactory.createLineBorder(new Color(90, 40, 20), 3));
-        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Efecto simple al pasar el mouse por encima
-        boton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                boton.setBackground(new Color(60, 15, 15));
-                boton.setForeground(Color.WHITE);
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                boton.setBackground(new Color(30, 10, 10));
-                boton.setForeground(new Color(220, 60, 40));
-            }
-        });
-
-        return boton;
-    }
 
     private void cargarFondo() {
         try {
-            imagenFondo = ImageIO.read(new File("imagen/imagenMenu.jpeg"));
+            imagenFondo = ImageIO.read(new File("src/Recursos/UI/Menu/Fondo/imagenMenu2.jpg"));
         } catch (IOException e) {
             System.out.println("No se pudo cargar el fondo del menu: " + e.getMessage());
             imagenFondo = null;

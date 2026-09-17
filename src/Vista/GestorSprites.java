@@ -22,7 +22,7 @@ public class GestorSprites {
 
         cargar(EstadoPersonaje.IDLE, carpetaBase + "idle.png");
         cargar(EstadoPersonaje.CAMINANDO, carpetaBase + "caminar.png");
-        cargar(EstadoPersonaje.ATACANDO, carpetaBase + "atacar.pnng");
+        cargar(EstadoPersonaje.ATACANDO, carpetaBase + "atacar.png");
         cargar(EstadoPersonaje.RECIBIENDO_DANIO, carpetaBase + "recibirDanio.png");
         cargar(EstadoPersonaje.MURIENDO, carpetaBase + "muere.png");
     }
