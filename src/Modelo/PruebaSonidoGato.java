@@ -11,7 +11,7 @@ public class PruebaSonidoGato {
 
         System.out.println("Probando sonido de encuentro...");
         gato.reproducirSonidoEncuentro();
-        Thread.sleep(2000);
+        Thread.sleep(3000);
 
         System.out.println("Listo.");
     }

@@ -22,6 +22,8 @@ public class Personaje extends Entidad {
     // correr/esquivar, falta consumirEstamina()/recuperarEstamina().
     // Si no, conviene sacarlo para no dejar código muerto.
 
+    private double multiplicadorVelocidad = 1.0;
+
     private int nivelEstamina;
 
     private Arma arma;
@@ -89,6 +91,18 @@ public class Personaje extends Entidad {
 
     public void recargarLinterna(int cantidad) {
        linterna.recargarLinterna(cantidad);
+    }
+
+    public void aplicarLentitud(){
+        this.multiplicadorVelocidad=0.4;
+    }
+
+    public void quitarLentitud(){
+     this.multiplicadorVelocidad=1.0;
+    }
+
+    public double getMultiplicadorVelocidad(){
+        return multiplicadorVelocidad;
     }
 
     // Punto de entrada genérico para interactuar con CUALQUIER cosa que
