@@ -75,10 +75,10 @@ public class ControladorNivel {
 
 //se aplica el multiplicador de velocidad para que la lentitud del flashback del gato tenga efecto en el pj
 
-        if (teclasPresionadas.contains(KeyEvent.VK_UP)) { deltaY -= velocidad; vista.setDireccion(Direccion.ARRIBA); }
-        if (teclasPresionadas.contains(KeyEvent.VK_DOWN)) { deltaY += velocidad; vista.setDireccion(Direccion.ABAJO); }
-        if (teclasPresionadas.contains(KeyEvent.VK_LEFT)) { deltaX -= velocidad; vista.setDireccion(Direccion.IZQUIERDA); }
-        if (teclasPresionadas.contains(KeyEvent.VK_RIGHT)) { deltaX += velocidad; vista.setDireccion(Direccion.DERECHA); }
+        if (teclasPresionadas.contains(KeyEvent.VK_UP)|| teclasPresionadas.contains(KeyEvent.VK_W)) { deltaY -= velocidad; vista.setDireccion(Direccion.ARRIBA); }
+        if (teclasPresionadas.contains(KeyEvent.VK_DOWN)|| teclasPresionadas.contains(KeyEvent.VK_S)) { deltaY += velocidad; vista.setDireccion(Direccion.ABAJO); }
+        if (teclasPresionadas.contains(KeyEvent.VK_LEFT)|| teclasPresionadas.contains(KeyEvent.VK_A)) { deltaX -= velocidad; vista.setDireccion(Direccion.IZQUIERDA); }
+        if (teclasPresionadas.contains(KeyEvent.VK_RIGHT)|| teclasPresionadas.contains(KeyEvent.VK_D)) { deltaX += velocidad; vista.setDireccion(Direccion.DERECHA); }
 
         boolean seEstaMoviendo = (deltaX != 0 || deltaY != 0);
 

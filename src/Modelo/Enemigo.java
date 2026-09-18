@@ -110,7 +110,7 @@ public void moverHaciaJugador(Personaje jugador) {
     }
 
     mover (deltaX, deltaY);
-    System.out.println("El enemigo se acerca. Ten cuidado!");
+    
 
     this.moviendose = (deltaX != 0 || deltaY != 0);
     actualizarAnimacion();
