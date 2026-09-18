@@ -10,17 +10,17 @@ public class Gato {
 private Boolean encontrado;
 
 private List<String> sonidosFlashback = List.of(
-    "Recursos/sonidos_gato/flashback1.wav",
-    "Recursos/sonidos_gato/flashback2.wav",
-    "Recursos/sonidos_gato/flashback3.wav",
-    "Recursos/sonidos_gato/flashback4.wav"
+    "Recursos/Sonidos/sonidos_gato/flashback1.wav",
+    "Recursos/Sonidos/sonidos_gato/flashback2.wav",
+    "Recursos/Sonidos/sonidos_gato/flashback3.wav",
+    "Recursos/Sonidos/sonidos_gato/flashback4.wav"
 );
 
 private List<String> sonidosEncuentro = List.of(
-    "Recursos/sonidos_gato/encuentro1.wav",
-    "Recursos/sonidos_gato/encuentro2.wav",
-    "Recursos/sonidos_gato/encuentro3.wav",
-    "Recursos/sonidos_gato/encuentro4.wav"
+    "Recursos/Sonidos/sonidos_gato/encuentro1.wav",
+    "Recursos/Sonidos/sonidos_gato/encuentro2.wav",
+    "Recursos/Sonidos/sonidos_gato/encuentro3.wav",
+    "Recursos/Sonidos/sonidos_gato/encuentro4.wav"
 );
 
 private Random random = new Random(); //Sirve para elegir cual sonido reproducir (De mi lista de sonidos)

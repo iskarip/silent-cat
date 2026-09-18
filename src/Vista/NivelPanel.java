@@ -23,10 +23,26 @@ public class NivelPanel extends JPanel {
 
 private Nivel nivelActual;
 private boolean mostrandoFlashback = false;
-private Image imagenFlashback1= new ImageIcon("Recursos/imagenes_gato/1flashback.png").getImage();
-private Image imagenFlashback2= new ImageIcon("Recursos/imagenes_gato/2flashback.png").getImage();
-private Image imagenFlashback3= new ImageIcon("Recursos/imagenes_gato/3flashback.png").getImage();
-private Image imagenFlashback4= new ImageIcon("Recursos/imagenes_gato/4flashback.png").getImage();
+
+private Image imagenFlashback1 = cargarImagenFlashback("/Recursos/imagenes_gato/1flashback.png");
+private Image imagenFlashback2 = cargarImagenFlashback("/Recursos/imagenes_gato/2flashback.png");
+private Image imagenFlashback3 = cargarImagenFlashback("/Recursos/imagenes_gato/3flashback.png");
+private Image imagenFlashback4 = cargarImagenFlashback("/Recursos/imagenes_gato/4flashback.png");
+
+private static Image cargarImagenFlashback(String ruta) {
+    java.io.InputStream is = NivelPanel.class.getResourceAsStream(ruta);
+    if (is == null) {
+        System.out.println("No se encontro el recurso en: " + ruta);
+        return null;
+    }
+    try {
+        return javax.imageio.ImageIO.read(is);
+    } catch (java.io.IOException e) {
+        System.out.println("Error al leer " + ruta + ": " + e.getMessage());
+        return null;
+    }
+}
+
 
 private int poseActual = 0; // guarda cual de las 4 imágenes toca mostrar ahora
 private java.util.Random random = new java.util.Random(); // para elegir al azar
@@ -308,16 +324,48 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
         case 2: imagenAMostrar = imagenFlashback3; break;
         default: imagenAMostrar = imagenFlashback4; break;
     }
-    g.drawImage(imagenAMostrar, 0, 0, getWidth(), getHeight(), this);
-
-    }
-    
-    
-    }
+    Graphics2D g2dFlashback = (Graphics2D) g;
+    Composite composicionOriginal = g2dFlashback.getComposite(); // la guardamos para restaurarla después
+    g2dFlashback.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 0.6f = 60% opaco
+    g2dFlashback.drawImage(imagenAMostrar, 0, 0, getWidth(), getHeight(), this);
+    g2dFlashback.setComposite(composicionOriginal); // restauramos para que no afecte lo que se dibuje después
+}
+}
 
     public void setNivelActual(Nivel nivel){
         this.nivelActual = nivel;
     }
+
+//Solo para probar es este metodo. Lo voy a usar solo hasta poder conectar Nivel/Gato
+//en juegoFrame.iniciarNivelConPersonaje(); despues, lo voy a borrar y voy a usar activar flashback gato normal
+public void probarFlashbackGato() {
+Gato gatoDePrueba = new Gato();
+gatoDePrueba.reproducirSonidoFlashback();
+personaje.aplicarLentitud();
+mostrandoFlashback = true;
+
+Timer parpadeo = new Timer(200, null);
+int[] contador = {0};
+parpadeo.addActionListener(e -> {
+    mostrandoFlashback = !mostrandoFlashback;
+    if (mostrandoFlashback) {
+        poseActual = random.nextInt(4);
+    }
+    repaint();
+    contador[0]++;
+    if (contador[0] >= 10) { // 10 parpadeos = 2 segundos totales
+        ((Timer) e.getSource()).stop();
+        mostrandoFlashback = false;
+        personaje.quitarLentitud();
+        repaint();
+    }
+
+});
+parpadeo.start();
+}
+
+
+
 
     public void activarFlashbackGato(){
         if (nivelActual == null || nivelActual.getGato() == null) return; //significaria q este nivel no tiene gato

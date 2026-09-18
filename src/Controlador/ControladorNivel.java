@@ -38,6 +38,12 @@ public class ControladorNivel {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE){
                     atacar();
                 }
+            //Temporal: es una tecla de prueba para el flashback del gato
+            //la voy a sacar y reemplazar cuando se defina el disparador del flashback del juego
+            if (e.getKeyCode() == KeyEvent.VK_F){
+                vista.probarFlashbackGato();
+            }
+            
             }
 
             @Override
@@ -71,7 +77,8 @@ public class ControladorNivel {
         int deltaY = 0;
 
         int velocidadBase= 4;
-        int velocidad = (int) (velocidadBase + personaje.getMultiplicadorVelocidad());
+        int velocidad = (int) (velocidadBase * personaje.getMultiplicadorVelocidad());
+//le puse multiplicar para que se note la lentitud del flashback del gato, si no se nota mucho, podemos poner un multiplicador mas bajo (0.5 o 0.6)
 
 //se aplica el multiplicador de velocidad para que la lentitud del flashback del gato tenga efecto en el pj
 
