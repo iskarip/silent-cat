@@ -58,5 +58,9 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
     public abstract void atacar(Entidad objetivo);
     // método SIN cuerpo, termina en ";" — cada subclase decide cómo atacar
 
+    public boolean estaVivo() {
+        return puntosVida > 0;
+    }
+
 
 }

@@ -19,6 +19,7 @@ public class ControladorNivel {
     private final Set<Integer> teclasPresionadas = new HashSet<>();
     private Timer bucleDeJuego;
     private Timer temporizadorAtaque;
+    private boolean personajeMuerto = false;
 
     public ControladorNivel(NivelPanel vista) {
         this.vista = vista;
@@ -54,6 +55,16 @@ public class ControladorNivel {
     private void actualizarMovimiento() {
         Personaje personaje = vista.getPersonaje();
         if (personaje == null) return;
+
+        if (!personaje.estaVivo()) {
+            if (!personajeMuerto) {
+                personajeMuerto = true;
+                System.out.println("El personaje murio.");
+            }
+            vista.avanzarAnimacionMuerte();
+            vista.repaint();
+            return;
+        }
 
         // 1. Movimiento del Jugador
         int deltaX = 0;
@@ -91,6 +102,7 @@ public class ControladorNivel {
                 Rectangle hbEnemigo = vista.getHitboxEnemigo(e);
                 if (hbJugador.intersects(hbEnemigo)) {
                     e.atacar(personaje);
+                    System.out.println("Vida del personaje: " + personaje.getPuntosVida()); //TEMPORAL
                 }
             }
         }
@@ -139,6 +151,10 @@ public class ControladorNivel {
 
         personaje.setPosicionX(nuevoX);
         personaje.setPosicionY(nuevoY);
+    }
+
+    public void reiniciarEstado() {
+        personajeMuerto = false;
     }
 
 }

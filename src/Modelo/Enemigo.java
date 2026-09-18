@@ -13,8 +13,10 @@ private int idEnemigo;
 private int danioBase;
 private int radioDeteccion = 200; // distancia en pixeles a la que "nota" al jugador
 private boolean alertado = false; // si ya vio al jugador o no
-    private Direccion direccion = Direccion.ABAJO;
+private int ticksEnfriamientoAtaque = 0; // cuenta atrás hasta que pueda volver a atacar
+private static final int ENFRIAMIENTO_ATAQUE = 60; // ticks de espera entre golpe y golpe
 
+private Direccion direccion = Direccion.ABAJO;
 private int spawnX;
 private int spawnY;
 private static final int RADIO_PATRULLA = 60;
@@ -55,10 +57,6 @@ public int getDanioBase() {
     return this.danioBase;
 }
 
-public boolean estaVivo() {
-    return getPuntosVida()>0;
-}
-
 public Direccion getDireccion(){
     return this.direccion;
 }
@@ -80,9 +78,12 @@ public boolean estaMoviendose() {
 //sacar este println cuando la Vista (Swing) muestre el ataque visualmente
 @Override
 public void atacar(Entidad objetivo){
+    if (ticksEnfriamientoAtaque > 0) return; // en cooldown, no puede golpear de nuevo
+
     if(objetivo !=null){
         System.out.println("El enemigo " + this.idEnemigo + " ataca y hace" + this.danioBase + " de daño. ");
         objetivo.recibirDanio(this.danioBase);
+        ticksEnfriamientoAtaque = ENFRIAMIENTO_ATAQUE;
     }   
 }
 
@@ -179,10 +180,18 @@ public boolean detectaAlJugador (Personaje jugador, boolean linternaEncendida) {
 }
 
 public void actualizarComportamiento (Personaje jugador, boolean linternaEncendida) {
+    if (ticksEnfriamientoAtaque > 0) {
+        ticksEnfriamientoAtaque--;
+    }
+
     if (detectaAlJugador(jugador, linternaEncendida)) {
         alertado = true;
         moverHaciaJugador(jugador);
     } else if (alertado) { // perdió de vista al jugador, pero sigue en alerta un rato antes de volver a patrullar
+        spawnX = getPosicionX();
+        spawnY = getPosicionY();
+        alertado = false;
+        ticksHastaCambiarDireccion = 0;
         patrullar();
     } else {
         patrullar();

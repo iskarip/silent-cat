@@ -22,14 +22,17 @@ public class SeleccionPersonajePanel extends JPanel {
         JButton botonHombre = new JButton("Hombre");
         JButton botonMujer = new JButton("Mujer");
 
-        //botonHombre.addActionListener(e -> elegirPersonaje("Protagonista", Color.GREEN));
+        botonHombre.addActionListener(e -> {
+            GestorSprites sprites = new GestorSprites("/Recursos/Sprites/Personajes/Chico/");
+            elegirPersonaje("Protagonista", sprites);
+        });
         botonMujer.addActionListener(e -> {
                     GestorSprites sprites = new GestorSprites("/Recursos/Sprites/Personajes/Chica/");
                     elegirPersonaje("Protagonista", sprites);
                 });
 
 
-        //add(botonHombre);
+        add(botonHombre);
         add(botonMujer);
 
         GestorSprites sprites = new GestorSprites("/Recursos/Sprites/Personajes/Chica/");

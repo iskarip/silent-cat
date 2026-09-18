@@ -13,6 +13,7 @@ public class JuegoFrame extends JFrame {
     private CardLayout cardLayout;
     private JPanel panelContenedor;
     private NivelPanel nivelPanel;
+    private ControladorNivel controladorNivel;
 
     public JuegoFrame() {
         setTitle("Silent Cat");
@@ -28,7 +29,8 @@ public class JuegoFrame extends JFrame {
         panelContenedor.add (new AcertijoPanel(this), "acertijo");
 
         nivelPanel = new NivelPanel();
-        new ControladorNivel(nivelPanel); // se arma el controlador junto con la vista.
+        nivelPanel.setVentanaPrincipal(this);
+        controladorNivel = new ControladorNivel(nivelPanel); // se arma el controlador junto con la vista
         panelContenedor.add(nivelPanel, "nivel");
 
         add(panelContenedor);
@@ -43,6 +45,9 @@ public class JuegoFrame extends JFrame {
     }
 
     public void iniciarNivelConPersonaje(Personaje personaje, GestorSprites sprites) {
+        nivelPanel.reiniciarEstadoNivel();
+        controladorNivel.reiniciarEstado();
+
         nivelPanel.setPersonaje(personaje);
         nivelPanel.setGestorSprites(sprites);
 

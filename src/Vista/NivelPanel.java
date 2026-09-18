@@ -46,6 +46,13 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
     private int cuadroAnimacion = 0;
     private int contadorTick = 0;
 
+    // --- GAME OVER ---
+    private JuegoFrame ventanaPrincipal;
+    private JLabel etiquetaGameOver;
+    private JButton botonVolverMenu;
+    private int ticksMuerte = 0;
+    private boolean gameOverMostrado = false;
+
     public static final double ESCALA = 2.5;
     public static final int ANCHO_CUADRO = 48;
     public static final int ALTO_CUADRO = 48;
@@ -53,6 +60,20 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
     public NivelPanel() {
         setFocusable(true);
         setDoubleBuffered(true);
+        setLayout(null); 
+
+        etiquetaGameOver = new JLabel("GAME OVER", SwingConstants.CENTER);
+        etiquetaGameOver.setFont(new Font("Arial", Font.BOLD, 48));
+        etiquetaGameOver.setForeground(Color.RED);
+        etiquetaGameOver.setBounds(250, 200, 300, 60);
+        etiquetaGameOver.setVisible(false);
+        add(etiquetaGameOver);
+
+        botonVolverMenu = new JButton("Volver al menú");
+        botonVolverMenu.setBounds(320, 280, 160, 40);
+        botonVolverMenu.setVisible(false);
+        botonVolverMenu.addActionListener(e -> volverAlMenu());
+        add(botonVolverMenu);
     }
 
     // --- GETTERS Y SETTERS ---
@@ -69,6 +90,10 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
     public void setGestorSprites(GestorSprites gestorSprites) {
         this.gestorSprites = gestorSprites;
         repaint();
+    }
+
+    public void setVentanaPrincipal(JuegoFrame ventanaPrincipal) {
+        this.ventanaPrincipal = ventanaPrincipal;
     }
 
     public void setEnemigos(List<Enemigo> enemigos, GestorSprites spritesEnemigo) {
@@ -101,6 +126,45 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
         } else {
             cuadroAnimacion = 0;
         }
+    }
+
+    public void avanzarAnimacionMuerte() {
+        ticksMuerte++;
+        if (ticksMuerte % 6 !=0) return;
+
+        int totalFrames = obtenerTotalFramesMuerte();
+        if (cuadroAnimacion < totalFrames - 1) {
+            cuadroAnimacion++;
+        } else if (!gameOverMostrado) {
+            gameOverMostrado = true;
+            mostrarGameOver();
+        }
+    }
+
+    private int obtenerTotalFramesMuerte() {
+        if (gestorSprites == null) return 1;
+        BufferedImage hoja = gestorSprites.obtener(EstadoPersonaje.MURIENDO);
+        return (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
+    }
+
+    public void mostrarGameOver() {
+        etiquetaGameOver.setVisible(true);
+        botonVolverMenu.setVisible(true);
+    }
+
+    private void volverAlMenu() {
+        if (ventanaPrincipal != null) {
+            ventanaPrincipal.mostrarPantalla("menu");
+        }
+    }
+
+    public void reiniciarEstadoNivel() {
+        ticksMuerte = 0;
+        gameOverMostrado = false;
+        cuadroAnimacion = 0;
+        estadoActual = EstadoPersonaje.IDLE;
+        etiquetaGameOver.setVisible(false);
+        botonVolverMenu.setVisible(false);
     }
 
     // --- HITBOXES ---
