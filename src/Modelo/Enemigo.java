@@ -29,6 +29,8 @@ private final Random random = new Random();
 private int cuadroAnimacion = 0;
 private int contadorTickAnimacion = 0;
 private boolean moviendose = false;
+private int  cuadroAnimacionMuerte = 0;
+private int contadorTickAnimacionMuerte = 0;
 
 //--CONSTRUCTOR--
 
@@ -67,6 +69,14 @@ public void setDireccion(Direccion direccion) {
 
 public int getCuadroAnimacion() {
     return this.cuadroAnimacion;
+}
+
+public int getCuadroAnimacionMuerte() {
+    return this.cuadroAnimacionMuerte;
+}
+
+public boolean animacionMuerteTerminada(int totalFrames) {
+    return cuadroAnimacionMuerte >= totalFrames - 1;
 }
 
 public boolean estaMoviendose() {
@@ -165,6 +175,15 @@ private void actualizarAnimacion() {
         }
     } else {
         cuadroAnimacion = 0;
+    }
+}
+
+public void avanzarAnimacionMuerte(int totalFrames) {
+    if (cuadroAnimacionMuerte < totalFrames - 1) {
+        contadorTickAnimacionMuerte++;
+        if (contadorTickAnimacionMuerte % 6 == 0) {
+            cuadroAnimacionMuerte++;
+        }
     }
 }
 

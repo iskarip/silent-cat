@@ -66,6 +66,7 @@ public class ControladorNivel {
             if (!personajeMuerto) {
                 personajeMuerto = true;
                 System.out.println("El personaje murio.");
+                vista.setEstado(EstadoPersonaje.MURIENDO); 
             }
             vista.avanzarAnimacionMuerte();
             vista.repaint();
@@ -111,6 +112,8 @@ public class ControladorNivel {
                     e.atacar(personaje);
                     System.out.println("Vida del personaje: " + personaje.getPuntosVida()); //TEMPORAL
                 }
+            } else {
+                e.avanzarAnimacionMuerte(vista.obtenerTotalFramesMuerteEnemigo());
             }
         }
 

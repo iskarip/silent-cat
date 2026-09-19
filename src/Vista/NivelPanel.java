@@ -148,7 +148,7 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
         ticksMuerte++;
         if (ticksMuerte % 6 !=0) return;
 
-        int totalFrames = obtenerTotalFramesMuerte();
+        int totalFrames = obtenerTotalFramesMuerte(gestorSprites);
         if (cuadroAnimacion < totalFrames - 1) {
             cuadroAnimacion++;
         } else if (!gameOverMostrado) {
@@ -157,11 +157,16 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
         }
     }
 
-    private int obtenerTotalFramesMuerte() {
-        if (gestorSprites == null) return 1;
+    private int obtenerTotalFramesMuerte(GestorSprites sprites) {
+        if (sprites == null) return 1;
         BufferedImage hoja = gestorSprites.obtener(EstadoPersonaje.MURIENDO);
         return (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
     }
+
+    public int obtenerTotalFramesMuerteEnemigo() {
+        return obtenerTotalFramesMuerte(spritesEnemigo);
+    }
+
 
     public void mostrarGameOver() {
         etiquetaGameOver.setVisible(true);
@@ -276,14 +281,15 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
         if (spritesEnemigo != null && enemigos != null) {
 
             for (Enemigo e : enemigos) {
-                if (!e.estaVivo()) continue;
 
                 int ex = e.getPosicionX();
                 int ey = e.getPosicionY();
 
+                if (e.estaVivo()) {
+
                 EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
                 BufferedImage hojaEnemigo = spritesEnemigo.obtener(estadoEnemigo);
-
+                
                 if (hojaEnemigo != null) {
                     int frame = e.getCuadroAnimacion() % 6;
                     int fila = e.getDireccion().getFila();
@@ -305,7 +311,9 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
                                 ex, ey, ex + anchoDestino, ey + altoDestino,
                                 srcX1, srcY1, srcX2, srcY2, this);
                     }
+                }
 
+                
 
                     int anchoBarra = (int) (20 * ESCALA);
                     g2d.setColor(Color.BLACK);
@@ -313,9 +321,37 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
                     g2d.setColor(Color.RED);
                     int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
                     g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
+                } else {
+                    int totalFramesMuerte = obtenerTotalFramesMuerte(spritesEnemigo);
+
+                    if (!e.animacionMuerteTerminada(totalFramesMuerte)) {
+                    BufferedImage hojaMuerte = spritesEnemigo.obtener(EstadoPersonaje.MURIENDO);
+
+                    if (hojaMuerte != null) {
+                        int frame = e.getCuadroAnimacionMuerte();
+                        int fila = e.getDireccion().getFila();
+
+                        int srcX1 = frame * ANCHO_CUADRO;
+                        int srcY1 = fila * ALTO_CUADRO;
+                        int srcX2 = srcX1 + ANCHO_CUADRO;
+                        int srcY2 = srcY1 + ALTO_CUADRO;
+
+                        int anchoDestino = (int) (ANCHO_CUADRO * ESCALA);
+                        int altoDestino = (int) (ALTO_CUADRO * ESCALA);
+
+                        if (e.getDireccion() == Direccion.DERECHA && fila == 1) {
+                            g2d.drawImage(hojaMuerte,
+                                    ex + anchoDestino, ey, ex, ey + altoDestino,
+                                    srcX1, srcY1, srcX2, srcY2, this);
+                    } else {
+                        g2d.drawImage(hojaMuerte, ex, ey, ex + anchoDestino, ey + altoDestino, srcX1, srcY1, srcX2, srcY2, this);
+                    }
                 }
             }
+            }
         }
+    }
+
     if (mostrandoFlashback) {
       Image imagenAMostrar;
         switch (poseActual) {
