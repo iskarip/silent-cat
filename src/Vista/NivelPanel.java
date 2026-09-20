@@ -4,6 +4,8 @@ import Modelo.Gato;
 import Modelo.Nivel;
 import Modelo.Personaje;
 import Modelo.Enemigo;
+
+import java.awt.geom.AffineTransform;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -23,6 +25,7 @@ public class NivelPanel extends JPanel {
 
 private Nivel nivelActual;
 private boolean mostrandoFlashback = false;
+private Modelo.MapaColision mapaColision; //MAPA DE COLISION TRAIDO DE MODELO
 
 private Image imagenFlashback1 = cargarImagenFlashback("/Recursos/imagenes_gato/1flashback.png");
 private Image imagenFlashback2 = cargarImagenFlashback("/Recursos/imagenes_gato/2flashback.png");
@@ -62,6 +65,10 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
     private int cuadroAnimacion = 0;
     private int contadorTick = 0;
 
+    // -- CAMARA DE SEGUIMIENTO PERSONAJE --
+    private int camaraX = 0;
+    private int camaraY = 0;
+
     // --- GAME OVER ---
     private JuegoFrame ventanaPrincipal;
     private JLabel etiquetaGameOver;
@@ -90,6 +97,28 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
         botonVolverMenu.setVisible(false);
         botonVolverMenu.addActionListener(e -> volverAlMenu());
         add(botonVolverMenu);
+
+        // click de mouse por las dudas para que el personaje siempre escuche al teclado
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                requestFocusInWindow();
+            }
+        });
+    }
+
+    // -- CAMARA --
+
+    public void actualizarCamara() {
+        if (personaje == null) return;
+
+        // posiciona al personaje en el centro de la pantalla
+        // sigue su movimiento
+        int centroPersonajeX = personaje.getPosicionX() + (int) ((ANCHO_CUADRO * ESCALA) /2);
+        int centroPersonajeY = personaje.getPosicionY() + (int) ((ANCHO_CUADRO * ESCALA) /2);
+
+        this.camaraX = centroPersonajeX - (getWidth() / 2);
+        this.camaraY = centroPersonajeY - (getHeight() / 2);
     }
 
     // --- GETTERS Y SETTERS ---
@@ -129,6 +158,15 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
 
     public void setDireccion(Direccion direccion) {
         this.direccionActual = direccion;
+    }
+
+    public void setMapaColision(Modelo.MapaColision mapaColision) {
+        this.mapaColision = mapaColision;
+        repaint();
+    }
+
+    public Modelo.MapaColision getMapaColision () {
+        return this.mapaColision;
     }
 
     // --- ANIMACIÓN ---
@@ -236,6 +274,40 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
+        // -- FUNCIONES PARA LA CAMARA --
+        actualizarCamara();
+        AffineTransform transformOriginal = g2d.getTransform();
+        g2d.translate(-camaraX, -camaraY);
+
+        // -- DIBUJO DEL PISO Y PAREDES DEL MAPA -- relacionado con MapaColision
+
+        if (mapaColision != null ) {
+            int tileSize = 32;
+            int totalFilas = 26;
+            int totalColumnas = 48;
+
+            for (int f = 0; f < totalFilas; f++) {
+                for (int c = 0; c <totalColumnas; c++){
+                    int x = c * tileSize;
+                    int y = f * tileSize;
+
+                    // Si la celda no es valida, entonces es un obstaculo
+
+                    if (!mapaColision.esPosicionValida(x + 16, y + 16)) {
+                        g2d.setColor(new Color(40, 40, 50)); //Pared o mueble oscuro
+                        g2d.fillRect(x, y, tileSize, tileSize);
+                        g2d.setColor(new Color(25, 25, 30));
+                        g2d.drawRect(x, y, tileSize, tileSize);
+                    } else {
+                        g2d.setColor(new Color(180, 160, 140));
+                        g2d.fillRect(x, y, tileSize, tileSize);
+                        g2d.setColor(new Color(160, 140, 120));
+                        g2d.drawRect(x, y, tileSize, tileSize);
+                    }
+                }
+            }
+        }
+
         BufferedImage hoja = (gestorSprites != null) ? gestorSprites.obtener(estadoActual) : null;
         int posX = personaje.getPosicionX();
         int posY = personaje.getPosicionY();
@@ -287,48 +359,11 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
 
                 if (e.estaVivo()) {
 
-                EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
-                BufferedImage hojaEnemigo = spritesEnemigo.obtener(estadoEnemigo);
-                
-                if (hojaEnemigo != null) {
-                    int frame = e.getCuadroAnimacion() % 6;
-                    int fila = e.getDireccion().getFila();
+                    EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
+                    BufferedImage hojaEnemigo = spritesEnemigo.obtener(estadoEnemigo);
 
-                    int srcX1 = frame * ANCHO_CUADRO;
-                    int srcY1 = fila * ALTO_CUADRO;
-                    int srcX2 = srcX1 + ANCHO_CUADRO;
-                    int srcY2 = srcY1 + ALTO_CUADRO;
-
-                    int anchoDestino = (int) (ANCHO_CUADRO * ESCALA);
-                    int altoDestino = (int) (ALTO_CUADRO * ESCALA);
-
-                    if (e.getDireccion() == Direccion.DERECHA && fila == 1) {
-                        g2d.drawImage(hojaEnemigo,
-                                ex + anchoDestino, ey, ex, ey + altoDestino,
-                                srcX1, srcY1, srcX2, srcY2, this);
-                    } else {
-                        g2d.drawImage(hojaEnemigo,
-                                ex, ey, ex + anchoDestino, ey + altoDestino,
-                                srcX1, srcY1, srcX2, srcY2, this);
-                    }
-                }
-
-                
-
-                    int anchoBarra = (int) (20 * ESCALA);
-                    g2d.setColor(Color.BLACK);
-                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
-                    g2d.setColor(Color.RED);
-                    int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
-                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
-                } else {
-                    int totalFramesMuerte = obtenerTotalFramesMuerte(spritesEnemigo);
-
-                    if (!e.animacionMuerteTerminada(totalFramesMuerte)) {
-                    BufferedImage hojaMuerte = spritesEnemigo.obtener(EstadoPersonaje.MURIENDO);
-
-                    if (hojaMuerte != null) {
-                        int frame = e.getCuadroAnimacionMuerte();
+                    if (hojaEnemigo != null) {
+                        int frame = e.getCuadroAnimacion() % 6;
                         int fila = e.getDireccion().getFila();
 
                         int srcX1 = frame * ANCHO_CUADRO;
@@ -340,17 +375,57 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
                         int altoDestino = (int) (ALTO_CUADRO * ESCALA);
 
                         if (e.getDireccion() == Direccion.DERECHA && fila == 1) {
-                            g2d.drawImage(hojaMuerte,
+                            g2d.drawImage(hojaEnemigo,
                                     ex + anchoDestino, ey, ex, ey + altoDestino,
                                     srcX1, srcY1, srcX2, srcY2, this);
-                    } else {
-                        g2d.drawImage(hojaMuerte, ex, ey, ex + anchoDestino, ey + altoDestino, srcX1, srcY1, srcX2, srcY2, this);
+                        } else {
+                            g2d.drawImage(hojaEnemigo,
+                                    ex, ey, ex + anchoDestino, ey + altoDestino,
+                                    srcX1, srcY1, srcX2, srcY2, this);
+                        }
                     }
+
+
+                    int anchoBarra = (int) (20 * ESCALA);
+                    g2d.setColor(Color.BLACK);
+                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
+                    g2d.setColor(Color.RED);
+                    int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
+                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
+                } else {
+                    int totalFramesMuerte = obtenerTotalFramesMuerte(spritesEnemigo);
+
+                    if (!e.animacionMuerteTerminada(totalFramesMuerte)) {
+                        BufferedImage hojaMuerte = spritesEnemigo.obtener(EstadoPersonaje.MURIENDO);
+
+                        if (hojaMuerte != null) {
+                            int frame = e.getCuadroAnimacionMuerte();
+                            int fila = e.getDireccion().getFila();
+
+                            int srcX1 = frame * ANCHO_CUADRO;
+                            int srcY1 = fila * ALTO_CUADRO;
+                            int srcX2 = srcX1 + ANCHO_CUADRO;
+                            int srcY2 = srcY1 + ALTO_CUADRO;
+
+                            int anchoDestino = (int) (ANCHO_CUADRO * ESCALA);
+                            int altoDestino = (int) (ALTO_CUADRO * ESCALA);
+
+                            if (e.getDireccion() == Direccion.DERECHA && fila == 1) {
+                                g2d.drawImage(hojaMuerte,
+                                        ex + anchoDestino, ey, ex, ey + altoDestino,
+                                        srcX1, srcY1, srcX2, srcY2, this);
+                            } else {
+                                g2d.drawImage(hojaMuerte, ex, ey, ex + anchoDestino, ey + altoDestino, srcX1, srcY1, srcX2, srcY2, this);
+                            }
+                        }
+
                 }
-            }
             }
         }
     }
+
+        // RESTAURACION DE LA VISTA
+        g2d.setTransform(transformOriginal);
 
     if (mostrandoFlashback) {
       Image imagenAMostrar;

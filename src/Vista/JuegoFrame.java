@@ -17,7 +17,7 @@ public class JuegoFrame extends JFrame {
 
     public JuegoFrame() {
         setTitle("Silent Cat");
-        setSize(800, 600);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // para que se muestre en pantalla completa
         setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
 
         cardLayout = new CardLayout();
@@ -60,6 +60,15 @@ public class JuegoFrame extends JFrame {
 
         mostrarPantalla("nivel");
         SwingUtilities.invokeLater(() -> nivelPanel.requestFocusInWindow());
+
+        // -- CARGA DEL MAPA DE COLISION --
+        Modelo.MapaColision mapa = new Modelo.MapaColision();
+        mapa.cargar("src/Recursos/Mapas/primer_piso.txt");
+        nivelPanel.setMapaColision(mapa);
+
+        // el personaje se encuentra en la entrada de la casa
+        personaje.setPosicionX(19 * 32);
+        personaje.setPosicionY(19 * 32);
     }
 
 

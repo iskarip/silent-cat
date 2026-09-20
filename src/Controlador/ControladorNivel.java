@@ -143,24 +143,27 @@ public class ControladorNivel {
         temporizadorAtaque.start();
     }
 
-    // Mueve el personaje impidiendo que salga del recuadro
+    // Movimiento del personaje - mapaColision
     private void moverConLimites(Personaje personaje, int deltaX, int deltaY) {
-        int nuevoX = personaje.getPosicionX() + deltaX;
-        int nuevoY = personaje.getPosicionY() + deltaY;
+        int nuevoX = personaje.getPosicionX();
+        int nuevoY = personaje.getPosicionY();
+        Modelo.MapaColision mapa = vista.getMapaColision();
 
-        // Calculamos la hitbox proyectada a donde se quiere mover
-        Rectangle hbFutura = vista.getHitbox(nuevoX, nuevoY);
+        // Validacion del avance horizontal
+        int intentoX = nuevoX + deltaX;
+        Rectangle hbX = vista.getHitbox(intentoX, nuevoY);
 
-        // 1. Límites contra los bordes de la ventana
-        if (hbFutura.x < 0 || (hbFutura.x + hbFutura.width) > vista.getWidth()) {
-            nuevoX = personaje.getPosicionX(); // Cancela movimiento horizontal
-        }
-        if (hbFutura.y < 0 || (hbFutura.y + hbFutura.height) > vista.getHeight()) {
-            nuevoY = personaje.getPosicionY(); // Cancela movimiento vertical
+        if(mapa == null || mapa.esRectanguloValido(hbX.x, hbX.y, hbX.width, hbX.height )) {
+            personaje.setPosicionX(intentoX);
         }
 
-        personaje.setPosicionX(nuevoX);
-        personaje.setPosicionY(nuevoY);
+        // Validacion del avance vertical
+        int intentoY = nuevoY + deltaY;
+        Rectangle hbY = vista.getHitbox(personaje.getPosicionX(), intentoY);
+        if (mapa == null || mapa.esRectanguloValido(hbY.x, hbY.y, hbY.width, hbY.height)) {
+            personaje.setPosicionY(intentoY);
+        }
+
     }
 
     public void reiniciarEstado() {

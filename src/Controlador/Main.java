@@ -1,4 +1,5 @@
-package Vista;
+package Controlador;
+import Vista.JuegoFrame; // cambiado a import
 
 public class Main {
     public static void main (String [] args) {
@@ -7,3 +8,4 @@ public class Main {
         //la ventana del juego se abre automatico.
     }
 }
+

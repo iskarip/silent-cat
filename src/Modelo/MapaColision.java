@@ -34,7 +34,11 @@ public class MapaColision {
         for (int f = 0; f < filas; f++) {
             String linea = lineas.get(f);
             for (int c = 0; c < columnas; c++) {
-                mapa[f][c] = (linea.charAt(c) == '0');
+                if (c < linea.length()) {
+                    mapa[f][c] = (linea.charAt(c) == '0');
+                } else {
+                    mapa[f][c] = false;
+                }
             }
         }
     }
