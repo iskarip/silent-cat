@@ -6,7 +6,6 @@ import Modelo.Linterna;
 import Modelo.Personaje;
 
 import javax.swing.*;
-import java.awt.*;
 
 /*La pantalla que definimos donde el usuario va a elegir
 con que personaje (hombre o mujer) va a ir a buscar al gato. */

@@ -10,8 +10,8 @@ public class Habitacion extends EspacioBase{
     private int puntoAccesoX, puntoAccesoY; // dónde aparece el personaje DENTRO del cuarto (sirve para entrar Y salir)
 
     //-- CONSTRUCTOR --
-    public Habitacion(String nombreHabitacion,  Acertijo acertijo, String rutaGrid, int puertaX, int puertaY, int puntoAccesoX, int puntoAccesoY) {
-        super(rutaGrid);
+    public Habitacion(String nombreHabitacion,  Acertijo acertijo, String rutaGrid, String rutaImagenFondo, int puertaX, int puertaY, int puntoAccesoX, int puntoAccesoY) {
+        super(rutaGrid , rutaImagenFondo);
         this.nombreHabitacion = nombreHabitacion;
         this.puertaX = puertaX;
         this.puertaY = puertaY;

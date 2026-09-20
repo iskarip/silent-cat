@@ -11,6 +11,7 @@ public class Nivel extends EspacioBase {
     private Acertijo acertijoNivel; 
     private List<Enemigo> listaEnemigos; // cada nivel puede tener varios enemigos, pero por ahora solo vamos a usar uno
     private List<Habitacion> habitaciones; // cada nivel puede tener varias habitaciones, pero por ahora solo vamos a usar una
+    private String rutaSpritesEnemigos;
     private boolean nivelSuperado;
     private boolean checkpoint; //va a ser una bandera, si es falso no se activa, verdadero activado
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
@@ -19,8 +20,8 @@ public class Nivel extends EspacioBase {
 
 //--CONSTRUCTOR--
 
-public Nivel (int numeroNivel, Acertijo acertijoNivel, String rutaGrid){ //aca va a marcar error hasta que este definida la clase acertijo
-    super(rutaGrid);
+public Nivel (int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String rutaImagenFondo){ //aca va a marcar error hasta que este definida la clase acertijo
+    super(rutaGrid, rutaImagenFondo);
     this.numeroNivel= numeroNivel;
     this.acertijoNivel = acertijoNivel;
     this.nivelSuperado = false;
@@ -59,6 +60,14 @@ public Nivel (int numeroNivel, Acertijo acertijoNivel, String rutaGrid){ //aca v
         if (h != null) {
             this.habitaciones.add(h);
         }
+    }
+
+        public void setRutaSpritesEnemigos(String ruta) {
+        this.rutaSpritesEnemigos = ruta;
+    }
+
+    public String getRutaSpritesEnemigos() {
+        return rutaSpritesEnemigos;
     }
 
 

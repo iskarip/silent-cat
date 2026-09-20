@@ -1,6 +1,9 @@
 package Controlador;
 
 import Modelo.Personaje;
+import Modelo.Partida;
+import Modelo.Nivel;
+import Vista.GestorSprites;
 import Vista.Direccion;
 import Vista.EstadoPersonaje;
 import Vista.NivelPanel;
@@ -11,7 +14,6 @@ import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.Timer;
-import java.util.List;
 
 public class ControladorNivel {
 
@@ -164,6 +166,18 @@ public class ControladorNivel {
             personaje.setPosicionY(intentoY);
         }
 
+    }
+
+    public void iniciarNivel(Personaje personaje, GestorSprites sprites, NivelPanel vistaPanel) {
+        Partida.getInstancia().iniciarPartida(1);
+        Nivel nivelActual = Partida.getInstancia().getNivelActual();
+
+        vistaPanel.setPersonaje(personaje);
+        vistaPanel.setGestorSprites(sprites);
+        vistaPanel.setNivelActual(nivelActual);
+        vistaPanel.setMapaColision(nivelActual.getMapaColision());
+        personaje.setPosicionX(19 * 32);
+        personaje.setPosicionY(19 * 32);
     }
 
     public void reiniciarEstado() {

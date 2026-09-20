@@ -15,7 +15,7 @@ private int radioDeteccion = 200; // distancia en pixeles a la que "nota" al jug
 private boolean alertado = false; // si ya vio al jugador o no
 private int ticksEnfriamientoAtaque = 0; // cuenta atrás hasta que pueda volver a atacar
 private static final int ENFRIAMIENTO_ATAQUE = 60; // ticks de espera entre golpe y golpe
-
+   
 private Direccion direccion = Direccion.ABAJO;
 private int spawnX;
 private int spawnY;
@@ -35,7 +35,7 @@ private int contadorTickAnimacionMuerte = 0;
 //--CONSTRUCTOR--
 
 
-public Enemigo(int puntosVida, int danioBase, int idEnemigo, int xInicial, int yInicial){
+public Enemigo( int puntosVida, int danioBase, int idEnemigo, int xInicial, int yInicial){
 super(puntosVida);
     this.danioBase= danioBase;
     this.idEnemigo= idEnemigo;
@@ -216,5 +216,6 @@ public void actualizarComportamiento (Personaje jugador, boolean linternaEncendi
         patrullar();
     }
 }
+
 
 }

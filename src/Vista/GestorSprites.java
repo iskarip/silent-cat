@@ -1,6 +1,9 @@
 package Vista;
 
 import javax.imageio.ImageIO;
+
+import Modelo.Enemigo;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
