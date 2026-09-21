@@ -1,4 +1,4 @@
-package Vista;
+package Modelo;
 
 public enum Direccion {
     ABAJO(0),

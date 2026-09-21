@@ -20,6 +20,10 @@ public class ControladorCombate {
         // TODO 1: chequear personaje.puedeAtacar() — si no puede, return acá y listo
         //         (nada de animación ni de daño mientras esté en cooldown)
 
+        if (temporizadorAtaque != null && temporizadorAtaque.isRunning()) {
+            return;
+        }
+
         // TODO 2: registrar el uso del arma (personaje.registrarAtaque())
         //         ¿antes o después de calcular el hitbox? pensalo en términos de
         //         "una vez por swing, no una vez por enemigo golpeado"
@@ -29,6 +33,24 @@ public class ControladorCombate {
         // TODO 3: calcular el hitbox de ataque con vista.getHitboxAtaque(...)
         //         y recorrer nivelActual.getListaEnemigos(), igual que antes,
         //         pero delegando el daño en personaje.atacar(e)
+
+        Rectangle hitboxGolpe = vista.getHitboxAtaque(personaje.getPosicionX(), personaje.getPosicionY());
+
+        // TODO 4: Evaluar la colision contra cada enemigo vivo
+
+        if (nivelActual.getListaEnemigos() != null) {
+            for (Enemigo enemigo : nivelActual.getListaEnemigos()) {
+                if (enemigo.estaVivo()) {
+                    Rectangle cuerpoEnemigo = vista.getHitboxEnemigo(enemigo);
+                    if (hitboxGolpe.intersects(cuerpoEnemigo)) {
+                        // Delegación polimórfica: el personaje ataca usando su arma
+                        personaje.atacar(enemigo);
+                    }
+                }
+            }
+        }
+
+        // TODO 5: Temporizador con lambda para volver al estado IDLE
 
         iniciarTimerVueltaAIdle(vista);
     }

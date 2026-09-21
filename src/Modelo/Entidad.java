@@ -6,6 +6,7 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
     protected int puntosVida;
     private int posicionX;
     private int posicionY;
+    protected Direccion direccion = Direccion.ABAJO;
 
     // -- CONSTRUCTOR --
     public Entidad (int puntosVida) {
@@ -25,6 +26,10 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
         return posicionY;
     }
 
+    public Direccion getDireccion () {
+        return direccion;
+    }
+
     public void setPosicionX(int posicionX) {
         this.posicionX = posicionX;
     }
@@ -42,6 +47,10 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
             this.puntosVida = puntosVida;
         }
 
+    }
+
+    public void setDireccion(Direccion direccion) {
+        this.direccion = direccion;
     }
 
     // -- METODOS --

@@ -2,116 +2,98 @@ package Controlador;
 
 import Modelo.Partida;
 import Modelo.Nivel;
-import Modelo.Enemigo;
-import Modelo.MapaColision;
+import Modelo.Personaje;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
-import Vista.Direccion;
 import Vista.EstadoPersonaje;
-import Vista.GestorSprites;
 
-import java.awt.Rectangle;
 import javax.swing.Timer;
 
 public class ControladorNivel {
 
+    // -- ATRIBUTOS --
+
     private final Partida partida;
     private final NivelPanel vista;
-    
+    private final JuegoFrame ventanaPrincipal;
+
     private final ControladorTeclado controladorTeclado;
     private final ControladorMovimiento controladorMovimiento;
     private final ControladorCombate controladorCombate;
     private final ControladorEnemigos controladorEnemigos;
+
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
     private boolean pausado = false;
 
-    public ControladorNivel(Partida partida, NivelPanel vista) {
+    // -- CONTROLADOR --
+
+    public ControladorNivel(Partida partida, NivelPanel vista, JuegoFrame ventanaPrincipal) {
         this.partida = partida;
         this.vista = vista;
+        this.ventanaPrincipal = ventanaPrincipal;
 
-        // 1. Instanciación de controladores específicos
+        // Instanciación de controladores específicos
         this.controladorTeclado = new ControladorTeclado();
         this.controladorMovimiento = new ControladorMovimiento();
         this.controladorCombate = new ControladorCombate();
         this.controladorEnemigos = new ControladorEnemigos();
 
-        // 2. Conexión de acciones únicas de teclado
+        // Conexión de acciones únicas de teclado
         this.controladorTeclado.setAccionAtaque(this::atacar);
         this.controladorTeclado.setAccionDebugFlashback(this::probarFlashback);
 
-        // 3. Registrar el listener de teclado en la vista
+        // Registrar el listener de teclado en la vista
         this.vista.addKeyListener(controladorTeclado);
 
-        // 4. Configuración del Game Loop (60 FPS)
-        configurarBucle();
+        // Configurar botones de pausa con lambdas
+        configurarBotonesPausa();
+
+        // Configurar el Game Loop a 60 FPS 816 milisegundos)
+        this.bucleDeJuego = new Timer(16, e -> actualizarJuego());
     }
 
-    private void configurarBucle() {
-        bucleDeJuego = new Timer(16, e -> actualizarJuego());
+    // -- METODOS --
+
+    private void configurarBotonesPausa() {
+        vista.getBotonPausa().addActionListener(e -> pausarJuego());
+        vista.getBotonReanudar().addActionListener(e -> volverAlMenu());
+        vista.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
     }
 
-
-    // Método para arrancar el nivel desde ControladorPrincipal
-
+    // -- CONTROL DE EJECUCION DEL NIVEL --
     public void iniciar() {
-    reiniciarEstado();
-    sincronizarModeloConVista();
-    bucleDeJuego.start();
-    
-    // Garantiza que Swing otorgue el foco de entrada al panel
-    javax.swing.SwingUtilities.invokeLater(() -> {
-        vista.requestFocusInWindow();
-    });
+        reiniciarEstado();
+        sincronizarModeloConVista();
+        bucleDeJuego.start();
     }
 
-    // Método para pausar o detener el bucle si volvemos al menú
-    public void detener() {
+        // Pausar o detener el bucle si volvemos al menú
+    public void detener () {
         if (bucleDeJuego != null) {
             bucleDeJuego.stop();
         }
     }
 
-    // -- UN METODO ABSTRACTO POR BOTON --
-    // Se utiliza LAMDBA
-
-    private void configurarBotonesPausa () {
-        vista.getBotonPausa().addActionListener (e -> pausarJuego());
-        vista.getBotonReanudar().addActionListener ( e-> volverAlMenu());
-        vista.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
-    }
-
-    private void pausarJuego() {
+    private void pausarJuego () {
         pausado = true;
         vista.mostrarPausa();
     }
 
-    private void reanudarJuego() {
+    private void reanudarJuego () {
         pausado = false;
         vista.ocultarPausa();
         vista.requestFocusInWindow(); // recupera el foco para el teclado
     }
 
-    private void volverAlMenu() {
+    private void volverAlMenu () {
         pausado = false;
         vista.ocultarPausa();
         ventanaPrincipal.mostrarPantalla("menu");
     }
 
-    private void iniciarBucle() {
-        bucleDeJuego = new Timer (16, e -> actualizarMovimiento());
-        bucleDeJuego.start();
-    }
+    // -- SINCRONIZACIÓN Y CICLO PRINCIPAL (MVC) --
 
-    private void actualizarMovimiento() {
-
-        if (pausado) return; // mientras este pausado, el personaje no se mueve
-
-        Personaje personaje = vista.getPersonaje();
-        if (personaje == null) return;
-    }
-
-    // Carga los datos actuales de Partida hacia NivelPanel
     private void sincronizarModeloConVista() {
         Nivel nivelActual = partida.getNivelActual();
         Personaje personaje = partida.getPersonaje();
@@ -127,55 +109,62 @@ public class ControladorNivel {
     }
 
     private void actualizarJuego() {
+        if (pausado) return;
+
         Personaje personaje = partida.getPersonaje();
         Nivel nivelActual = partida.getNivelActual();
 
         if (personaje == null || nivelActual == null) return;
 
-        // 1. Muerte del personaje
+        // 1. Estado de muerte del protagonista
         if (!personaje.estaVivo()) {
             if (!personajeMuerto) {
                 personajeMuerto = true;
-                System.out.println("El personaje murio.");
+                System.out.println("El personaje murió.");
                 vista.setEstado(EstadoPersonaje.MURIENDO);
             }
             vista.avanzarAnimacionMuerte();
             vista.repaint();
             return;
-            }
+        }
 
-        // 2. DELEGACIÓN DEL MOVIMIENTO AL CONTROLADOR ESPECÍFICO
+        // 2. Delegación del movimiento al controlador especializado
         controladorMovimiento.procesarMovimientoJugador(
-            personaje, 
-            nivelActual.getMapaColision(), 
-            controladorTeclado, 
-            vista
+                personaje,
+                nivelActual.getMapaColision(),
+                controladorTeclado,
+                vista
         );
 
-        // 3. IA de todos los enemigos (lógica original intacta)
-        
+        // 3. IA y actualización de los enemigos
         if (nivelActual.getListaEnemigos() != null) {
             controladorEnemigos.actualizar(nivelActual, personaje, vista);
         }
 
-        // 4. Redibujar la vista
+        // 4. Redibujado en pantalla
         vista.repaint();
     }
 
+    // -- ACCIONES --
+
     private void atacar() {
-    controladorCombate.ejecutarAtaque(partida.getPersonaje(), partida.getNivelActual(), vista);
+        if (!pausado && !personajeMuerto) {
+            controladorCombate.ejecutarAtaque(partida.getPersonaje(), partida.getNivelActual(), vista);
+        }
     }
 
-     private void probarFlashback() {
+    private void probarFlashback() {
+        if (pausado) return;
         if (partida.getNivelActual() != null && partida.getNivelActual().getGato() != null) {
             vista.activarFlashbackGato();
-        } else {
-            vista.activarFlashbackPrueba();
         }
     }
 
     public void reiniciarEstado() {
         personajeMuerto = false;
+        pausado = false;
         controladorTeclado.limpiarTeclas();
+        vista.reiniciarEstadoNivel();
     }
 }
+

@@ -1,10 +1,6 @@
 package Vista;
 
-import Modelo.Gato;
-import Modelo.Nivel;
-import Modelo.Personaje;
-import Modelo.Enemigo;
-import Modelo.MapaColision;
+import Modelo.*;
 
 import java.awt.geom.AffineTransform;
 import java.util.List;
@@ -47,9 +43,9 @@ public class NivelPanel extends JPanel {
     private int ticksMuerte = 0;
     private boolean gameOverMostrado = false;
 
-<<<<<<< HEAD
+
     // --- CONSTANTES DE RENDERIZADO ---
-=======
+
     // -- BOTONES PARA PAUSAR PARTIDA, REANUDAR y VOLVER AL MENU --
 
     private JButton botonPausa;
@@ -57,7 +53,6 @@ public class NivelPanel extends JPanel {
     private JButton botonReanudar;
     private JButton botonMenuPrincipal;
 
->>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
     public static final double ESCALA = 2.5;
     public static final int ANCHO_CUADRO = 48;
     public static final int ALTO_CUADRO = 48;
@@ -137,27 +132,6 @@ public class NivelPanel extends JPanel {
         }
     }
 
-<<<<<<< HEAD
-    public JButton getBotonVolverMenu() { return botonVolverMenu; }
-=======
-    public void setEstado(EstadoPersonaje estado) {
-        this.estadoActual = estado;
-        repaint();
-    }
-
-    public void setDireccion(Direccion direccion) {
-        this.direccionActual = direccion;
-    }
-
-    public void setMapaColision(Modelo.MapaColision mapaColision) {
-        this.mapaColision = mapaColision;
-        repaint();
-    }
-
-    public Modelo.MapaColision getMapaColision () {
-        return this.mapaColision;
-    }
-
     public JButton getBotonPausa(){
         return botonPausa;
     }
@@ -187,7 +161,7 @@ public class NivelPanel extends JPanel {
     }
 
     // --- ANIMACIÓN ---
->>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
+
 
     // --- MANEJO DE ANIMACIONES DE SPRITES ---
     public void actualizarAnimacion(boolean moviendose) {
@@ -238,9 +212,9 @@ public class NivelPanel extends JPanel {
         botonVolverMenu.setVisible(false);
     }
 
-<<<<<<< HEAD
+
     // --- DELIMITACIÓN DE HITBOXES PARA RENDERIZADO / FÍSICA ---
-=======
+
     private void crearPanelPausa () {
         panelPausa = new JPanel();
         panelPausa.setLayout(new GridLayout(2, 1, 0, 10));
@@ -260,7 +234,7 @@ public class NivelPanel extends JPanel {
     // --- HITBOXES ---
 
     // Hitbox en los pies del personaje
->>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
+
     public Rectangle getHitbox(int x, int y) {
         int anchoHitbox = (int) (16 * ESCALA);
         int altoHitbox = (int) (10 * ESCALA);
@@ -372,7 +346,8 @@ public class NivelPanel extends JPanel {
                     BufferedImage hojaEnemigo = spritesEnemigo.obtener(estadoEnemigo);
 
                     if (hojaEnemigo != null) {
-                        int frame = e.getCuadroAnimacion() % 6;
+                        // El cuadro de animación lo calcula la vista con su contadorTick
+                        int frame = (contadorTick / 6) % 6;
                         int fila = e.getDireccion().getFila();
 
                         int srcX1 = frame * ANCHO_CUADRO;
@@ -384,44 +359,27 @@ public class NivelPanel extends JPanel {
                         int altoDestino = (int) (ALTO_CUADRO * ESCALA);
 
                         if (e.getDireccion() == Direccion.DERECHA && fila == 1) {
-                            g2d.drawImage(hojaEnemigo, ex + anchoDestino, ey, ex, ey + altoDestino, srcX1, srcY1, srcX2, srcY2, this);
+                            g2d.drawImage(hojaEnemigo,
+                                    ex + anchoDestino, ey, ex, ey + altoDestino,
+                                    srcX1, srcY1, srcX2, srcY2, this);
                         } else {
-                            g2d.drawImage(hojaEnemigo, ex, ey, ex + anchoDestino, ey + altoDestino, srcX1, srcY1, srcX2, srcY2, this);
+                            g2d.drawImage(hojaEnemigo,
+                                    ex, ey, ex + anchoDestino, ey + altoDestino,
+                                    srcX1, srcY1, srcX2, srcY2, this);
                         }
                     }
 
+                    // Barra de vida
                     int anchoBarra = (int) (20 * ESCALA);
                     g2d.setColor(Color.BLACK);
                     g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
                     g2d.setColor(Color.RED);
                     int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
                     g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
-                } else {
-                    int totalFramesMuerte = obtenerTotalFramesMuerte(spritesEnemigo);
-                    if (!e.animacionMuerteTerminada(totalFramesMuerte)) {
-                        BufferedImage hojaMuerte = spritesEnemigo.obtener(EstadoPersonaje.MURIENDO);
-                        if (hojaMuerte != null) {
-                            int frame = e.getCuadroAnimacionMuerte();
-                            int fila = e.getDireccion().getFila();
-
-                            int srcX1 = frame * ANCHO_CUADRO;
-                            int srcY1 = fila * ALTO_CUADRO;
-                            int srcX2 = srcX1 + ANCHO_CUADRO;
-                            int srcY2 = srcY1 + ALTO_CUADRO;
-
-                            int anchoDestino = (int) (ANCHO_CUADRO * ESCALA);
-                            int altoDestino = (int) (ALTO_CUADRO * ESCALA);
-
-                            if (e.getDireccion() == Direccion.DERECHA && fila == 1) {
-                                g2d.drawImage(hojaMuerte, ex + anchoDestino, ey, ex, ey + altoDestino, srcX1, srcY1, srcX2, srcY2, this);
-                            } else {
-                                g2d.drawImage(hojaMuerte, ex, ey, ex + anchoDestino, ey + altoDestino, srcX1, srcY1, srcX2, srcY2, this);
-                            }
-                        }
-                    }
                 }
             }
         }
+
 
         // RESTAURAR COORDENADAS ORIGINALES (PRE-CÁMARA)
         g2d.setTransform(transformOriginal);

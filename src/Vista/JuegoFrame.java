@@ -5,8 +5,8 @@ import java.awt.*;
 
 public class JuegoFrame extends JFrame {
 
-    private CardLayout cardLayout;
-    private JPanel panelContenedor;
+    private  CardLayout cardLayout;
+    private  JPanel panelContenedor;
 
     private MenuPanel menuPanel;
     private SeleccionPersonajePanel seleccionPersonajePanel;
@@ -24,23 +24,22 @@ public class JuegoFrame extends JFrame {
         menuPanel = new MenuPanel();
         seleccionPersonajePanel = new SeleccionPersonajePanel();
         nivelPanel = new NivelPanel();
-<<<<<<< HEAD
 
+        // Instanciación exclusiva de  paneles
+        menuPanel = new MenuPanel();
+        seleccionPersonajePanel = new SeleccionPersonajePanel();
+        nivelPanel = new NivelPanel();
+
+        //Registro en el CardLayout
         panelContenedor.add(menuPanel, "menu");
         panelContenedor.add(seleccionPersonajePanel, "seleccion");
-=======
-        nivelPanel.setVentanaPrincipal(this);
-        controladorNivel = new ControladorNivel(nivelPanel, this); // se arma el controlador junto con la vista
-        new ControladorNivel(nivelPanel, this);
->>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
         panelContenedor.add(nivelPanel, "nivel");
-
-
 
         add(panelContenedor);
         setVisible(true);
     }
 
+    // Alternar entre pantallas mediante CardLayout
     public void mostrarPantalla(String pantalla) {
         cardLayout.show(panelContenedor, pantalla);
         if ("nivel".equals(pantalla)) {

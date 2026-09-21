@@ -13,7 +13,7 @@ package Modelo;
 
 public class Personaje extends Entidad {
 
-// -- ATRIBUTOS --
+    // -- ATRIBUTOS --
 
     private String nombrePersonaje;
 

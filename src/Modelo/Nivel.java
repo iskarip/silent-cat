@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Nivel extends EspacioBase {
-    
+
 //--ATRIBUTOS--
 
-    private int posicionInicialX;
-    private int posicionInicialY;
     private int numeroNivel;
-    private Acertijo acertijoNivel; 
+    private Acertijo acertijoNivel;
     private List<Enemigo> listaEnemigos; // cada nivel puede tener varios enemigos, pero por ahora solo vamos a usar uno
     private List<Habitacion> habitaciones; // cada nivel puede tener varias habitaciones, pero por ahora solo vamos a usar una
     private String rutaSpritesEnemigos;
@@ -22,21 +20,91 @@ public class Nivel extends EspacioBase {
 
 //--CONSTRUCTOR--
 
-public Nivel (int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String rutaImagenFondo, int posicionInicialX, int posicionInicialY){ //aca va a marcar error hasta que este definida la clase acertijo
-    super(rutaGrid, rutaImagenFondo, posicionInicialX, posicionInicialY);
-    this.numeroNivel= numeroNivel;
-    this.acertijoNivel = acertijoNivel;
-    this.nivelSuperado = false;
-    this.checkpoint = false; //arranca desactivado por defecto
-    this.habitaciones = new ArrayList<>();
-    this.listaEnemigos = new ArrayList<>();
-}
+    public Nivel(int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String rutaImagenFondo, int posicionInicialX, int posicionInicialY) { //aca va a marcar error hasta que este definida la clase acertijo
+        super(rutaGrid, rutaImagenFondo, posicionInicialX, posicionInicialY);
+        this.numeroNivel = numeroNivel;
+        this.acertijoNivel = acertijoNivel;
+        this.nivelSuperado = false;
+        this.checkpoint = false; //arranca desactivado por defecto
+        this.habitaciones = new ArrayList<>();
+        this.listaEnemigos = new ArrayList<>();
+    }
+
+    //--SET Y GET--
+
+    public int getPosicionInicialX() {
+        return posicionInicialX;
+    }
+
+    public int getPosicionInicialY() {
+        return posicionInicialY;
+    }
+
+    public boolean getNivelSuperado() {
+        return this.nivelSuperado;
+    }
+
+    public void setNivelSuperado(boolean nivelSuperado) {
+        this.nivelSuperado = nivelSuperado;
+    }
+
+    public boolean getCheckpoint() {
+        return this.checkpoint;
+    }
+
+    public int getNumeroNivel() {
+        return this.numeroNivel;
+    }
+
+    public Acertijo getAcertijo() {
+        return this.acertijoNivel;
+    }
+
+    public List<Enemigo> getListaEnemigos() {
+        return this.listaEnemigos;
+    }
+
+    public void setGato(Gato gato) {
+        this.gato = gato;
+    }
+
+    public Gato getGato() {
+        return this.gato;
+    }// puede devolver null si el nivel no tiene gato
+
+    public List<Habitacion> getHabitaciones() {
+        return this.habitaciones;
+    }
+
+    public int getAccesoSiguienteNivelX() {
+        return accesoSiguienteNivelX;
+    }
+
+    public void setAccesoSiguienteNivelX(int accesoSiguienteNivelX) {
+        this.accesoSiguienteNivelX = accesoSiguienteNivelX;
+    }
+
+    public int getAccesoSiguienteNivelY() {
+        return accesoSiguienteNivelY;
+    }
+
+    public void setAccesoSiguienteNivelY(int accesoSiguienteNivelY) {
+        this.accesoSiguienteNivelY = accesoSiguienteNivelY;
+    }
+
+    public void setRutaSpritesEnemigos(String ruta) {
+        this.rutaSpritesEnemigos = ruta;
+    }
+
+    public String getRutaSpritesEnemigos() {
+        return rutaSpritesEnemigos;
+    }
 
 //--METODOS--
 
-    public void guardarCheckpoint(){
+    public void guardarCheckpoint() {
         this.checkpoint = true;
-        System.out.println("Checkpoint activado en el nivel "+ this.numeroNivel + "!!!");
+        System.out.println("Checkpoint activado en el nivel " + this.numeroNivel + "!!!");
     }
 
     public void agregarEnemigo(Enemigo e) {
@@ -55,58 +123,13 @@ public Nivel (int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String r
     public boolean verificarSiCompleto() {
         boolean acertijoOk = acertijoNivel.getResuelto();
         boolean gatoOk = (gato == null) || gato.getEncontrado();
-    return acertijoOk && gatoOk;
+        return acertijoOk && gatoOk;
     }
 
     public void agregarHabitacion(Habitacion h) {
         if (h != null) {
             this.habitaciones.add(h);
         }
-    }
-
-        public void setRutaSpritesEnemigos(String ruta) {
-        this.rutaSpritesEnemigos = ruta;
-    }
-
-    public String getRutaSpritesEnemigos() {
-        return rutaSpritesEnemigos;
-    }
-
-
-//--SET Y GET--
-
-    public int getPosicionInicialX() { return posicionInicialX; }
-
-    public int getPosicionInicialY() { return posicionInicialY; }
-
-    public boolean getNivelSuperado() { return this.nivelSuperado; }
-
-    public void setNivelSuperado(boolean nivelSuperado) { this.nivelSuperado = nivelSuperado;}
-
-    public boolean getCheckpoint(){ return this.checkpoint;}
-
-    public int getNumeroNivel() {return this.numeroNivel; }
-
-    public Acertijo getAcertijo() { return this.acertijoNivel; }
-
-    public List<Enemigo> getListaEnemigos() { return this.listaEnemigos; } 
-
-    public void setGato(Gato gato) { this.gato = gato;}
-
-    public Gato getGato() { return this.gato; }// puede devolver null si el nivel no tiene gato
-   
-    public List<Habitacion> getHabitaciones() { return this.habitaciones; }
-
-    public int getAccesoSiguienteNivelX() { return accesoSiguienteNivelX; }
-
-    public void setAccesoSiguienteNivelX(int accesoSiguienteNivelX) { 
-        this.accesoSiguienteNivelX = accesoSiguienteNivelX;
-    }
-
-    public int getAccesoSiguienteNivelY() { return accesoSiguienteNivelY; }
-
-    public void setAccesoSiguienteNivelY(int accesoSiguienteNivelY) {
-        this.accesoSiguienteNivelY = accesoSiguienteNivelY;
     }
 
 }

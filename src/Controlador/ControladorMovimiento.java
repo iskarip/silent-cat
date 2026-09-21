@@ -2,7 +2,7 @@ package Controlador;
 
 import Modelo.MapaColision;
 import Modelo.Personaje;
-import Vista.Direccion;
+import Modelo.Direccion;
 import Vista.EstadoPersonaje;
 import Vista.NivelPanel;
 
