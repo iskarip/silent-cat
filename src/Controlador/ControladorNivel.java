@@ -2,16 +2,11 @@ package Controlador;
 
 import Modelo.Partida;
 import Modelo.Nivel;
-<<<<<<< HEAD
-import Modelo.Personaje;
-import Modelo.Enemigo;
-=======
 import Modelo.Enemigo;
 import Modelo.MapaColision;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.Direccion;
->>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
 import Vista.EstadoPersonaje;
 import Vista.GestorSprites;
 
@@ -22,22 +17,15 @@ public class ControladorNivel {
 
     private final Partida partida;
     private final NivelPanel vista;
-<<<<<<< HEAD
     
     private final ControladorTeclado controladorTeclado;
     private final ControladorMovimiento controladorMovimiento;
     private final ControladorCombate controladorCombate;
     private final ControladorEnemigos controladorEnemigos;
-
-=======
-    private final JuegoFrame ventanaPrincipal;
-    private final Set<Integer> teclasPresionadas = new HashSet<>();
->>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
     private boolean pausado = false;
 
-<<<<<<< HEAD
     public ControladorNivel(Partida partida, NivelPanel vista) {
         this.partida = partida;
         this.vista = vista;
@@ -57,21 +45,13 @@ public class ControladorNivel {
 
         // 4. Configuración del Game Loop (60 FPS)
         configurarBucle();
-=======
-    public ControladorNivel(NivelPanel vista, JuegoFrame ventanaPrincipal) {
-        this.vista = vista;
-        this.ventanaPrincipal = ventanaPrincipal;
-        configurarTeclas();
-        configurarBotonesPausa();
-        iniciarBucle();
->>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
     }
 
     private void configurarBucle() {
         bucleDeJuego = new Timer(16, e -> actualizarJuego());
     }
 
-<<<<<<< HEAD
+
     // Método para arrancar el nivel desde ControladorPrincipal
 
     public void iniciar() {
@@ -91,7 +71,7 @@ public class ControladorNivel {
             bucleDeJuego.stop();
         }
     }
-=======
+
     // -- UN METODO ABSTRACTO POR BOTON --
     // Se utiliza LAMDBA
 
@@ -129,7 +109,7 @@ public class ControladorNivel {
 
         Personaje personaje = vista.getPersonaje();
         if (personaje == null) return;
->>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
+    }
 
     // Carga los datos actuales de Partida hacia NivelPanel
     private void sincronizarModeloConVista() {
@@ -162,7 +142,7 @@ public class ControladorNivel {
             vista.avanzarAnimacionMuerte();
             vista.repaint();
             return;
-        }
+            }
 
         // 2. DELEGACIÓN DEL MOVIMIENTO AL CONTROLADOR ESPECÍFICO
         controladorMovimiento.procesarMovimientoJugador(
