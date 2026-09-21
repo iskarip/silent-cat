@@ -3,10 +3,13 @@ package Controlador;
 import Modelo.Personaje;
 import Modelo.Partida;
 import Modelo.Nivel;
-import Vista.GestorSprites;
+import Modelo.Enemigo;
+import Modelo.MapaColision;
+import Vista.JuegoFrame;
+import Vista.NivelPanel;
 import Vista.Direccion;
 import Vista.EstadoPersonaje;
-import Vista.NivelPanel;
+import Vista.GestorSprites;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -18,14 +21,18 @@ import javax.swing.Timer;
 public class ControladorNivel {
 
     private final NivelPanel vista;
+    private final JuegoFrame ventanaPrincipal;
     private final Set<Integer> teclasPresionadas = new HashSet<>();
     private Timer bucleDeJuego;
     private Timer temporizadorAtaque;
     private boolean personajeMuerto = false;
+    private boolean pausado = false;
 
-    public ControladorNivel(NivelPanel vista) {
+    public ControladorNivel(NivelPanel vista, JuegoFrame ventanaPrincipal) {
         this.vista = vista;
+        this.ventanaPrincipal = ventanaPrincipal;
         configurarTeclas();
+        configurarBotonesPausa();
         iniciarBucle();
     }
 
@@ -55,12 +62,41 @@ public class ControladorNivel {
         });
     }
 
+    // -- UN METODO ABSTRACTO POR BOTON --
+    // Se utiliza LAMDBA
+
+    private void configurarBotonesPausa () {
+        vista.getBotonPausa().addActionListener (e -> pausarJuego());
+        vista.getBotonReanudar().addActionListener ( e-> volverAlMenu());
+        vista.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
+    }
+
+    private void pausarJuego() {
+        pausado = true;
+        vista.mostrarPausa();
+    }
+
+    private void reanudarJuego() {
+        pausado = false;
+        vista.ocultarPausa();
+        vista.requestFocusInWindow(); // recupera el foco para el teclado
+    }
+
+    private void volverAlMenu() {
+        pausado = false;
+        vista.ocultarPausa();
+        ventanaPrincipal.mostrarPantalla("menu");
+    }
+
     private void iniciarBucle() {
         bucleDeJuego = new Timer (16, e -> actualizarMovimiento());
         bucleDeJuego.start();
     }
 
     private void actualizarMovimiento() {
+
+        if (pausado) return; // mientras este pausado, el personaje no se mueve
+
         Personaje personaje = vista.getPersonaje();
         if (personaje == null) return;
 

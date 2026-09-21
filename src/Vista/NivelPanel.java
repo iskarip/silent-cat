@@ -76,6 +76,13 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
     private int ticksMuerte = 0;
     private boolean gameOverMostrado = false;
 
+    // -- BOTONES PARA PAUSAR PARTIDA, REANUDAR y VOLVER AL MENU --
+
+    private JButton botonPausa;
+    private JPanel panelPausa;
+    private JButton botonReanudar;
+    private JButton botonMenuPrincipal;
+
     public static final double ESCALA = 2.5;
     public static final int ANCHO_CUADRO = 48;
     public static final int ALTO_CUADRO = 48;
@@ -83,7 +90,10 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
     public NivelPanel() {
         setFocusable(true);
         setDoubleBuffered(true);
-        setLayout(null); 
+        setLayout(null); // posicionamiento libre, para superponer botones al dibujo
+
+        crearBotonPausa();
+        crearPanelPausa();
 
         etiquetaGameOver = new JLabel("GAME OVER", SwingConstants.CENTER);
         etiquetaGameOver.setFont(new Font("Arial", Font.BOLD, 48));
@@ -169,6 +179,34 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
         return this.mapaColision;
     }
 
+    public JButton getBotonPausa(){
+        return botonPausa;
+    }
+
+    public JButton getBotonReanudar (){
+        return botonReanudar;
+    }
+
+    public JButton getBotonMenuPrincipal() {
+        return botonMenuPrincipal;
+    }
+
+    public void mostrarPausa () {
+        panelPausa.setVisible(true);
+    }
+
+    public void ocultarPausa () {
+        panelPausa.setVisible(false);
+    }
+
+    // -- BOTONES PARA PAUSAR PARTIDA, REANUDAR y VOLVER AL MENU --
+
+    private void crearBotonPausa () {
+        botonPausa = new JButton("PAUSAR");
+        botonPausa.setBounds(700, 10, 90, 35); // ubicacion del boton
+        add (botonPausa);
+    }
+
     // --- ANIMACIÓN ---
 
     public void actualizarAnimacion(boolean moviendose) {
@@ -224,6 +262,22 @@ private java.util.Random random = new java.util.Random(); // para elegir al azar
         estadoActual = EstadoPersonaje.IDLE;
         etiquetaGameOver.setVisible(false);
         botonVolverMenu.setVisible(false);
+    }
+
+    private void crearPanelPausa () {
+        panelPausa = new JPanel();
+        panelPausa.setLayout(new GridLayout(2, 1, 0, 10));
+        panelPausa.setBounds(300, 200, 200, 100);
+        panelPausa.setBackground(new Color(0, 0, 0, 180)); //negro semitransparente
+
+        botonReanudar = new JButton("REANUDAR PARTIDA");
+        botonMenuPrincipal = new JButton("MENU PRINCIPAL");
+
+        panelPausa.add(botonReanudar);
+        panelPausa.add(botonMenuPrincipal);
+
+        panelPausa.setVisible(false);
+        add(panelPausa);
     }
 
     // --- HITBOXES ---

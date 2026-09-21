@@ -30,8 +30,11 @@ public class JuegoFrame extends JFrame {
 
         nivelPanel = new NivelPanel();
         nivelPanel.setVentanaPrincipal(this);
-        controladorNivel = new ControladorNivel(nivelPanel); // se arma el controlador junto con la vista
+        controladorNivel = new ControladorNivel(nivelPanel, this); // se arma el controlador junto con la vista
+        new ControladorNivel(nivelPanel, this);
         panelContenedor.add(nivelPanel, "nivel");
+
+
 
         add(panelContenedor);
 
