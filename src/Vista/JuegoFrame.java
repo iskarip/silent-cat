@@ -24,10 +24,18 @@ public class JuegoFrame extends JFrame {
         menuPanel = new MenuPanel();
         seleccionPersonajePanel = new SeleccionPersonajePanel();
         nivelPanel = new NivelPanel();
+<<<<<<< HEAD
 
         panelContenedor.add(menuPanel, "menu");
         panelContenedor.add(seleccionPersonajePanel, "seleccion");
+=======
+        nivelPanel.setVentanaPrincipal(this);
+        controladorNivel = new ControladorNivel(nivelPanel, this); // se arma el controlador junto con la vista
+        new ControladorNivel(nivelPanel, this);
+>>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
         panelContenedor.add(nivelPanel, "nivel");
+
+
 
         add(panelContenedor);
         setVisible(true);

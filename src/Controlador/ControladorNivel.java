@@ -2,10 +2,18 @@ package Controlador;
 
 import Modelo.Partida;
 import Modelo.Nivel;
+<<<<<<< HEAD
 import Modelo.Personaje;
 import Modelo.Enemigo;
-import Vista.EstadoPersonaje;
+=======
+import Modelo.Enemigo;
+import Modelo.MapaColision;
+import Vista.JuegoFrame;
 import Vista.NivelPanel;
+import Vista.Direccion;
+>>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
+import Vista.EstadoPersonaje;
+import Vista.GestorSprites;
 
 import java.awt.Rectangle;
 import javax.swing.Timer;
@@ -14,15 +22,22 @@ public class ControladorNivel {
 
     private final Partida partida;
     private final NivelPanel vista;
+<<<<<<< HEAD
     
     private final ControladorTeclado controladorTeclado;
     private final ControladorMovimiento controladorMovimiento;
     private final ControladorCombate controladorCombate;
     private final ControladorEnemigos controladorEnemigos;
 
+=======
+    private final JuegoFrame ventanaPrincipal;
+    private final Set<Integer> teclasPresionadas = new HashSet<>();
+>>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
+    private boolean pausado = false;
 
+<<<<<<< HEAD
     public ControladorNivel(Partida partida, NivelPanel vista) {
         this.partida = partida;
         this.vista = vista;
@@ -42,12 +57,21 @@ public class ControladorNivel {
 
         // 4. Configuración del Game Loop (60 FPS)
         configurarBucle();
+=======
+    public ControladorNivel(NivelPanel vista, JuegoFrame ventanaPrincipal) {
+        this.vista = vista;
+        this.ventanaPrincipal = ventanaPrincipal;
+        configurarTeclas();
+        configurarBotonesPausa();
+        iniciarBucle();
+>>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
     }
 
     private void configurarBucle() {
         bucleDeJuego = new Timer(16, e -> actualizarJuego());
     }
 
+<<<<<<< HEAD
     // Método para arrancar el nivel desde ControladorPrincipal
 
     public void iniciar() {
@@ -67,6 +91,45 @@ public class ControladorNivel {
             bucleDeJuego.stop();
         }
     }
+=======
+    // -- UN METODO ABSTRACTO POR BOTON --
+    // Se utiliza LAMDBA
+
+    private void configurarBotonesPausa () {
+        vista.getBotonPausa().addActionListener (e -> pausarJuego());
+        vista.getBotonReanudar().addActionListener ( e-> volverAlMenu());
+        vista.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
+    }
+
+    private void pausarJuego() {
+        pausado = true;
+        vista.mostrarPausa();
+    }
+
+    private void reanudarJuego() {
+        pausado = false;
+        vista.ocultarPausa();
+        vista.requestFocusInWindow(); // recupera el foco para el teclado
+    }
+
+    private void volverAlMenu() {
+        pausado = false;
+        vista.ocultarPausa();
+        ventanaPrincipal.mostrarPantalla("menu");
+    }
+
+    private void iniciarBucle() {
+        bucleDeJuego = new Timer (16, e -> actualizarMovimiento());
+        bucleDeJuego.start();
+    }
+
+    private void actualizarMovimiento() {
+
+        if (pausado) return; // mientras este pausado, el personaje no se mueve
+
+        Personaje personaje = vista.getPersonaje();
+        if (personaje == null) return;
+>>>>>>> c43b50ceca6e743b8bdf2b10671bd222bef00988
 
     // Carga los datos actuales de Partida hacia NivelPanel
     private void sincronizarModeloConVista() {
