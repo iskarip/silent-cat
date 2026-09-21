@@ -6,6 +6,7 @@ import java.util.Map;
 public class Partida {
 
     private static Partida instancia;
+    private Personaje personaje;
 
     private Map<Integer, Nivel> niveles;
     private int numeroNivelActual;
@@ -37,7 +38,7 @@ public class Partida {
     }
 
     public Nivel getNivelActual() {
-        return niveles.get(numeroNivelActual);
+        return niveles.get(numeroNivelActual); // Devuelve el Nivel, o null si la clave no existe en el mapa
     }
 
     public boolean avanzarSiguienteNivel() {
@@ -48,5 +49,8 @@ public class Partida {
         }
         return false;
     }
+
+    public Personaje getPersonaje() { return personaje; }
+    public void setPersonaje(Personaje personaje) { this.personaje = personaje; }
 }
 

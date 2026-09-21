@@ -7,6 +7,8 @@ public class Nivel extends EspacioBase {
     
 //--ATRIBUTOS--
 
+    private int posicionInicialX;
+    private int posicionInicialY;
     private int numeroNivel;
     private Acertijo acertijoNivel; 
     private List<Enemigo> listaEnemigos; // cada nivel puede tener varios enemigos, pero por ahora solo vamos a usar uno
@@ -20,8 +22,8 @@ public class Nivel extends EspacioBase {
 
 //--CONSTRUCTOR--
 
-public Nivel (int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String rutaImagenFondo){ //aca va a marcar error hasta que este definida la clase acertijo
-    super(rutaGrid, rutaImagenFondo);
+public Nivel (int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String rutaImagenFondo, int posicionInicialX, int posicionInicialY){ //aca va a marcar error hasta que este definida la clase acertijo
+    super(rutaGrid, rutaImagenFondo, posicionInicialX, posicionInicialY);
     this.numeroNivel= numeroNivel;
     this.acertijoNivel = acertijoNivel;
     this.nivelSuperado = false;
@@ -73,53 +75,35 @@ public Nivel (int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String r
 
 //--SET Y GET--
 
-    public boolean getNivelSuperado() {
-        return this.nivelSuperado;
-    }
+    public int getPosicionInicialX() { return posicionInicialX; }
 
-    public void setNivelSuperado(boolean nivelSuperado) {
-        this.nivelSuperado = nivelSuperado;
-    }
+    public int getPosicionInicialY() { return posicionInicialY; }
 
-    public boolean getCheckpoint(){
-        return this.checkpoint;
-    }
+    public boolean getNivelSuperado() { return this.nivelSuperado; }
 
-    public int getNumeroNivel() {
-        return this.numeroNivel;
-    }
+    public void setNivelSuperado(boolean nivelSuperado) { this.nivelSuperado = nivelSuperado;}
 
-    public Acertijo getAcertijo() {
-        return this.acertijoNivel;
-    }
+    public boolean getCheckpoint(){ return this.checkpoint;}
 
-    public List<Enemigo> getListaEnemigos() {
-        return this.listaEnemigos;
-    }
+    public int getNumeroNivel() {return this.numeroNivel; }
 
-    public void setGato(Gato gato) {
-        this.gato = gato;
-    }
+    public Acertijo getAcertijo() { return this.acertijoNivel; }
 
-    public Gato getGato() {
-        return this.gato; // puede devolver null si el nivel no tiene gato
-    }
+    public List<Enemigo> getListaEnemigos() { return this.listaEnemigos; } 
 
-    public List<Habitacion> getHabitaciones() {
-        return this.habitaciones;
-    }
+    public void setGato(Gato gato) { this.gato = gato;}
 
-    public int getAccesoSiguienteNivelX() {
-        return accesoSiguienteNivelX;
-    }
+    public Gato getGato() { return this.gato; }// puede devolver null si el nivel no tiene gato
+   
+    public List<Habitacion> getHabitaciones() { return this.habitaciones; }
 
-    public void setAccesoSiguienteNivelX(int accesoSiguienteNivelX) {
+    public int getAccesoSiguienteNivelX() { return accesoSiguienteNivelX; }
+
+    public void setAccesoSiguienteNivelX(int accesoSiguienteNivelX) { 
         this.accesoSiguienteNivelX = accesoSiguienteNivelX;
     }
 
-    public int getAccesoSiguienteNivelY() {
-        return accesoSiguienteNivelY;
-    }
+    public int getAccesoSiguienteNivelY() { return accesoSiguienteNivelY; }
 
     public void setAccesoSiguienteNivelY(int accesoSiguienteNivelY) {
         this.accesoSiguienteNivelY = accesoSiguienteNivelY;

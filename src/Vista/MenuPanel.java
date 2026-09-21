@@ -9,24 +9,24 @@ import java.io.IOException;
 
 public class MenuPanel extends JPanel {
 
-    private JuegoFrame ventanaPrincipal;
     private BufferedImage imagenFondo; // imagen para el menu principal
 
-    public MenuPanel(JuegoFrame ventanaPrincipal) {
-        this.ventanaPrincipal = ventanaPrincipal;
+    private BotonJuego botonNuevaPartida;
+    private BotonJuego botonAjustes;
+    private BotonJuego botonSalir;
+
+    public MenuPanel() {
 
         cargarFondo();
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        BotonJuego botonNuevaPartida = new BotonJuego("/Recursos/UI/Menu/Botones/NuevaPartida.png","/Recursos/UI/Menu/Botones/NuevaPartidaHover.png", "Recursos/Sonidos/UI/sonido3.wav");
-        botonNuevaPartida.addActionListener((e -> ventanaPrincipal.mostrarPantalla("seleccion")));
+        botonNuevaPartida = new BotonJuego("/Recursos/UI/Menu/Botones/NuevaPartida.png","/Recursos/UI/Menu/Botones/NuevaPartidaHover.png", "Recursos/Sonidos/UI/sonido3.wav");
 
-        BotonJuego botonAjustes= new BotonJuego("/Recursos/UI/Menu/Botones/Ajustes.png", "/Recursos/UI/Menu/Botones/AjustesHover.png", "Recursos/Sonidos/UI/sonido3.wav");
+        botonAjustes= new BotonJuego("/Recursos/UI/Menu/Botones/Ajustes.png", "/Recursos/UI/Menu/Botones/AjustesHover.png", "Recursos/Sonidos/UI/sonido3.wav");
         
-        BotonJuego botonSalir = new BotonJuego("/Recursos/UI/Menu/Botones/Salir.png", "/Recursos/UI/Menu/Botones/SalirHover.png", "Recursos/Sonidos/UI/sonido3.wav");
-        botonSalir.addActionListener((e -> System.exit(0)));
+        botonSalir = new BotonJuego("/Recursos/UI/Menu/Botones/Salir.png", "/Recursos/UI/Menu/Botones/SalirHover.png", "Recursos/Sonidos/UI/sonido3.wav");
 
         gbc.gridy = 0;
         gbc.insets = new Insets(350, 0, 0, 0);
@@ -37,6 +37,11 @@ public class MenuPanel extends JPanel {
         gbc.gridy = 2;
         add(botonSalir, gbc);
     }
+
+    public JButton getBotonNuevaPartida() { return botonNuevaPartida; }
+    public JButton getBotonAjustes() { return botonAjustes; }
+    public JButton getBotonSalir() { return botonSalir; }
+
 
     private void cargarFondo() {
         try {

@@ -18,8 +18,7 @@ public class NivelFactory {
     private Nivel crearNivel1() {
         Acertijo acertijo = new AcertijoNumerico(1, "¿Cuántas vidas tiene un gato?", 9);
 
-        Nivel nivel = new Nivel(1, acertijo, "src/Recursos/Mapas/primer_piso.txt",
-                "/Recursos/Mapas/primer_piso.png");
+        Nivel nivel = new Nivel(1, acertijo, "src/Recursos/Mapas/primer_piso.txt", "/Recursos/Mapas/primer_piso.png", 32, 32);
         nivel.setRutaSpritesEnemigos("/Recursos/Sprites/Enemigos/Nurse/");
         nivel.agregarEnemigo(new Enemigo(100, 10, 1, 400, 150));
         nivel.agregarEnemigo(new Enemigo(100, 10, 2, 550, 320));
