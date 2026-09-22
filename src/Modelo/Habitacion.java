@@ -11,7 +11,7 @@ public class Habitacion extends EspacioBase{
 
     //-- CONSTRUCTOR --
     public Habitacion(String nombreHabitacion,  Acertijo acertijo, String rutaGrid, String rutaImagenFondo, int puertaX, int puertaY, int puntoAccesoX, int puntoAccesoY) {
-        super(rutaGrid , rutaImagenFondo);
+        super(rutaGrid , rutaImagenFondo, puntoAccesoX, puntoAccesoY);
         this.nombreHabitacion = nombreHabitacion;
         this.puertaX = puertaX;
         this.puertaY = puertaY;
