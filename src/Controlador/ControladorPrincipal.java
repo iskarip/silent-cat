@@ -72,7 +72,7 @@ public class ControladorPrincipal {
         ventana.mostrarPantalla("nivel");
 
         // 5. Instanciación e inicio del ControladorNivel SEGUNDO (para ganar el foco)
-        JuegoFrame ventana = new JuegoFrame();
+
         ControladorNivel controladorNivel = new ControladorNivel(partida, nivelPanel, ventana);
         controladorNivel.iniciar(); 
     }
