@@ -23,19 +23,19 @@ public class ControladorMovimiento {
         // Lectura del teclado manteniendo la lógica de direcciones
         if (teclado.estaPresionada(KeyEvent.VK_UP) || teclado.estaPresionada(KeyEvent.VK_W)) { 
             deltaY -= velocidad; 
-            vista.setDireccion(Direccion.ARRIBA); 
+            personaje.setDireccion(Direccion.ARRIBA); 
         }
         if (teclado.estaPresionada(KeyEvent.VK_DOWN) || teclado.estaPresionada(KeyEvent.VK_S)) { 
             deltaY += velocidad; 
-            vista.setDireccion(Direccion.ABAJO); 
+            personaje.setDireccion(Direccion.ABAJO); 
         }
         if (teclado.estaPresionada(KeyEvent.VK_LEFT) || teclado.estaPresionada(KeyEvent.VK_A)) { 
             deltaX -= velocidad; 
-            vista.setDireccion(Direccion.IZQUIERDA); 
+            personaje.setDireccion(Direccion.IZQUIERDA); 
         }
         if (teclado.estaPresionada(KeyEvent.VK_RIGHT) || teclado.estaPresionada(KeyEvent.VK_D)) { 
             deltaX += velocidad; 
-            vista.setDireccion(Direccion.DERECHA); 
+            personaje.setDireccion(Direccion.DERECHA); 
         }
 
         boolean seEstaMoviendo = (deltaX != 0 || deltaY != 0);

@@ -3,9 +3,6 @@ package Vista;
 import Modelo.*;
 
 import java.awt.geom.AffineTransform;
-import java.util.List;
-import java.util.ArrayList;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -14,21 +11,17 @@ public class NivelPanel extends JPanel {
 
     // --- MODELO Y ESTADO DEL NIVEL ---
     private Nivel nivelActual;
-    private MapaColision mapaColision;
 
-    // --- OVERLAY DE FLASHBACK (Lógica encapsulada de tu compañera) ---
+    // --- OVERLAY DE FLASHBACK  ---
     private FlashbackGato flashbackGato = new FlashbackGato();
 
     // --- ENTIDADES Y SPRITES ---
     private Personaje personaje;
     private GestorSprites gestorSprites;
-
-    private List<Enemigo> enemigos = new ArrayList<>();
     private GestorSprites spritesEnemigo;
 
     // --- ESTADO VISUAL Y ANIMACIÓN ---
     private EstadoPersonaje estadoActual = EstadoPersonaje.IDLE;
-    private Direccion direccionActual = Direccion.ABAJO;
 
     private int cuadroAnimacion = 0;
     private int contadorTick = 0;
@@ -42,9 +35,6 @@ public class NivelPanel extends JPanel {
     private JButton botonVolverMenu;
     private int ticksMuerte = 0;
     private boolean gameOverMostrado = false;
-
-
-    // --- CONSTANTES DE RENDERIZADO ---
 
     // -- BOTONES PARA PAUSAR PARTIDA, REANUDAR y VOLVER AL MENU --
 
@@ -108,28 +98,13 @@ public class NivelPanel extends JPanel {
     public GestorSprites getSpritesEnemigo() { return spritesEnemigo; }
     public void setSpritesEnemigo(GestorSprites spritesEnemigo) { this.spritesEnemigo = spritesEnemigo; }
 
-    public void setEnemigos(List<Enemigo> enemigos, GestorSprites spritesEnemigo) {
-        this.enemigos = enemigos;
-        this.spritesEnemigo = spritesEnemigo;
-        repaint();
-    }
-    public List<Enemigo> getEnemigos() { return this.enemigos; }
-
     public void setEstado(EstadoPersonaje estado) { this.estadoActual = estado; repaint(); }
-    public void setDireccion(Direccion direccion) { this.direccionActual = direccion; }
-
-    public void setMapaColision(MapaColision mapaColision) { this.mapaColision = mapaColision; repaint(); }
-    public MapaColision getMapaColision() { return this.mapaColision; }
 
     public Nivel getNivelActual() { return nivelActual; }
+
     public void setNivelActual(Nivel nivel) {
         this.nivelActual = nivel;
-        if (nivel != null) {
-            setMapaColision(nivel.getMapaColision());
-            if (nivel.getListaEnemigos() != null) {
-                setEnemigos(nivel.getListaEnemigos(), spritesEnemigo);
-            }
-        }
+        repaint();
     }
 
     public JButton getBotonPausa(){
@@ -251,11 +226,11 @@ public class NivelPanel extends JPanel {
         return new Rectangle(enemigo.getPosicionX() + offsetX, enemigo.getPosicionY() + offsetY, anchoHitbox, altoHitbox);
     }
 
-    public Rectangle getHitboxAtaque(int x, int y) {
+    public Rectangle getHitboxAtaque(int x, int y, Direccion direccion) {
         int alcance = (int) (18 * ESCALA);
         Rectangle base = getHitbox(x, y);
 
-        switch (direccionActual) {
+        switch (direccion) {
             case ARRIBA:    return new Rectangle(base.x, base.y - alcance, base.width, alcance);
             case ABAJO:     return new Rectangle(base.x, base.y + base.height, base.width, alcance);
             case IZQUIERDA: return new Rectangle(base.x - alcance, base.y, alcance, base.height);
@@ -279,7 +254,8 @@ public class NivelPanel extends JPanel {
         g2d.translate(-camaraX, -camaraY);
 
         // 2. DIBUJAR PISO Y OBSTÁCULOS DEL MAPA DE COLISIÓN
-        if (mapaColision != null) {
+        if (nivelActual != null && nivelActual.getMapaColision() != null) {
+            MapaColision mapaColision = nivelActual.getMapaColision();
             int tileSize = 32;
             int totalFilas = 26;
             int totalColumnas = 48;
@@ -311,22 +287,8 @@ public class NivelPanel extends JPanel {
 
         if (hoja != null) {
             int frame = cuadroAnimacion % 6;
-            int fila = direccionActual.getFila();
-
-            int srcX1 = frame * ANCHO_CUADRO;
-            int srcY1 = fila * ALTO_CUADRO;
-            int srcX2 = srcX1 + ANCHO_CUADRO;
-            int srcY2 = srcY1 + ALTO_CUADRO;
-
-            int anchoPantalla = (int) (ANCHO_CUADRO * ESCALA);
-            int altoPantalla = (int) (ALTO_CUADRO * ESCALA);
-
-            if (direccionActual == Direccion.DERECHA && fila == 1) {
-                g2d.drawImage(hoja, posX + anchoPantalla, posY, posX, posY + altoPantalla, srcX1, srcY1, srcX2, srcY2, this);
-            } else {
-                g2d.drawImage(hoja, posX, posY, posX + anchoPantalla, posY + altoPantalla, srcX1, srcY1, srcX2, srcY2, this);
-            }
-
+            dibujarSprite(g2d, gestorSprites, estadoActual, personaje.getDireccion(), frame, posX, posY);
+            
             Rectangle hb = getHitbox(posX, posY);
             g2d.setColor(Color.RED);
             g2d.drawRect(hb.x, hb.y, hb.width, hb.height);
@@ -336,57 +298,52 @@ public class NivelPanel extends JPanel {
         }
 
         // 4. DIBUJAR ENEMIGOS Y BARRAS DE VIDA
-        if (spritesEnemigo != null && enemigos != null) {
-            for (Enemigo e : enemigos) {
+        
+        if (spritesEnemigo != null && nivelActual != null && nivelActual.getListaEnemigos() != null) {
+            for (Enemigo e : nivelActual.getListaEnemigos()) {
                 int ex = e.getPosicionX();
                 int ey = e.getPosicionY();
-
-                if (e.estaVivo()) {
-                    EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
-                    BufferedImage hojaEnemigo = spritesEnemigo.obtener(estadoEnemigo);
-
-                    if (hojaEnemigo != null) {
-                        // El cuadro de animación lo calcula la vista con su contadorTick
+                
+                    if (e.estaVivo()) {
+                        EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
                         int frame = (contadorTick / 6) % 6;
-                        int fila = e.getDireccion().getFila();
+                        dibujarSprite(g2d, spritesEnemigo, estadoEnemigo, e.getDireccion(), frame, ex, ey);
 
-                        int srcX1 = frame * ANCHO_CUADRO;
-                        int srcY1 = fila * ALTO_CUADRO;
-                        int srcX2 = srcX1 + ANCHO_CUADRO;
-                        int srcY2 = srcY1 + ALTO_CUADRO;
-
-                        int anchoDestino = (int) (ANCHO_CUADRO * ESCALA);
-                        int altoDestino = (int) (ALTO_CUADRO * ESCALA);
-
-                        if (e.getDireccion() == Direccion.DERECHA && fila == 1) {
-                            g2d.drawImage(hojaEnemigo,
-                                    ex + anchoDestino, ey, ex, ey + altoDestino,
-                                    srcX1, srcY1, srcX2, srcY2, this);
-                        } else {
-                            g2d.drawImage(hojaEnemigo,
-                                    ex, ey, ex + anchoDestino, ey + altoDestino,
-                                    srcX1, srcY1, srcX2, srcY2, this);
-                        }
+                        // Barra de vida
+                        int anchoBarra = (int) (20 * ESCALA);
+                        g2d.setColor(Color.BLACK);
+                        g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
+                        g2d.setColor(Color.RED);
+                        int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
+                        g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
                     }
-
-                    // Barra de vida
-                    int anchoBarra = (int) (20 * ESCALA);
-                    g2d.setColor(Color.BLACK);
-                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
-                    g2d.setColor(Color.RED);
-                    int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
-                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
-                }
             }
         }
-
-
+    
         // RESTAURAR COORDENADAS ORIGINALES (PRE-CÁMARA)
         g2d.setTransform(transformOriginal);
 
         // 5. DIBUJAR OVERLAY TRANSPARENTE DE FLASHBACK
         flashbackGato.renderizar(g2d, getWidth(), getHeight(), this);
     }
+
+    private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
+                            Direccion direccion, int frame, int x, int y) {
+        if (sprites == null) return;
+        BufferedImage hoja = sprites.obtener(estado);
+        if (hoja == null) return;
+
+        int srcX1 = frame * ANCHO_CUADRO;
+        int srcY1 = direccion.getFila() * ALTO_CUADRO;
+        int srcX2 = srcX1 + ANCHO_CUADRO;
+        int srcY2 = srcY1 + ALTO_CUADRO;
+
+        int ancho = (int) (ANCHO_CUADRO * ESCALA);
+        int alto = (int) (ALTO_CUADRO * ESCALA);
+
+        g2d.drawImage(hoja, x, y, x + ancho, y + alto, srcX1, srcY1, srcX2, srcY2, this);
+    }
+
 
     // --- MÉTODOS PARA DISPARAR EL FLASHBACK ---
     public void activarFlashbackGato() {

@@ -5,6 +5,7 @@ import Vista.JuegoFrame;
 
 public class Main {
     public static void main (String [] args) {
+
         SwingUtilities.invokeLater(() -> {
             JuegoFrame ventana = new JuegoFrame();
             new ControladorPrincipal(ventana);

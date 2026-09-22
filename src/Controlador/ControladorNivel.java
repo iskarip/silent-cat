@@ -102,7 +102,6 @@ public class ControladorNivel {
 
         if (nivelActual != null) {
             vista.setNivelActual(nivelActual);
-            vista.setMapaColision(nivelActual.getMapaColision());
         }
 
         if (personaje != null) {

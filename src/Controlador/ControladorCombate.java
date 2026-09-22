@@ -34,8 +34,8 @@ public class ControladorCombate {
         //         y recorrer nivelActual.getListaEnemigos(), igual que antes,
         //         pero delegando el daño en personaje.atacar(e)
 
-        Rectangle hitboxGolpe = vista.getHitboxAtaque(personaje.getPosicionX(), personaje.getPosicionY());
-
+        Rectangle hitboxGolpe = vista.getHitboxAtaque(personaje.getPosicionX(), personaje.getPosicionY(), personaje.getDireccion());
+        
         // TODO 4: Evaluar la colision contra cada enemigo vivo
 
         if (nivelActual.getListaEnemigos() != null) {

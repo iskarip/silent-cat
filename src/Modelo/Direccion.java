@@ -4,7 +4,7 @@ public enum Direccion {
     ABAJO(0),
     IZQUIERDA (1),
     ARRIBA(2),
-    DERECHA (1);
+    DERECHA (3);
 
     private final int fila;
 

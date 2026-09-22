@@ -17,6 +17,11 @@ public class JuegoFrame extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        setUndecorated(true);
+
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        gd.setFullScreenWindow(this);
+
         cardLayout = new CardLayout();
         panelContenedor = new JPanel(cardLayout);
 
@@ -51,6 +56,7 @@ public class JuegoFrame extends JFrame {
     public MenuPanel getMenuPanel() { return menuPanel; }
     public SeleccionPersonajePanel getSeleccionPersonajePanel() { return seleccionPersonajePanel; }
     public NivelPanel getNivelPanel() { return nivelPanel; }
+
 }
 
 /*  La ventana contenedora principal
