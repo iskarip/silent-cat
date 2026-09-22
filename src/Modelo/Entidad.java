@@ -1,8 +1,13 @@
 package Modelo;
 
+import java.awt.Rectangle;
+
 public abstract class Entidad implements Posicionable { // Entidad es abstracta porque no se puede instanciar directamente, solo a través de sus subclases
 
     // -- ATRIBUTOS --
+
+    public static final double ESCALA = 2.5;
+
     protected int puntosVida;
     private int posicionX;
     private int posicionY;
@@ -66,6 +71,9 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
 
     public abstract void atacar(Entidad objetivo);
     // método SIN cuerpo, termina en ";" — cada subclase decide cómo atacar
+
+    public abstract Rectangle getHitbox();
+    // cada subclase conoce su propio tamaño de hitbox
 
     public boolean estaVivo() {
         return puntosVida > 0;

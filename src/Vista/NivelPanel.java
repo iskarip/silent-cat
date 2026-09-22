@@ -233,39 +233,6 @@ public class NivelPanel extends JPanel {
         add(panelPausa);
     }
 
-    // --- HITBOXES ---
-
-    // Hitbox en los pies del personaje
-
-    public Rectangle getHitbox(int x, int y) {
-        int anchoHitbox = (int) (12 * ESCALA);
-        int altoHitbox = (int) (6 * ESCALA);
-        int offsetX = (int) (18 * ESCALA);
-        int offsetY = (int) (40 * ESCALA);
-        return new Rectangle(x + offsetX, y + offsetY, anchoHitbox, altoHitbox);
-    }
-
-    public Rectangle getHitboxEnemigo(Enemigo enemigo) {
-        int anchoHitbox = (int) (16 * ESCALA);
-        int altoHitbox = (int) (10 * ESCALA);
-        int offsetX = (int) (16 * ESCALA);
-        int offsetY = (int) (38 * ESCALA);
-        return new Rectangle(enemigo.getPosicionX() + offsetX, enemigo.getPosicionY() + offsetY, anchoHitbox, altoHitbox);
-    }
-
-    public Rectangle getHitboxAtaque(int x, int y, Direccion direccion) {
-        int alcance = (int) (18 * ESCALA);
-        Rectangle base = getHitbox(x, y);
-
-        switch (direccion) {
-            case ARRIBA:    return new Rectangle(base.x, base.y - alcance, base.width, alcance);
-            case ABAJO:     return new Rectangle(base.x, base.y + base.height, base.width, alcance);
-            case IZQUIERDA: return new Rectangle(base.x - alcance, base.y, alcance, base.height);
-            case DERECHA:
-            default:        return new Rectangle(base.x + base.width, base.y, alcance, base.height);
-        }
-    }
-
     // --- CICLO DE DIBUJADO (PAINT COMPONENT) ---
     @Override
     protected void paintComponent(Graphics g) {
@@ -331,7 +298,7 @@ public class NivelPanel extends JPanel {
             int frame = cuadroAnimacion % 6;
             dibujarSprite(g2d, gestorSprites, estadoActual, personaje.getDireccion(), frame, posX, posY);
             
-            Rectangle hb = getHitbox(posX, posY);
+            Rectangle hb = personaje.getHitbox();
             g2d.setColor(Color.RED);
             g2d.drawRect(hb.x, hb.y, hb.width, hb.height);
         } else {

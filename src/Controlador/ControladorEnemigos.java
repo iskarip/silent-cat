@@ -21,7 +21,7 @@ public class ControladorEnemigos {
         //         (antes del for) — no tiene sentido recalcularlo por cada enemigo,
         //         es el mismo rectángulo todo el frame. Usá vista.getHitbox(...)
 
-        Rectangle hbJugador = vista.getHitbox(personaje.getPosicionX(), personaje.getPosicionY());
+        Rectangle hbJugador = personaje.getHitbox();
 
         for (Enemigo e : enemigos) {
             if (e.estaVivo()) {

@@ -34,14 +34,14 @@ public class ControladorCombate {
         //         y recorrer nivelActual.getListaEnemigos(), igual que antes,
         //         pero delegando el daño en personaje.atacar(e)
 
-        Rectangle hitboxGolpe = vista.getHitboxAtaque(personaje.getPosicionX(), personaje.getPosicionY(), personaje.getDireccion());
+        Rectangle hitboxGolpe = personaje.getHitboxAtaque();
         
         // TODO 4: Evaluar la colision contra cada enemigo vivo
 
         if (nivelActual.getListaEnemigos() != null) {
             for (Enemigo enemigo : nivelActual.getListaEnemigos()) {
                 if (enemigo.estaVivo()) {
-                    Rectangle cuerpoEnemigo = vista.getHitboxEnemigo(enemigo);
+                    Rectangle cuerpoEnemigo = enemigo.getHitbox();
                     if (hitboxGolpe.intersects(cuerpoEnemigo)) {
                         // Delegación polimórfica: el personaje ataca usando su arma
                         personaje.atacar(enemigo);

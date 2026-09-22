@@ -56,14 +56,14 @@ public class ControladorMovimiento {
 
         // Avance y validación en eje X
         int intentoX = nuevoX + deltaX;
-        Rectangle hbX = vista.getHitbox(intentoX, nuevoY);
+        Rectangle hbX = personaje.getHitboxEnPosicion(intentoX, nuevoY);
         if (mapa == null || mapa.esRectanguloValido(hbX.x, hbX.y, hbX.width, hbX.height)) {
             personaje.setPosicionX(intentoX);
         }
 
         // Avance y validación en eje Y
         int intentoY = nuevoY + deltaY;
-        Rectangle hbY = vista.getHitbox(personaje.getPosicionX(), intentoY);
+       Rectangle hbY = personaje.getHitboxEnPosicion(personaje.getPosicionX(), intentoY);
         if (mapa == null || mapa.esRectanguloValido(hbY.x, hbY.y, hbY.width, hbY.height)) {
             personaje.setPosicionY(intentoY);
         }

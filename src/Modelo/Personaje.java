@@ -1,5 +1,7 @@
 package Modelo;
 
+import java.awt.Rectangle;
+
 /**
  * Representa al jugador. Hereda de Entidad (vida, daño base, posición y el
  * método mover()), y le suma todo lo que es propio del personaje: arma,
@@ -29,6 +31,13 @@ public class Personaje extends Entidad {
     private Arma arma;
     private Linterna linterna;
     private Inventario inventario;
+
+// -- MEDIDAS DEL HITBOX --
+    private static final int ANCHO_HITBOX = (int) (12 * ESCALA);
+    private static final int ALTO_HITBOX = (int) (6 * ESCALA);
+    private static final int OFFSET_X_HITBOX = (int) (18 * ESCALA);
+    private static final int OFFSET_Y_HITBOX = (int) (40 * ESCALA);
+    private static final int ALCANCE_ATAQUE = (int) (18 * ESCALA);
 
 // -- CONSTRUCTOR --
 
@@ -70,6 +79,29 @@ public class Personaje extends Entidad {
     // Implementación concreta del método abstracto atacar() de Entidad.
     // Cada subclase de Entidad decide CÓMO ataca; Personaje usa su Arma.
     @Override
+    public Rectangle getHitbox() {
+        return construirHitbox(getPosicionX(), getPosicionY());
+    }
+
+    public Rectangle getHitboxEnPosicion(int x, int y) {
+        return construirHitbox(x, y);
+    }
+
+    private Rectangle construirHitbox(int x, int y) {
+        return new Rectangle(x + OFFSET_X_HITBOX, y + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
+    }
+
+    public Rectangle getHitBoxAtaque() {
+        Rectangle base = getHitbox();
+        switch (getDireccion()) {
+            case ARRIBA:    return new Rectangle(base.x, base.y - ALCANCE_ATAQUE, base.width, ALCANCE_ATAQUE);
+            case ABAJO:     return new Rectangle(base.x, base.y + base.height, base.width, ALCANCE_ATAQUE);
+            case IZQUIERDA: return new Rectangle(base.x - ALCANCE_ATAQUE, base.y, ALCANCE_ATAQUE, base.height);
+            case DERECHA:   
+            default:        return new Rectangle(base.x + base.width, base.y, ALCANCE_ATAQUE, base.height);
+        }
+    }
+
     public void atacar(Entidad objetivo) {
         if (arma.usarArma()) {
             int danio = arma.calcularDanio();

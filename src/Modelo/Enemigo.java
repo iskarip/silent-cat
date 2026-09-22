@@ -1,5 +1,6 @@
 package Modelo;
 import java.util.Random;
+import java.awt.Rectangle;
 
 public class Enemigo extends Entidad {
 
@@ -7,6 +8,11 @@ public class Enemigo extends Entidad {
 //para diferenciar lo que hace cada uno.
 
 //--ATRIBUTOS--
+
+    private static final int ANCHO_HITBOX = (int) (16 * ESCALA);
+    private static final int ALTO_HITBOX = (int) (10 * ESCALA);
+    private static final int OFFSET_X_HITBOX = (int) (16 * ESCALA);
+    private static final int OFFSET_Y_HITBOX = (int) (38 * ESCALA);
 
     private int idEnemigo;
     private int danioBase;
@@ -59,6 +65,10 @@ public class Enemigo extends Entidad {
 
     //sacar este println cuando la Vista (Swing) muestre el ataque visualmente
     @Override
+    public Rectangle getHitbox() {
+        return new Rectangle(getPosicionX() + OFFSET_X_HITBOX, getPosicionY() + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
+    }
+
     public void atacar(Entidad objetivo) {
         if (ticksEnfriamientoAtaque > 0) return; // en cooldown, no puede golpear de nuevo
 
