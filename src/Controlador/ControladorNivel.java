@@ -57,7 +57,7 @@ public class ControladorNivel {
 
     private void configurarBotonesPausa() {
         vista.getBotonPausa().addActionListener(e -> pausarJuego());
-        vista.getBotonReanudar().addActionListener(e -> volverAlMenu());
+        vista.getBotonReanudar().addActionListener(e -> reanudarJuego());
         vista.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
     }
 
@@ -73,6 +73,7 @@ public class ControladorNivel {
         if (bucleDeJuego != null) {
             bucleDeJuego.stop();
         }
+    vista.removeKeyListener(controladorTeclado);
     }
 
     private void pausarJuego () {
@@ -85,8 +86,9 @@ public class ControladorNivel {
         vista.ocultarPausa();
         vista.requestFocusInWindow(); // recupera el foco para el teclado
     }
-
+//debe llamar a detener antes de cambiar de pantalla, para que no siga ejecutando en 2do plano
     private void volverAlMenu () {
+        detener();
         pausado = false;
         vista.ocultarPausa();
         ventanaPrincipal.mostrarPantalla("menu");
