@@ -11,6 +11,7 @@ public class NivelPanel extends JPanel {
 
     // --- MODELO Y ESTADO DEL NIVEL ---
     private Nivel nivelActual;
+    private Image imagenFondoNivel; // imagen de planta baja
 
     // --- OVERLAY DE FLASHBACK  ---
     private FlashbackGato flashbackGato = new FlashbackGato();
@@ -22,6 +23,7 @@ public class NivelPanel extends JPanel {
 
     // --- ESTADO VISUAL Y ANIMACIÓN ---
     private EstadoPersonaje estadoActual = EstadoPersonaje.IDLE;
+    //public static final double ZOOM = 1.75; // Zoom del personaje
 
     private int cuadroAnimacion = 0;
     private int contadorTick = 0;
@@ -43,15 +45,21 @@ public class NivelPanel extends JPanel {
     private JButton botonReanudar;
     private JButton botonMenuPrincipal;
 
+    public static final double ZOOM = 1.85;
+    private static final int ANCHO_MAPA_PX = 50 * 32;
+    private static final int ALTO_MAPA_PX  = 24 * 32;
+
+
     public static final double ESCALA = 2.5;
     public static final int ANCHO_CUADRO = 48;
     public static final int ALTO_CUADRO = 48;
+
 
     public NivelPanel() {
         setFocusable(true);
         setDoubleBuffered(true);
         setLayout(null); // posicionamiento libre, para superponer botones al dibujo
-
+        setBackground(Color.BLACK); // <-- Fondo negro
         crearBotonPausa();
         crearPanelPausa();
 
@@ -81,11 +89,24 @@ public class NivelPanel extends JPanel {
     public void actualizarCamara() {
         if (personaje == null) return;
 
+        // 1. Centro exacto del personaje
         int centroPersonajeX = personaje.getPosicionX() + (int) ((ANCHO_CUADRO * ESCALA) / 2);
-        int centroPersonajeY = personaje.getPosicionY() + (int) ((ANCHO_CUADRO * ESCALA) / 2);
+        int centroPersonajeY = personaje.getPosicionY() + (int) ((ALTO_CUADRO * ESCALA) / 2);
 
-        this.camaraX = centroPersonajeX - (getWidth() / 2);
-        this.camaraY = centroPersonajeY - (getHeight() / 2);
+        // 2. Área visible en pantalla bajo este factor de zoom
+        int anchoVisible = (int) (getWidth() / ZOOM);
+        int altoVisible  = (int) (getHeight() / ZOOM);
+
+        // 3. Posición ideal centrada
+        int objetivoX = centroPersonajeX - (anchoVisible / 2);
+        int objetivoY = centroPersonajeY - (altoVisible / 2);
+
+        // 4. Clamping: la cámara se frena al llegar al borde de los 50x24 bloques[cite: 14]
+        int maxCamX = Math.max(0, ANCHO_MAPA_PX - anchoVisible);
+        int maxCamY = Math.max(0, ALTO_MAPA_PX - altoVisible);
+
+        this.camaraX = Math.max(0, Math.min(objetivoX, maxCamX));
+        this.camaraY = Math.max(0, Math.min(objetivoY, maxCamY));
     }
 
     // --- GETTERS Y SETTERS ---
@@ -102,8 +123,14 @@ public class NivelPanel extends JPanel {
 
     public Nivel getNivelActual() { return nivelActual; }
 
+
     public void setNivelActual(Nivel nivel) {
         this.nivelActual = nivel;
+        if (nivel != null) {
+            //carga la imagen de fondo
+            this.imagenFondoNivel = cargarImagenFondo(nivel.getRutaImagenFondo());
+
+        }
         repaint();
     }
 
@@ -211,10 +238,10 @@ public class NivelPanel extends JPanel {
     // Hitbox en los pies del personaje
 
     public Rectangle getHitbox(int x, int y) {
-        int anchoHitbox = (int) (16 * ESCALA);
-        int altoHitbox = (int) (10 * ESCALA);
-        int offsetX = (int) (16 * ESCALA);
-        int offsetY = (int) (38 * ESCALA);
+        int anchoHitbox = (int) (12 * ESCALA);
+        int altoHitbox = (int) (6 * ESCALA);
+        int offsetX = (int) (18 * ESCALA);
+        int offsetY = (int) (40 * ESCALA);
         return new Rectangle(x + offsetX, y + offsetY, anchoHitbox, altoHitbox);
     }
 
@@ -248,17 +275,31 @@ public class NivelPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-        // 1. APLICAR TRANSFORMACIÓN DE CÁMARA
+        // 0. PANTALLA EN NEGRO
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
+        // 1. TRANSFORMACIÓN DE CÁMARA
         actualizarCamara();
         AffineTransform transformOriginal = g2d.getTransform();
+
+        // Se escala una sola vez y se traslada una sola vez
+        g2d.scale(ZOOM, ZOOM);
         g2d.translate(-camaraX, -camaraY);
 
-        // 2. DIBUJAR PISO Y OBSTÁCULOS DEL MAPA DE COLISIÓN
+        // 2. DIBUJAR PISO Y OBSTÁCULOS (PALETA NEGRO Y AMARILLO)
         if (nivelActual != null && nivelActual.getMapaColision() != null) {
             MapaColision mapaColision = nivelActual.getMapaColision();
             int tileSize = 32;
-            int totalFilas = 26;
-            int totalColumnas = 48;
+            int totalFilas = 24;
+            int totalColumnas = 50;
+
+            // Colores temáticos:
+            Color paredRelleno = new Color(15, 15, 18);
+            Color paredBorde   = new Color(30, 30, 35);
+
+            Color sueloRelleno = new Color(212, 175, 55);
+            Color sueloBorde   = new Color(175, 140, 30);
 
             for (int f = 0; f < totalFilas; f++) {
                 for (int c = 0; c < totalColumnas; c++) {
@@ -266,20 +307,21 @@ public class NivelPanel extends JPanel {
                     int y = f * tileSize;
 
                     if (!mapaColision.esPosicionValida(x + 16, y + 16)) {
-                        g2d.setColor(new Color(40, 40, 50));
+                        // PARED / OBSTÁCULO (1 en el txt) -> Negro
+                        g2d.setColor(paredRelleno);
                         g2d.fillRect(x, y, tileSize, tileSize);
-                        g2d.setColor(new Color(25, 25, 30));
+                        g2d.setColor(paredBorde);
                         g2d.drawRect(x, y, tileSize, tileSize);
                     } else {
-                        g2d.setColor(new Color(180, 160, 140));
+                        // SUELO TRANSITABLE (0 en el txt) -> Amarillo
+                        g2d.setColor(sueloRelleno);
                         g2d.fillRect(x, y, tileSize, tileSize);
-                        g2d.setColor(new Color(160, 140, 120));
+                        g2d.setColor(sueloBorde);
                         g2d.drawRect(x, y, tileSize, tileSize);
                     }
                 }
             }
         }
-
         // 3. DIBUJAR SPRITE DEL PROTAGONISTA
         BufferedImage hoja = (gestorSprites != null) ? gestorSprites.obtener(estadoActual) : null;
         int posX = personaje.getPosicionX();
@@ -354,5 +396,46 @@ public class NivelPanel extends JPanel {
     public void activarFlashbackPrueba() {
         Gato gatoPrueba = new Gato();
         flashbackGato.activar(gatoPrueba, personaje, this);
+    }
+
+    // -- METODO PARA LA IMAGEN DE PLANTA BAJA --
+    private Image cargarImagenFondo(String ruta) {
+        if (ruta == null || ruta.trim().isEmpty()) {
+            System.out.println("[NivelPanel] La ruta de la imagen es nula o vacia.");
+            return null;
+        }
+
+        System.out.println("[NivelPanel] Intentando cargar fondo desde: " + ruta);
+
+        try {
+            // Intento 1: tal cual viene la ruta
+            java.net.URL url = getClass().getResource(ruta);
+            if (url != null) {
+                System.out.println("[NivelPanel] ¡Imagen cargada exitosamente via URL!");
+                return javax.imageio.ImageIO.read(url);
+            }
+
+            // Intento 2: forzando la barra inicial si no la tenía
+            if (!ruta.startsWith("/")) {
+                url = getClass().getResource("/" + ruta);
+                if (url != null) {
+                    System.out.println("[NivelPanel] ¡Imagen cargada agregando '/' inicial!");
+                    return javax.imageio.ImageIO.read(url);
+                }
+            }
+
+            // Intento 3: si está en raíz del proyecto como File directo
+            java.io.File archivo = new java.io.File(ruta.startsWith("/") ? ruta.substring(1) : ruta);
+            if (archivo.exists()) {
+                System.out.println("[NivelPanel] ¡Imagen cargada como File local!");
+                return javax.imageio.ImageIO.read(archivo);
+            }
+
+            System.out.println("[NivelPanel] ERROR: No se encontro el archivo en ninguna ruta probada: " + ruta);
+            return null;
+        } catch (java.io.IOException e) {
+            System.out.println("[NivelPanel] Excepcion al leer imagen: " + e.getMessage());
+            return null;
+        }
     }
 }

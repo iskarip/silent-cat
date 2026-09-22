@@ -17,13 +17,32 @@ public class MapaColision {
 
     public void cargar(String rutaArchivo) { // Lee el archivo de texto y construye la matriz de colisión
         List<String> lineas = new ArrayList<>();
-        try (BufferedReader lector = new BufferedReader(new FileReader(rutaArchivo))) {
-            String linea;
-            while ((linea = lector.readLine()) != null) {
-                lineas.add(linea);
+
+        // 1. Intento leer desde recursos (Classpath)
+        java.io.InputStream is = getClass().getResourceAsStream(rutaArchivo.startsWith("/") ? rutaArchivo : "/" + rutaArchivo);
+
+        try {
+            BufferedReader lector;
+            if (is != null) {
+                lector = new BufferedReader(new java.io.InputStreamReader(is));
+            } else {
+                // 2. Si no es recurso interno, lee como archivo del disco
+                lector = new BufferedReader(new FileReader(rutaArchivo));
+            }
+
+            try (lector) {
+                String linea;
+                while ((linea = lector.readLine()) != null) {
+                    lineas.add(linea);
+                }
             }
         } catch (IOException e) {
-            System.out.println("Error cargando el mapa de colisión: " + e.getMessage());
+            System.out.println("Error cargando el mapa de colisión desde " + rutaArchivo + ": " + e.getMessage());
+            return;
+        }
+
+        if (lineas.isEmpty()) {
+            System.out.println("El archivo de mapa está vacío: " + rutaArchivo);
             return;
         }
 
@@ -41,6 +60,7 @@ public class MapaColision {
                 }
             }
         }
+        System.out.println("Mapa de colisión cargado con éxito: " + columnas + "x" + filas);
     }
 
     public boolean esPosicionValida(int pixelX, int pixelY) { // Dado un par de coordenadas en píxeles, devuelve true si la posición es caminable (0) y false si no lo es (1). Si el mapa no está cargado, devuelve true por defecto.
