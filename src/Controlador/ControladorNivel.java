@@ -153,11 +153,15 @@ public class ControladorNivel {
             controladorCombate.ejecutarAtaque(partida.getPersonaje(), partida.getNivelActual(), vista);
         }
     }
-
+//el controlador manda dos ordenes separadas
+//una la manda al modelo, donde el gatoa plica su efecto sobre nuestro pj
+//la otra orden la manda a la vista que solo activa el parpadeo uwu
     private void probarFlashback() {
         if (pausado) return;
-        if (partida.getNivelActual() != null && partida.getNivelActual().getGato() != null) {
-            vista.activarFlashbackGato();
+        Nivel nivelActual = partida.getNivelActual();
+        if (nivelActual != null && nivelActual.getGato() != null) {
+            nivelActual.getGato().activarFlashback(partida.getPersonaje()); //aca el modelo actua
+            vista.activarFlashbackGato(); //aca la vista estaria haciendo lo q debe
         }
     }
 

@@ -24,7 +24,7 @@ private List<String> sonidosEncuentro = List.of(
 );
 
 private Random random = new Random(); //Sirve para elegir cual sonido reproducir (De mi lista de sonidos)
-
+private static final long DURACION_LENTITUD_MS = 2000;
 
 //CONSTRUCTOR
 
@@ -42,12 +42,7 @@ public void setEncontrado(boolean encontrado){
     this.encontrado = encontrado;
 }
 
-//METODOS
-/* creo que podemos sacar este metodo o podemos dejarlo como uno generico en caso de que elijamos agregar otro sonido
-public void maullar(){
-    System.out.println("El gato emite un maullido ecoico y distorsionado...");
-}
-*/
+
 public void reproducirSonidoFlashback(){
     int indice = random.nextInt(sonidosFlashback.size());
     ReproductorSonido.reproducir(sonidosFlashback.get(indice));
@@ -58,4 +53,19 @@ public void reproducirSonidoEncuentro(){
     ReproductorSonido.reproducir(sonidosEncuentro.get(indice));
 }
 
+//acca movi lo de flashback para que respete mvc (Sonido + lentitud + cuando se revirete)
+
+public void activarFlashback(Personaje personaje){
+    reproducirSonidoFlashback();
+    personaje.aplicarLentitud();
+
+    java.util.Timer temporizador = new java.util.Timer(true); // el "true" es como el setDaemon
+    temporizador.schedule(new java.util.TimerTask() {
+        @Override
+        public void run() {
+            personaje.quitarLentitud();
+             }
+        }, DURACION_LENTITUD_MS);
+    
+    }
 }
