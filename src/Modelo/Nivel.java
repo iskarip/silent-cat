@@ -15,6 +15,7 @@ public class Nivel extends EspacioBase {
     private boolean nivelSuperado;
     private boolean checkpoint; //va a ser una bandera, si es falso no se activa, verdadero activado
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
+    private int acertijoX, acertijoY; // posicion donde se activa el acertijo del nivel
 
     private Gato gato; // null en los niveles que no lo tienen (ej: nivel 1 y 2)
 
@@ -90,6 +91,22 @@ public class Nivel extends EspacioBase {
 
     public void setAccesoSiguienteNivelY(int accesoSiguienteNivelY) {
         this.accesoSiguienteNivelY = accesoSiguienteNivelY;
+    }
+
+    public int getAcertijoX() {
+        return acertijoX;
+    }
+
+    public void setAcertijoX(int acertijoX) {
+        this.acertijoX = acertijoX;
+    }
+
+    public int getAcertijoY() {
+        return acertijoY;
+    }
+
+    public void setAcertijoY(int acertijoY) {
+        this.acertijoY = acertijoY;
     }
 
     public void setRutaSpritesEnemigos(String ruta) {

@@ -20,6 +20,8 @@ public class NivelFactory {
 
         Nivel nivel = new Nivel(1, acertijo, "Recursos/Mapas/primer_piso.txt","/Recursos/Mapas/mapa_plantaBaja.png", 32, 32);
         nivel.setRutaSpritesEnemigos("/Recursos/Sprites/Enemigos/Nurse/");
+        nivel.setAcertijoX(300); // TODO: ajustar estos valores segun donde se quiera que este el acertijo en el mapa
+        nivel.setAcertijoY(200);
         nivel.agregarEnemigo(new Enemigo(100, 10, 1, 400, 150));
         nivel.agregarEnemigo(new Enemigo(100, 10, 2, 550, 320));
 
