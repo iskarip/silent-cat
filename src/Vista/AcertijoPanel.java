@@ -2,85 +2,64 @@ package Vista;
 
 import javax.swing.*;
 import Modelo.Acertijo;
-import Modelo.Personaje;
 
 public class AcertijoPanel extends JPanel {
 
     // ATRIBUTOS
-    private JuegoFrame ventanaPrincipal;
     private JLabel labelEnunciado;
     private JTextField campoRespuesta;
-
-    private Acertijo acertijoActual;
-    private Personaje personajeActual;
-
-    private static final int INTENTOS_MAXIMOS= 3;
-    private static final int DANIO_FALLO = 10;
-    private int intentosRestantes;
-
+    private JLabel labelFeedback;
+    private JButton botonResponder;
 
     // CONSTRUCTOR
-    public AcertijoPanel(JuegoFrame ventanaPrincipal) {
-        this.ventanaPrincipal = ventanaPrincipal;
+    public AcertijoPanel() {
 
         labelEnunciado = new JLabel("..."); 
+        labelFeedback = new JLabel("");
         campoRespuesta = new JTextField(15);
-
-        JButton botonResponder = new JButton( "Responder");
-        botonResponder.addActionListener((e -> validarRespuesta()));
+        botonResponder = new JButton("Responder");
 
 //eso nos permite responder presionando Enter dentro del campo de texto, sin necesidad de hacer clic en el boton.
 
         add(labelEnunciado);
         add(campoRespuesta);
         add(botonResponder);
+        add(labelFeedback);
 
     }
 
-    // METODOS
+// -- GETTERS --
 
-    // cuando se llama desde el controlador y el personaje se encuentra 
-    // con un acertijo, le pasa q acertijo hay q mostrar en pantalla.
-    public void mostrarAcertijo(Acertijo acertijo, Personaje personaje) {
-        this.acertijoActual = acertijo;
-        this.personajeActual = personaje;
-        this.intentosRestantes = INTENTOS_MAXIMOS;
+    public String getRespuestaIngresada() {
+        return campoRespuesta.getText();
+    }
 
+    public JButton getBotonResponder() {
+        return botonResponder;
+    }
+
+    public JTextField getCampoRespuesta() {
+        return campoRespuesta;
+    }
+
+// -- METODOS --
+
+    // Prepara la pantalla para un acertijo nuevo. Ya no recibe Personaje
+    // eso va en el controlado, esta clase solo muestra texto
+
+    public void mostrarEnunciado(Acertijo acertijo) {
         labelEnunciado.setText(acertijo.getDescripcion());
+        labelFeedback.setText(" ");
         campoRespuesta.setText("");
+        campoRespuesta.requestFocusInWindow();
     }
 
-    private void validarRespuesta() {
-        if (acertijoActual == null) return;
-//si el acertijo ya estaba resuelto, va a devolver true sin comparar nada
-
-
-        boolean esCorrecta = acertijoActual.validarRespuesta(campoRespuesta.getText());
-       
-        if(esCorrecta) {
-            System.out.println("¡Correcto!");
-            ventanaPrincipal.mostrarPantalla("nivel"); //vuelve al nivel
-        } else {
-            intentosRestantes--;
-                if (intentosRestantes <= 0) {
-                    if(personajeActual != null){
-                        personajeActual.recibirDanio(DANIO_FALLO);
-                    }
-                System.out.println("Sin intentos. Pista: " + acertijoActual.getDescripcion());
-                ventanaPrincipal.mostrarPantalla("nivel"); //vuelve al nivel
-                } else {
-                    System.out.println("Incorrecto. Te quedan " + intentosRestantes + " intentos.");
-                
-            campoRespuesta.setText("");
-            campoRespuesta.requestFocus();
-            }
-        }
+    // Para avisps tipo "incorrecto" o pistas
+    public void mostrarFeedback(String mensaje) {
+        labelFeedback.setText(mensaje);
+        campoRespuesta.setText("");
+        campoRespuesta.requestFocusInWindow();
     }
+
+
 }
-
-    /* TODO: 1. agregar un elemento para validar la respuesta (boton "responder", tecla enter, etc)
-       2. si el jugador falla, intentos libres, limitados, con pista, con castigo (restar vida)?
-       3. tener en cuenta el caso de un acertijo ya resuelto para no dejar que se vuelva a responder sin sentido.
-       4. Cuando este el Controlador, enlazar con:
-       acertijoPanel.mostrarAcertijo(acertijoActual);
-       ventanaPrincipal.mostrarPantalla("acertijo");   */

@@ -21,6 +21,7 @@ public class ControladorNivel {
     private final ControladorMovimiento controladorMovimiento;
     private final ControladorCombate controladorCombate;
     private final ControladorEnemigos controladorEnemigos;
+    private final ControladorAcertijo controladorAcertijo;
 
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
@@ -38,6 +39,7 @@ public class ControladorNivel {
         this.controladorMovimiento = new ControladorMovimiento();
         this.controladorCombate = new ControladorCombate();
         this.controladorEnemigos = new ControladorEnemigos();
+        this.controladorAcertijo = new ControladorAcertijo(ventanaPrincipal.getAcertijoPanel(), ventanaPrincipal);
 
         // Conexión de acciones únicas de teclado
         this.controladorTeclado.setAccionAtaque(this::atacar);
@@ -110,7 +112,7 @@ public class ControladorNivel {
     }
 
     private void actualizarJuego() {
-        if (pausado) return;
+        if (pausado || controladorAcertijo.estaActivo()) return;
 
         Personaje personaje = partida.getPersonaje();
         Nivel nivelActual = partida.getNivelActual();
@@ -142,7 +144,10 @@ public class ControladorNivel {
             controladorEnemigos.actualizar(nivelActual, personaje, vista);
         }
 
-        // 4. Redibujado en pantalla
+        // 4. Deteccion de proximidad al acertijo del nivel
+        controladorAcertijo.comprobarActivacion(nivelActual, personaje);
+
+        // 5. Redibujado en pantalla
         vista.repaint();
     }
 
