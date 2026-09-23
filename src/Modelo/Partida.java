@@ -37,7 +37,7 @@ public class Partida {
     public Personaje getPersonaje() { return personaje; }
     public void setPersonaje(Personaje personaje) { this.personaje = personaje; }
 
-    public Gato getGato() { return gato; } //para poder usar el gato en el controlador
+    public Gato getGato() { return this.gato; } //para poder usar el gato en el controlador
     
     // -- METODOS --
 

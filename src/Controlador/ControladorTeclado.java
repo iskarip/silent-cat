@@ -13,6 +13,8 @@ public class ControladorTeclado extends KeyAdapter {
     // Acciones para teclas de pulso único (Espacio para atacar, F para debug)
     private Runnable accionAtaque;
     private Runnable accionDebugFlashback;
+    private Runnable accionLinterna; 
+
 
     public void setAccionAtaque(Runnable accionAtaque) {
         this.accionAtaque = accionAtaque;
@@ -21,6 +23,11 @@ public class ControladorTeclado extends KeyAdapter {
     public void setAccionDebugFlashback(Runnable accionDebugFlashback) {
         this.accionDebugFlashback = accionDebugFlashback;
     }
+
+    public void setAccionLinterna(Runnable accionLinterna){
+        this.accionLinterna = accionLinterna;
+    }
+
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -34,6 +41,11 @@ public class ControladorTeclado extends KeyAdapter {
         // Mantiene la tecla F para la prueba del flashback
         if (e.getKeyCode() == KeyEvent.VK_F && accionDebugFlashback != null) {
             accionDebugFlashback.run();
+        }
+
+        // Mantiene la tecla L para activar la linterna
+        if (e.getKeyCode() == KeyEvent.VK_L && accionLinterna != null) {
+            accionLinterna.run();
         }
     }
 

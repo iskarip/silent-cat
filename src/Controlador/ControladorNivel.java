@@ -3,10 +3,13 @@ package Controlador;
 import Modelo.Partida;
 import Modelo.Nivel;
 import Modelo.Personaje;
+import Modelo.Gato;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.EstadoPersonaje;
 import Vista.GestorSprites;
+import Vista.LinternaOverlay;
+import Vista.FlashbackGato;
 
 import javax.swing.Timer;
 
@@ -23,6 +26,12 @@ public class ControladorNivel {
     private final ControladorCombate controladorCombate;
     private final ControladorEnemigos controladorEnemigos;
     private final ControladorAcertijo controladorAcertijo;
+
+
+//instancias del gato(el sonido, lentitud y lo visual)
+private final Gato gato;
+private final FlashbackGato flashbackGato;
+
 
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
@@ -42,9 +51,24 @@ public class ControladorNivel {
         this.controladorEnemigos = new ControladorEnemigos();
         this.controladorAcertijo = new ControladorAcertijo(ventanaPrincipal.getAcertijoPanel(), ventanaPrincipal);
 
+        //instanciacion del modelo Gato y vista flashbackGato
+        this.gato = new Gato();
+        this.flashbackGato = new FlashbackGato();
+
+        //Instanciacion de interfaces y registro en la lista de capasVisuales de NivelPanel
+        LinternaOverlay linternaOverlay = new LinternaOverlay();
+        this.vista.agregarCapaVisual(linternaOverlay);
+        this.vista.agregarCapaVisual(this.flashbackGato);
+
+
         // Conexión de acciones únicas de teclado
         this.controladorTeclado.setAccionAtaque(this::atacar);
         this.controladorTeclado.setAccionDebugFlashback(this::probarFlashback);
+        this.controladorTeclado.setAccionLinterna(() -> {
+            if (!pausado && !personajeMuerto) {
+                partida.getPersonaje().usarLinterna();
+            }
+        });
 
         // Registrar el listener de teclado en la vista
         this.vista.addKeyListener(controladorTeclado);
@@ -164,12 +188,21 @@ public class ControladorNivel {
 
 
 //ahora el controlador le preguntaria a PARTIDA.JAVA ya no a nivel, ya que agregue el gato en partida para que aparezca el flashback desde el nivel 1
-    private void probarFlashback() {
-        if (pausado) return;
-            partida.getGato().activarEfectoFlashback(partida.getPersonaje()); 
-            vista.activarFlashbackGato(); 
-        }
+private void probarFlashback() {
+    if (pausado) return;
 
+    Personaje personaje = partida.getPersonaje();
+    Gato gato = partida.getGato();
+
+    if (personaje != null && gato != null) {
+        // 1. Sonido y ralentización del personaje (Modelo)
+        gato.activarEfectoFlashback(personaje);
+
+        // 2. Muestra la imagen del flashback en pantalla (Vista)
+        flashbackGato.activar(vista);
+    }
+}
+   
     public void reiniciarEstado() {
         personajeMuerto = false;
         pausado = false;

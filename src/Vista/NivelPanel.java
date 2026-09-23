@@ -1,11 +1,12 @@
 package Vista;
 
 import Modelo.*;
-
-import java.awt.geom.AffineTransform;
-import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NivelPanel extends JPanel {
 
@@ -13,8 +14,9 @@ public class NivelPanel extends JPanel {
     private Nivel nivelActual;
     private Image imagenFondoNivel; // imagen de planta baja
 
-    // --- OVERLAY DE FLASHBACK  ---
-    private FlashbackGato flashbackGato = new FlashbackGato();
+//___________________CAPAS VISUALES________________
+private final List<InterfazVisual> capasVisuales = new ArrayList<>();
+    
 
     // --- ENTIDADES Y SPRITES ---
     private Personaje personaje;
@@ -24,7 +26,6 @@ public class NivelPanel extends JPanel {
     // --- ESTADO VISUAL Y ANIMACIÓN ---
     private EstadoPersonaje estadoActual = EstadoPersonaje.IDLE;
     //public static final double ZOOM = 1.75; // Zoom del personaje
-
     private int cuadroAnimacion = 0;
     private int contadorTick = 0;
 
@@ -39,12 +40,12 @@ public class NivelPanel extends JPanel {
     private boolean gameOverMostrado = false;
 
     // -- BOTONES PARA PAUSAR PARTIDA, REANUDAR y VOLVER AL MENU --
-
     private JButton botonPausa;
     private JPanel panelPausa;
     private JButton botonReanudar;
     private JButton botonMenuPrincipal;
 
+    //CONSTANTES DE ESCALADO Y ZOOM
     public static final double ZOOM = 1.85;
     private static final int ANCHO_MAPA_PX = 50 * 32;
     private static final int ALTO_MAPA_PX  = 24 * 32;
@@ -60,8 +61,10 @@ public class NivelPanel extends JPanel {
         setDoubleBuffered(true);
         setLayout(null); // posicionamiento libre, para superponer botones al dibujo
         setBackground(Color.BLACK); // <-- Fondo negro
+        
         crearBotonPausa();
         crearPanelPausa();
+    
 
         // Componentes flotantes para la pantalla de Game Over
         etiquetaGameOver = new JLabel("GAME OVER", SwingConstants.CENTER);
@@ -83,6 +86,16 @@ public class NivelPanel extends JPanel {
                 requestFocusInWindow();
             }
         });
+    }
+    // --- MÉTODOS PARA GESTIÓN DE CAPAS VISUALES / OVERLAYS ---
+    public void agregarCapaVisual(InterfazVisual capa) {
+        if (!capasVisuales.contains(capa)) {
+            capasVisuales.add(capa);
+        }
+    }//este metodo llena la lista de capas visuales
+
+    public void removerCapaVisual(InterfazVisual capa) {
+        capasVisuales.remove(capa);
     }
 
     // --- LÓGICA DE CÁMARA (CÁLCULO EXCLUSIVAMENTE VISUAL) ---
@@ -123,7 +136,6 @@ public class NivelPanel extends JPanel {
 
     public Nivel getNivelActual() { return nivelActual; }
 
-
     public void setNivelActual(Nivel nivel) {
         this.nivelActual = nivel;
         if (nivel != null) {
@@ -133,6 +145,15 @@ public class NivelPanel extends JPanel {
         }
         repaint();
     }
+    public int getCamaraX() { 
+        return camaraX; 
+    }
+
+    public int getCamaraY() { 
+        return camaraY; 
+    }
+
+
 
     public JButton getBotonPausa(){
         return botonPausa;
@@ -167,6 +188,24 @@ public class NivelPanel extends JPanel {
     }
 
     // --- ANIMACIÓN ---
+
+    // --- DELIMITACIÓN DE HITBOXES PARA RENDERIZADO / FÍSICA ---
+
+    private void crearPanelPausa () {
+        panelPausa = new JPanel();
+        panelPausa.setLayout(new GridLayout(2, 1, 0, 10));
+        panelPausa.setBounds(300, 200, 200, 100);
+        panelPausa.setBackground(new Color(0, 0, 0, 180)); //negro semitransparente
+
+        botonReanudar = new JButton("REANUDAR PARTIDA");
+        botonMenuPrincipal = new JButton("MENU PRINCIPAL");
+
+        panelPausa.add(botonReanudar);
+        panelPausa.add(botonMenuPrincipal);
+
+        panelPausa.setVisible(false);
+        add(panelPausa);
+    }
 
 
     // --- MANEJO DE ANIMACIONES DE SPRITES ---
@@ -216,25 +255,6 @@ public class NivelPanel extends JPanel {
         estadoActual = EstadoPersonaje.IDLE;
         etiquetaGameOver.setVisible(false);
         botonVolverMenu.setVisible(false);
-    }
-
-
-    // --- DELIMITACIÓN DE HITBOXES PARA RENDERIZADO / FÍSICA ---
-
-    private void crearPanelPausa () {
-        panelPausa = new JPanel();
-        panelPausa.setLayout(new GridLayout(2, 1, 0, 10));
-        panelPausa.setBounds(300, 200, 200, 100);
-        panelPausa.setBackground(new Color(0, 0, 0, 180)); //negro semitransparente
-
-        botonReanudar = new JButton("REANUDAR PARTIDA");
-        botonMenuPrincipal = new JButton("MENU PRINCIPAL");
-
-        panelPausa.add(botonReanudar);
-        panelPausa.add(botonMenuPrincipal);
-
-        panelPausa.setVisible(false);
-        add(panelPausa);
     }
 
     // --- CICLO DE DIBUJADO (PAINT COMPONENT) ---
@@ -336,8 +356,10 @@ public class NivelPanel extends JPanel {
         // RESTAURAR COORDENADAS ORIGINALES (PRE-CÁMARA)
         g2d.setTransform(transformOriginal);
 
-        // 5. DIBUJAR OVERLAY TRANSPARENTE DE FLASHBACK
-        flashbackGato.renderizar(g2d, getWidth(), getHeight(), this);
+        // 5. DIBUJAR CAPAS VIAUSLES EN ORDEN
+        for (InterfazVisual capa : capasVisuales) {
+         capa.renderizar(g2d, getWidth(), getHeight(), this);
+        }
     }
 
     private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
@@ -355,12 +377,6 @@ public class NivelPanel extends JPanel {
         int alto = (int) (ALTO_CUADRO * ESCALA);
 
         g2d.drawImage(hoja, x, y, x + ancho, y + alto, srcX1, srcY1, srcX2, srcY2, this);
-    }
-
-
-    // --- MÉTODOS PARA DISPARAR EL VISUAL DEL FLASHBACK
-    public void activarFlashbackGato(){
-        flashbackGato.activar(this);
     }
 
     // -- METODO PARA LA IMAGEN DE PLANTA BAJA --

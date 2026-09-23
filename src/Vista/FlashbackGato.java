@@ -1,24 +1,20 @@
 package Vista;
 
-import Modelo.Gato;
-import Modelo.Personaje;
-
 import javax.imageio.ImageIO;
-import javax.swing.Timer;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
 
-public class FlashbackGato {
+
+public class FlashbackGato implements InterfazVisual {
 
     // --- VARIABLES Y ATRIBUTOS ---
     private boolean mostrandoFlashback = false;
     private int poseActual = 0;
-    private Random random = new Random();
+
 
     private Image imagenFlashback1;
     private Image imagenFlashback2;
@@ -26,7 +22,6 @@ public class FlashbackGato {
     private Image imagenFlashback4;
 
     public FlashbackGato() {
-        // Carga de imágenes tal como ella las definió
         imagenFlashback1 = cargarImagenFlashback("/Recursos/imagenes_gato/1flashback.png");
         imagenFlashback2 = cargarImagenFlashback("/Recursos/imagenes_gato/2flashback.png");
         imagenFlashback3 = cargarImagenFlashback("/Recursos/imagenes_gato/3flashback.png");
@@ -45,32 +40,42 @@ public class FlashbackGato {
             return null;
         }
     }
-
-    // --- LÓGICA DE ACTIVACIÓN cambiada, ahora es parpadeo y animacion
-    public void activar(NivelPanel panel) {
-        mostrandoFlashback = true;
-
-        Timer parpadeo = new Timer (200, null);
-        int[] contador = {0}; // Usamos un array para poder modificarlo dentro del ActionListener
-
-        parpadeo.addActionListener(e -> {
-            mostrandoFlashback = !mostrandoFlashback;
-            if (mostrandoFlashback){
-                    poseActual = random.nextInt(4); // Cambia la pose a una aleatoria entre 0 y 3
-            }
-            panel.repaint();
-            contador[0]++;
-            if (contador[0] >= 10) { 
-                ((Timer) e.getSource()).stop();
-                mostrandoFlashback = false;
-                panel.repaint();
-        }
-    });
-    parpadeo.start();
-
+//setters getters
+    public void setMostrandoFlashback(boolean mostrandoFlashback){
+        this.mostrandoFlashback = mostrandoFlashback;
     }
 
-    // --- DIBUJADO EN PANTALLA
+    public void setPoseActual(int poseActual){
+        this.poseActual = poseActual;
+    }
+
+    public boolean getMostrandoFlashback(){
+        return mostrandoFlashback;
+    }
+//metodo apra activar flashback
+public void activar(NivelPanel panel) {
+    // 1. Elige una postura aleatoria entre las 4 imágenes (0, 1, 2 o 3)
+    this.poseActual = (int) (Math.random() * 4);
+    this.mostrandoFlashback = true;
+
+    // 2. Muestra la imagen durante 1.5 segundos (1500 ms) y luego la oculta
+    javax.swing.Timer timer = new javax.swing.Timer(1500, e -> {
+        this.mostrandoFlashback = false;
+        if (panel != null) {
+            panel.repaint();
+        }
+        ((javax.swing.Timer) e.getSource()).stop();
+    });
+    timer.setRepeats(false);
+    timer.start();
+
+    // Refresca la pantalla inmediatamente
+    if (panel != null) {
+        panel.repaint();
+    }
+}
+
+    @Override
     public void renderizar(Graphics2D g2d, int ancho, int alto, NivelPanel panel) {
         if (!mostrandoFlashback) return;
 
@@ -86,12 +91,8 @@ public class FlashbackGato {
             Composite composicionOriginal = g2d.getComposite();
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% opaco
             g2d.drawImage(imagenAMostrar, 0, 0, ancho, alto, panel);
-            g2d.setComposite(composicionOriginal); // Restaura la opacidad
+            g2d.setComposite(composicionOriginal); // Restaura transparencia
         }
-    }
-
-    public boolean isMostrandoFlashback() {
-        return mostrandoFlashback;
     }
 }
 
