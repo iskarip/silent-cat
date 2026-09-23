@@ -26,7 +26,7 @@ public class ControladorNivel {
     private boolean personajeMuerto = false;
     private boolean pausado = false;
 
-    // -- CONTROLADOR --
+    // -- CONSTRUCTOR CONTROLADOR --
 
     public ControladorNivel(Partida partida, NivelPanel vista, JuegoFrame ventanaPrincipal) {
         this.partida = partida;
@@ -153,17 +153,14 @@ public class ControladorNivel {
             controladorCombate.ejecutarAtaque(partida.getPersonaje(), partida.getNivelActual(), vista);
         }
     }
-//el controlador manda dos ordenes separadas
-//una la manda al modelo, donde el gatoa plica su efecto sobre nuestro pj
-//la otra orden la manda a la vista que solo activa el parpadeo uwu
+
+
+//ahora el controlador le preguntaria a PARTIDA.JAVA ya no a nivel, ya que agregue el gato en partida para que aparezca el flashback desde el nivel 1
     private void probarFlashback() {
         if (pausado) return;
-        Nivel nivelActual = partida.getNivelActual();
-        if (nivelActual != null && nivelActual.getGato() != null) {
-            nivelActual.getGato().activarFlashback(partida.getPersonaje()); //aca el modelo actua
-            vista.activarFlashbackGato(); //aca la vista estaria haciendo lo q debe
+            partida.getGato().activarEfectoFlashback(partida.getPersonaje()); 
+            vista.activarFlashbackGato(); 
         }
-    }
 
     public void reiniciarEstado() {
         personajeMuerto = false;

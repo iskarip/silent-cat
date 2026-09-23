@@ -24,6 +24,7 @@ private List<String> sonidosEncuentro = List.of(
 );
 
 private Random random = new Random(); //Sirve para elegir cual sonido reproducir (De mi lista de sonidos)
+
 private static final long DURACION_LENTITUD_MS = 2000;
 
 //CONSTRUCTOR
@@ -42,6 +43,7 @@ public void setEncontrado(boolean encontrado){
     this.encontrado = encontrado;
 }
 
+//METODOS
 
 public void reproducirSonidoFlashback(){
     int indice = random.nextInt(sonidosFlashback.size());
@@ -55,7 +57,7 @@ public void reproducirSonidoEncuentro(){
 
 //acca movi lo de flashback para que respete mvc (Sonido + lentitud + cuando se revirete)
 
-public void activarFlashback(Personaje personaje){
+public void activarEfectoFlashback(Personaje personaje){
     reproducirSonidoFlashback();
     personaje.aplicarLentitud();
 

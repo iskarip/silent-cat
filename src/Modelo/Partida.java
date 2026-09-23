@@ -8,6 +8,8 @@ public class Partida {
     // -- ATRIBUTOS --
     private static Partida instancia;
     private Personaje personaje;
+    private Gato gato; //necesito ponerlo aca para poder usar los flashbacks durante el juego, es como un gato de narrativa de nuestro juego
+
 
     private Map<Integer, Nivel> niveles;
     private int numeroNivelActual;
@@ -16,6 +18,7 @@ public class Partida {
     private Partida() {
         this.niveles = new HashMap<>();
         this.numeroNivelActual = 1;
+        this.gato = new Gato(); // se crea una sola vez el gato
     }
 
     // -- SETS Y GETS --
@@ -34,7 +37,8 @@ public class Partida {
     public Personaje getPersonaje() { return personaje; }
     public void setPersonaje(Personaje personaje) { this.personaje = personaje; }
 
-
+    public Gato getGato() { return gato; } //para poder usar el gato en el controlador
+    
     // -- METODOS --
 
     public void iniciarPartida(int cantidadNiveles) {
