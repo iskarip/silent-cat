@@ -354,15 +354,9 @@ public class NivelPanel extends JPanel {
     }
 
 
-    // --- MÉTODOS PARA DISPARAR EL FLASHBACK ---
-    public void activarFlashbackGato() {
-        if (nivelActual == null || nivelActual.getGato() == null) return;
-        flashbackGato.activar(nivelActual.getGato(), personaje, this);
-    }
-
-    public void activarFlashbackPrueba() {
-        Gato gatoPrueba = new Gato();
-        flashbackGato.activar(gatoPrueba, personaje, this);
+    // --- MÉTODOS PARA DISPARAR EL VISUAL DEL FLASHBACK
+    public void activarFlashbackGato(){
+        flashbackGato.activar(this);
     }
 
     // -- METODO PARA LA IMAGEN DE PLANTA BAJA --
