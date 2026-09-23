@@ -79,5 +79,16 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
         return puntosVida > 0;
     }
 
+        @Override
+    public void colocarEnTile(int columna, int fila) {
+        Rectangle hb = getHitbox();
+        int offsetX = hb.x - getPosicionX(); // cuánto está corrido el hitbox respecto del sprite
+        int offsetY = hb.y - getPosicionY();
+        int centroX = columna * MapaColision.TILE + MapaColision.TILE / 2;
+        int centroY = fila * MapaColision.TILE + MapaColision.TILE / 2;
+        setPosicionX(centroX - offsetX - hb.width / 2);
+        setPosicionY(centroY - offsetY - hb.height / 2);
+    }
+
 
 }

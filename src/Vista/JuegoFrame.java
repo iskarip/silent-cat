@@ -20,8 +20,8 @@ public class JuegoFrame extends JFrame {
 
         setUndecorated(true);
 
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        gd.setFullScreenWindow(this);
+       // GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        //gd.setFullScreenWindow(this);
 
         cardLayout = new CardLayout();
         panelContenedor = new JPanel(cardLayout);

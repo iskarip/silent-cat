@@ -13,7 +13,7 @@ import java.util.List;
 public class MapaColision {
 
     private boolean[][] mapa;
-    private static final int TILE = 32;
+    public static final int TILE = 32; // Tamaño de cada tile en píxeles (32x32), Es public para que otras clases puedan usarlo para calcular posiciones en píxeles a partir de coordenadas de tile.
 
     public void cargar(String rutaArchivo) { // Lee el archivo de texto y construye la matriz de colisión
         List<String> lineas = new ArrayList<>();
@@ -85,6 +85,14 @@ public class MapaColision {
         if (!esPosicionValida(x + ancho, y + alto)) return false;
        
         return true;
+    }
+
+    public int getFilas() {
+    return (mapa == null) ? 0 : mapa.length;
+    }
+
+    public int getColumnas() {
+        return (mapa == null || mapa.length == 0) ? 0 : mapa[0].length;
     }
 
 }

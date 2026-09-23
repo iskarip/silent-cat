@@ -28,9 +28,9 @@ public class ControladorNivel {
     private final ControladorAcertijo controladorAcertijo;
 
 
-//instancias del gato(el sonido, lentitud y lo visual)
-private final Gato gato;
-private final FlashbackGato flashbackGato;
+    //instancias del gato(el sonido, lentitud y lo visual)
+    private final Gato gato;
+    private final FlashbackGato flashbackGato;
 
 
     private Timer bucleDeJuego;
@@ -129,8 +129,10 @@ private final FlashbackGato flashbackGato;
         Personaje personaje = partida.getPersonaje();
 
         if (nivelActual != null) {
-            vista.setNivelActual(nivelActual);
+        vista.setNivelActual(nivelActual);
+        if (nivelActual.getRutaSpritesEnemigos() != null) {
             vista.setSpritesEnemigo(new GestorSprites(nivelActual.getRutaSpritesEnemigos()));
+            }
         }
 
         if (personaje != null) {

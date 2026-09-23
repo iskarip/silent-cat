@@ -130,13 +130,6 @@ public class Nivel extends EspacioBase {
         }
     }
 
-    public void movimientoEntidad(Personaje jugador, boolean linternaEncendida) {
-        System.out.println("Moviendo entidades enemigas en el nivel " + this.numeroNivel);
-        for (Enemigo e : listaEnemigos) {
-            e.actualizarComportamiento(jugador, linternaEncendida);
-        }
-    }
-
     public boolean verificarSiCompleto() {
         boolean acertijoOk = acertijoNivel.getResuelto();
         boolean gatoOk = (gato == null) || gato.getEncontrado();

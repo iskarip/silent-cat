@@ -2,6 +2,7 @@ package Controlador;
 
 import Modelo.Arma;
 import Modelo.Linterna;
+import Modelo.Nivel;
 import Modelo.Partida;
 import Modelo.Personaje;
 import Vista.GestorSprites;
@@ -50,29 +51,32 @@ public class ControladorPrincipal {
     }
     
     private void comenzarJuego(String genero) {
+
         // 1. Instanciación de Partida (Singleton)
         Partida partida = Partida.getInstancia();
         partida.iniciarPartida(3);
 
         // 2. Creación del personaje
         Personaje personaje = new Personaje("Protagonista", new Arma(), new Linterna());
-        personaje.setPosicionX(19 * 32);
-        personaje.setPosicionY(19 * 32);
         partida.setPersonaje(personaje); // Importante para el Modelo
-
+        
+        // Colocar al personaje en la posición inicial del nivel actual
+        Nivel nivel = partida.getNivelActual();
+        personaje.colocarEnTile(nivel.getPosicionInicialX(), nivel.getPosicionInicialY());
+        
+        // 3. Configuración de GestorSprites (Vista)
         GestorSprites spritesPersonaje = new GestorSprites("/Recursos/Sprites/Personajes/" + genero + "/");
 
-        // 3. Configuración de NivelPanel (Vista)
+        // 4. Configuración de NivelPanel (Vista)
         NivelPanel nivelPanel = ventana.getNivelPanel();
         nivelPanel.reiniciarEstadoNivel();
         nivelPanel.setPersonaje(personaje);
         nivelPanel.setGestorSprites(spritesPersonaje);
 
-        // 4. Cambio de pantalla PRIMERO para que el panel sea visible en el CardLayout
+        // 5. Cambio de pantalla PRIMERO para que el panel sea visible en el CardLayout
         ventana.mostrarPantalla("nivel");
 
-        // 5. Instanciación e inicio del ControladorNivel SEGUNDO (para ganar el foco)
-
+        // 6. Instanciación e inicio del ControladorNivel SEGUNDO (para ganar el foco)
         ControladorNivel controladorNivel = new ControladorNivel(partida, nivelPanel, ventana);
         controladorNivel.iniciar(); 
     }

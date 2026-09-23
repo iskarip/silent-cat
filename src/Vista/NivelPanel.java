@@ -46,14 +46,13 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
     private JButton botonMenuPrincipal;
 
     //CONSTANTES DE ESCALADO Y ZOOM
-    public static final double ZOOM = 1.85;
-    private static final int ANCHO_MAPA_PX = 50 * 32;
-    private static final int ALTO_MAPA_PX  = 24 * 32;
+    public static final double ZOOM = 4.0; // Zoom del personaje
 
-
-    public static final double ESCALA = 2.5;
+    public static final double ESCALA = 1.0;
     public static final int ANCHO_CUADRO = 48;
     public static final int ALTO_CUADRO = 48;
+
+    private static final boolean MOSTRAR_GRILLA = false; // true para ver las colisiones
 
 
     public NivelPanel() {
@@ -115,11 +114,18 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
         int objetivoY = centroPersonajeY - (altoVisible / 2);
 
         // 4. Clamping: la cámara se frena al llegar al borde de los 50x24 bloques[cite: 14]
-        int maxCamX = Math.max(0, ANCHO_MAPA_PX - anchoVisible);
-        int maxCamY = Math.max(0, ALTO_MAPA_PX - altoVisible);
+        int anchoMapaPx = 0;
+        int altoMapaPx = 0;
+        if (nivelActual != null && nivelActual.getMapaColision() != null) {
+            MapaColision mc = nivelActual.getMapaColision();
+            anchoMapaPx = mc.getColumnas() * MapaColision.TILE;
+            altoMapaPx = mc.getFilas() * MapaColision.TILE;
+        }
 
-        this.camaraX = Math.max(0, Math.min(objetivoX, maxCamX));
-        this.camaraY = Math.max(0, Math.min(objetivoY, maxCamY));
+        int maxCamX = Math.max(0, anchoMapaPx - anchoVisible);
+        int maxCamY = Math.max(0, altoMapaPx - altoVisible);
+        camaraX = Math.max(0, Math.min(objetivoX, maxCamX));
+        camaraY = Math.max(0, Math.min(objetivoY, maxCamY));
     }
 
     // --- GETTERS Y SETTERS ---
@@ -142,9 +148,17 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
             //carga la imagen de fondo
             this.imagenFondoNivel = cargarImagenFondo(nivel.getRutaImagenFondo());
 
+            // DEBUG: borrar cuando se arregle
+            MapaColision mc = nivel.getMapaColision();
+            System.out.println("MAPA txt: " + mc.getColumnas() + " columnas x " + mc.getFilas() + " filas");
+            System.out.println("MAPA txt en pixeles: " + (mc.getColumnas() * MapaColision.TILE) + " x " + (mc.getFilas() * MapaColision.TILE));
+            if (imagenFondoNivel != null) {
+                System.out.println("IMAGEN png: " + imagenFondoNivel.getWidth(null) + " x " + imagenFondoNivel.getHeight(null));
+            }
         }
         repaint();
     }
+
     public int getCamaraX() { 
         return camaraX; 
     }
@@ -278,19 +292,28 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
         g2d.scale(ZOOM, ZOOM);
         g2d.translate(-camaraX, -camaraY);
 
+        // 2a. Fondo del nivel, escalado al tamaño del mapa
+        if (imagenFondoNivel != null && nivelActual != null && nivelActual.getMapaColision() != null) {
+            MapaColision mc = nivelActual.getMapaColision();
+            g2d.drawImage(imagenFondoNivel, 0, 0,
+                    mc.getColumnas() * MapaColision.TILE, mc.getFilas() * MapaColision.TILE, this);
+        }
+
         // 2. DIBUJAR PISO Y OBSTÁCULOS (PALETA NEGRO Y AMARILLO)
-        if (nivelActual != null && nivelActual.getMapaColision() != null) {
+        
+       if (MOSTRAR_GRILLA && nivelActual != null && nivelActual.getMapaColision() != null) {
             MapaColision mapaColision = nivelActual.getMapaColision();
-            int tileSize = 32;
-            int totalFilas = 24;
-            int totalColumnas = 50;
+            
+            int tileSize = MapaColision.TILE;
+            int totalFilas = mapaColision.getFilas();
+            int totalColumnas = mapaColision.getColumnas();
 
             // Colores temáticos:
-            Color paredRelleno = new Color(15, 15, 18);
-            Color paredBorde   = new Color(30, 30, 35);
+            Color paredRelleno = new Color(255, 0, 0, 90);
+            Color paredBorde   = new Color(255, 0, 0, 160);
 
-            Color sueloRelleno = new Color(212, 175, 55);
-            Color sueloBorde   = new Color(175, 140, 30);
+            Color sueloRelleno = new Color(0, 255, 0, 40);
+            Color sueloBorde   = new Color(0, 255, 0, 100);
 
             for (int f = 0; f < totalFilas; f++) {
                 for (int c = 0; c < totalColumnas; c++) {
@@ -313,6 +336,7 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
                 }
             }
         }
+
         // 3. DIBUJAR SPRITE DEL PROTAGONISTA
         BufferedImage hoja = (gestorSprites != null) ? gestorSprites.obtener(estadoActual) : null;
         int posX = personaje.getPosicionX();

@@ -33,10 +33,10 @@ public class Personaje extends Entidad {
     private Inventario inventario;
 
 // -- MEDIDAS DEL HITBOX --
-    private static final int ANCHO_HITBOX = (int) (12 * ESCALA);
-    private static final int ALTO_HITBOX = (int) (6 * ESCALA);
-    private static final int OFFSET_X_HITBOX = (int) (18 * ESCALA);
-    private static final int OFFSET_Y_HITBOX = (int) (40 * ESCALA);
+    private static final int ANCHO_HITBOX = (int) (6 * ESCALA);
+    private static final int ALTO_HITBOX = (int) (2 * ESCALA);
+    private static final int OFFSET_X_HITBOX = (int) (7 * ESCALA);
+    private static final int OFFSET_Y_HITBOX = (int) (15 * ESCALA);
     private static final int ALCANCE_ATAQUE = (int) (18 * ESCALA);
 
 // -- CONSTRUCTOR --

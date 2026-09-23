@@ -204,6 +204,13 @@ public class Enemigo extends Entidad {
             patrullar(mapa);
         }
     }
+
+    @Override
+    public void colocarEnTile(int columna, int fila) {
+        super.colocarEnTile(columna, fila);
+        this.spawnX = getPosicionX();
+        this.spawnY = getPosicionY();
+    }
 }
 
 
