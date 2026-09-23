@@ -91,7 +91,7 @@ public class Personaje extends Entidad {
         return new Rectangle(x + OFFSET_X_HITBOX, y + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
     }
 
-    public Rectangle getHitBoxAtaque() {
+    public Rectangle getHitboxAtaque() {
         Rectangle base = getHitbox();
         switch (getDireccion()) {
             case ARRIBA:    return new Rectangle(base.x, base.y - ALCANCE_ATAQUE, base.width, ALCANCE_ATAQUE);

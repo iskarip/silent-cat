@@ -25,18 +25,15 @@ public class ControladorEnemigos {
 
         for (Enemigo e : enemigos) {
             if (e.estaVivo()) {
-                // TODO 2: pedile al enemigo que actualice su propio comportamiento
-                //         (la decisión de moverse/patrullar/atacar es DE ÉL,
-                //         vos solo se lo pedís — e.actualizarComportamiento(...))
+                boolean linternaEncendida = personaje.getLinterna().getEncendido();
+                e.actualizarComportamiento(personaje, linternaEncendida, nivelActual.getMapaColision());
 
-                // TODO 3: calculá el hitbox de ESTE enemigo con vista.getHitboxEnemigo(e)
-                //         y comparalo contra el hitbox del jugador (el del TODO 1)
-
-                // TODO 4: si hay intersección, quién ataca a quién acá?
-                //         pensalo: la colisión la detecta el Controller,
-                //         pero el golpe en sí, ¿quién lo ejecuta?
+                Rectangle hbEnemigo = e.getHitbox();
+                if (hbJugador.intersects(hbEnemigo)) {
+                    e.atacar(personaje);
+                }
             } else {
-                // TODO 5: si está muerto, avanzále la animación de muerte
+                // TODO 1: si está muerto, avanzále la animación de muerte
                 //         (esto ya lo tenías en ControladorNivel, movelo tal cual)
             }
         }

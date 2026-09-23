@@ -146,6 +146,10 @@ public class NivelPanel extends JPanel {
         return botonMenuPrincipal;
     }
 
+    public JButton getBotonVolverMenu() {
+        return botonVolverMenu;
+    }
+
     public void mostrarPausa () {
         panelPausa.setVisible(true);
     }

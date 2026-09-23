@@ -22,7 +22,7 @@ public class NivelFactory {
         nivel.setRutaSpritesEnemigos("/Recursos/Sprites/Enemigos/Nurse/");
         nivel.setAcertijoX(300); // TODO: ajustar estos valores segun donde se quiera que este el acertijo en el mapa
         nivel.setAcertijoY(200);
-        nivel.agregarEnemigo(new Enemigo(100, 10, 1, 400, 150));
+        nivel.agregarEnemigo(new Enemigo(100, 10, 1, 800, 80));
         nivel.agregarEnemigo(new Enemigo(100, 10, 2, 550, 320));
 
         // TODO cuando definan posiciones: nivel.agregarItem(...), nivel.agregarHabitacion(...)

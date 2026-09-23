@@ -66,7 +66,15 @@ public class Enemigo extends Entidad {
     //sacar este println cuando la Vista (Swing) muestre el ataque visualmente
     @Override
     public Rectangle getHitbox() {
-        return new Rectangle(getPosicionX() + OFFSET_X_HITBOX, getPosicionY() + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
+        return construirHitbox(getPosicionX(), getPosicionY());
+    }
+
+    public Rectangle getHitboxEnPosicion(int x, int y) {
+        return construirHitbox(x, y);
+    }
+
+    private Rectangle construirHitbox(int x, int y) {
+        return new Rectangle(x + OFFSET_X_HITBOX, y + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
     }
 
     public void atacar(Entidad objetivo) {
@@ -81,7 +89,7 @@ public class Enemigo extends Entidad {
 
 //metodo propio del enemigo (mover, patrullar)
 
-    public void moverHaciaJugador(Personaje jugador) {
+    public void moverHaciaJugador(Personaje jugador, MapaColision mapa) {
         int deltaX = 0;
         int deltaY = 0;
 
@@ -107,8 +115,18 @@ public class Enemigo extends Entidad {
 
     }
 
+    private void moverConLimites(int deltaX, int deltaY, MapaColision mapa) {
+        if (deltaX == 0 && deltaY == 0) return;
+        int nuevoX = getPosicionX() + deltaX;
+        int nuevoY = getPosicionY() + deltaY;
+        Rectangle hb = getHitboxEnPosicion(nuevoX, nuevoY);
+        if (mapa == null || mapa.esRectanguloValido(hb.x, hb.y, hb.width, hb.height)) {
+            mover(deltaX, deltaY);
+        }
+    }
 
-    public void patrullar() {
+
+    public void patrullar(MapaColision mapa) {
         ticksHastaCambiarDireccion--;
         if (ticksHastaCambiarDireccion <= 0) {
             int opcion = random.nextInt(5); // 0 = quieto, 1-4 = una dirección
@@ -150,7 +168,7 @@ public class Enemigo extends Entidad {
             dxPatrulla = 0;
             dyPatrulla = 0;
         } else if (dxPatrulla != 0 || dyPatrulla != 0) {
-            mover(dxPatrulla, dyPatrulla);
+            moverConLimites(dxPatrulla, dyPatrulla, mapa);
         }
 
         this.moviendose = (dxPatrulla != 0 || dyPatrulla != 0);
@@ -168,22 +186,22 @@ public class Enemigo extends Entidad {
         return distancia <= radioEfectivo;
     }
 
-    public void actualizarComportamiento(Personaje jugador, boolean linternaEncendida) {
+    public void actualizarComportamiento(Personaje jugador, boolean linternaEncendida, MapaColision mapa) {
         if (ticksEnfriamientoAtaque > 0) {
             ticksEnfriamientoAtaque--;
         }
 
         if (detectaAlJugador(jugador, linternaEncendida)) {
             alertado = true;
-            moverHaciaJugador(jugador);
+            moverHaciaJugador(jugador, mapa);
         } else if (alertado) { // perdió de vista al jugador, pero sigue en alerta un rato antes de volver a patrullar
             spawnX = getPosicionX();
             spawnY = getPosicionY();
             alertado = false;
             ticksHastaCambiarDireccion = 0;
-            patrullar();
+            patrullar(mapa);
         } else {
-            patrullar();
+            patrullar(mapa);
         }
     }
 }

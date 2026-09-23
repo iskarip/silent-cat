@@ -6,6 +6,7 @@ import Modelo.Personaje;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.EstadoPersonaje;
+import Vista.GestorSprites;
 
 import javax.swing.Timer;
 
@@ -61,6 +62,7 @@ public class ControladorNivel {
         vista.getBotonPausa().addActionListener(e -> pausarJuego());
         vista.getBotonReanudar().addActionListener(e -> reanudarJuego());
         vista.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
+        vista.getBotonVolverMenu().addActionListener(e -> volverAlMenu());
     }
 
     // -- CONTROL DE EJECUCION DEL NIVEL --
@@ -104,6 +106,7 @@ public class ControladorNivel {
 
         if (nivelActual != null) {
             vista.setNivelActual(nivelActual);
+            vista.setSpritesEnemigo(new GestorSprites(nivelActual.getRutaSpritesEnemigos()));
         }
 
         if (personaje != null) {
