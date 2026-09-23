@@ -27,7 +27,7 @@ public class ControladorNivel {
     private boolean personajeMuerto = false;
     private boolean pausado = false;
 
-    // -- CONTROLADOR --
+    // -- CONSTRUCTOR CONTROLADOR --
 
     public ControladorNivel(Partida partida, NivelPanel vista, JuegoFrame ventanaPrincipal) {
         this.partida = partida;
@@ -159,12 +159,13 @@ public class ControladorNivel {
         }
     }
 
+
+//ahora el controlador le preguntaria a PARTIDA.JAVA ya no a nivel, ya que agregue el gato en partida para que aparezca el flashback desde el nivel 1
     private void probarFlashback() {
         if (pausado) return;
-        if (partida.getNivelActual() != null && partida.getNivelActual().getGato() != null) {
-            vista.activarFlashbackGato();
+            partida.getGato().activarEfectoFlashback(partida.getPersonaje()); 
+            vista.activarFlashbackGato(); 
         }
-    }
 
     public void reiniciarEstado() {
         personajeMuerto = false;

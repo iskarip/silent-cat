@@ -46,35 +46,28 @@ public class FlashbackGato {
         }
     }
 
-    // --- LÓGICA DE ACTIVACIÓN ORIGINAL QUE ELLA ESCRIBIÓ ---
-    public void activar(Gato gato, Personaje personaje, NivelPanel panel) {
-        if (gato == null || personaje == null) return;
-
-        gato.reproducirSonidoFlashback();
-        personaje.aplicarLentitud();
+    // --- LÓGICA DE ACTIVACIÓN cambiada, ahora es parpadeo y animacion
+    public void activar(NivelPanel panel) {
         mostrandoFlashback = true;
 
-        // Su timer original de parpadeo a 200ms
-        Timer parpadeo = new Timer(200, null);
-        int[] contador = {0};
+        Timer parpadeo = new Timer (200, null);
+        int[] contador = {0}; // Usamos un array para poder modificarlo dentro del ActionListener
 
         parpadeo.addActionListener(e -> {
             mostrandoFlashback = !mostrandoFlashback;
-            if (mostrandoFlashback) {
-                poseActual = random.nextInt(4);
+            if (mostrandoFlashback){
+                    poseActual = random.nextInt(4); // Cambia la pose a una aleatoria entre 0 y 3
             }
-            panel.repaint(); // Le pide al panel que se redibuje
-            
+            panel.repaint();
             contador[0]++;
-            if (contador[0] >= 10) { // 10 parpadeos = 2 segundos totales
+            if (contador[0] >= 10) { 
                 ((Timer) e.getSource()).stop();
                 mostrandoFlashback = false;
-                personaje.quitarLentitud();
                 panel.repaint();
-            }
-        });
+        }
+    });
+    parpadeo.start();
 
-        parpadeo.start();
     }
 
     // --- DIBUJADO EN PANTALLA
