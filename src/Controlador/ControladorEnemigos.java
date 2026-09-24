@@ -33,7 +33,7 @@ public class ControladorEnemigos {
                     e.atacar(personaje);
                 }
             } else {
-                // TODO 1: si está muerto, avanzále la animación de muerte
+                // TODO 5: si está muerto, avanzále la animación de muerte
                 //         (esto ya lo tenías en ControladorNivel, movelo tal cual)
             }
         }
