@@ -10,6 +10,7 @@ import Vista.EstadoPersonaje;
 import Vista.GestorSprites;
 import Vista.LinternaOverlay;
 import Vista.FlashbackGato;
+import Vista.BarraBateria;
 
 import javax.swing.Timer;
 
@@ -36,6 +37,7 @@ public class ControladorNivel {
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
     private boolean pausado = false;
+    private int contadorBateria = 0; 
 
     // -- CONSTRUCTOR CONTROLADOR --
 
@@ -59,6 +61,9 @@ public class ControladorNivel {
         LinternaOverlay linternaOverlay = new LinternaOverlay();
         this.vista.agregarCapaVisual(linternaOverlay);
         this.vista.agregarCapaVisual(this.flashbackGato);
+
+        BarraBateria barraBateria = new BarraBateria();
+        this.vista.agregarCapaVisual(barraBateria);
 
 
         // Conexión de acciones únicas de teclado
@@ -176,7 +181,15 @@ public class ControladorNivel {
         // 4. Deteccion de proximidad al acertijo del nivel
         controladorAcertijo.comprobarActivacion(nivelActual, personaje);
 
-        // 5. Redibujado en pantalla
+        // 5. Consumo de la bateria de la Linterna
+        contadorBateria++;
+        
+        if(contadorBateria >= 60){
+            personaje.getLinterna().gastarBateria();
+            contadorBateria= 0;
+        }
+
+        // 6. Redibujado en pantalla
         vista.repaint();
     }
 
