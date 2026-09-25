@@ -12,7 +12,7 @@ public class Enemigo extends Entidad {
     private static final int ANCHO_HITBOX = (int) (16 * ESCALA);
     private static final int ALTO_HITBOX = (int) (10 * ESCALA);
     private static final int OFFSET_X_HITBOX = (int) (16 * ESCALA);
-    private static final int OFFSET_Y_HITBOX = (int) (38 * ESCALA);
+    private static final int OFFSET_Y_HITBOX = (int) (15 * ESCALA);
 
     private int idEnemigo;
     private int danioBase;
@@ -110,7 +110,7 @@ public class Enemigo extends Entidad {
             direccion = Direccion.ARRIBA;
         }
 
-        mover(deltaX, deltaY);
+        moverConLimites(deltaX, deltaY, mapa);
 
         this.moviendose = (deltaX != 0 || deltaY != 0);
 

@@ -39,12 +39,16 @@ public class ControladorMovimiento {
 
         boolean seEstaMoviendo = (deltaX != 0 || deltaY != 0);
         // Asignación explícita del estado
-        if (seEstaMoviendo) {
-            vista.setEstado(EstadoPersonaje.CAMINANDO);
+        if (!vista.estaAtacando()) {
+            if (seEstaMoviendo) {
+                vista.setEstado(EstadoPersonaje.CAMINANDO);
+                moverConLimites(personaje, mapa, vista, deltaX, deltaY);
+            } else {
+                vista.setEstado(EstadoPersonaje.IDLE);
+            }
+            vista.actualizarAnimacion(seEstaMoviendo);
+        } else if (seEstaMoviendo) {
             moverConLimites(personaje, mapa, vista, deltaX, deltaY);
-        } else {
-            // Si no hay desplazamiento en las teclas, forzamos IDLE
-            vista.setEstado(EstadoPersonaje.IDLE);
         }
 
         vista.actualizarAnimacion(seEstaMoviendo);

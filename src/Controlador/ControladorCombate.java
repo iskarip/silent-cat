@@ -42,6 +42,7 @@ public class ControladorCombate {
             for (Enemigo enemigo : nivelActual.getListaEnemigos()) {
                 if (enemigo.estaVivo()) {
                     Rectangle cuerpoEnemigo = enemigo.getHitbox();
+                    System.out.println("Ataque: " + hitboxGolpe + " | Enemigo: " + cuerpoEnemigo + " | Intersecta: " + hitboxGolpe.intersects(cuerpoEnemigo));
                     if (hitboxGolpe.intersects(cuerpoEnemigo)) {
                         // Delegación polimórfica: el personaje ataca usando su arma
                         personaje.atacar(enemigo);

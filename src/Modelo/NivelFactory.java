@@ -43,6 +43,13 @@ public class NivelFactory {
         ItemBateria bateria3 = new ItemBateria(19,4);
         nivel.agregarItem(bateria3);
 
+        Enemigo enemigo1 = new Enemigo(100, 10, 1, 0, 0);
+        enemigo1.colocarEnTile(15, 9);
+        nivel.agregarEnemigo(enemigo1);
+
+        Enemigo enemigo2 = new Enemigo(100, 10, 2, 0, 0);
+        enemigo2.colocarEnTile(2, 8);
+        nivel.agregarEnemigo(enemigo2);
 
         return nivel;
     }

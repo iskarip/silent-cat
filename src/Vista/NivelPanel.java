@@ -159,6 +159,11 @@ public class NivelPanel extends JPanel {
             repaint();
         }
     }
+
+    public boolean estaAtacando() {
+        return estadoActual == EstadoPersonaje.ATACANDO;
+    }
+
     public Nivel getNivelActual() { return nivelActual; }
 
     public void setNivelActual(Nivel nivel) {
@@ -218,12 +223,18 @@ public class NivelPanel extends JPanel {
         
         if (contadorTick % velocidadAnimacion == 0) {
             // IDLE tiene 4 frames, los demás estados tienen 6
-            int totalFrames = (estadoActual == EstadoPersonaje.IDLE) ? 4 : 6;
-            
+            int totalFrames = obtenerTotalFrames(gestorSprites, estadoActual);
+
             cuadroAnimacion = (cuadroAnimacion + 1) % totalFrames;
         }
     }
 
+    private int obtenerTotalFrames(GestorSprites sprites, EstadoPersonaje estado) {
+        if (sprites == null) return 1;
+        BufferedImage hoja = sprites.obtener(estado);
+        return (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
+    }
+    
     public void avanzarAnimacionMuerte() {
         ticksMuerte++;
         if (ticksMuerte % 6 != 0) return;
