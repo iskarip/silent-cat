@@ -41,12 +41,10 @@ public class ControladorPrincipal {
     }
 
     private void configurarEventosSeleccion() {
-        ventana.getSeleccionPersonajePanel().getBotonHombre().addActionListener(e -> {
-            comenzarJuego("Chico");
-        });
+        Vista.SeleccionPersonajePanel seleccion = ventana.getSeleccionPersonajePanel();
 
-        ventana.getSeleccionPersonajePanel().getBotonMujer().addActionListener(e -> {
-            comenzarJuego("Chica");
+        seleccion.getBotonIniciarPartida().addActionListener(e -> {
+            comenzarJuego(seleccion.getGeneroSeleccionado());
         });
     }
     
@@ -74,7 +72,7 @@ public class ControladorPrincipal {
         nivelPanel.setGestorSprites(spritesPersonaje);
 
         // 5. Cambio de pantalla PRIMERO para que el panel sea visible en el CardLayout
-        ventana.mostrarPantalla("nivel");
+        ventana.mostrarPantallaConFundido("nivel");
 
         // 6. Instanciación e inicio del ControladorNivel SEGUNDO (para ganar el foco)
         ControladorNivel controladorNivel = new ControladorNivel(partida, nivelPanel, ventana);

@@ -3,28 +3,32 @@ package Vista;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+
 
 public class SeleccionPersonajePanel extends JPanel {
 
     // -- ATRIBUTOS --
 
-    public record OpcionPersonaje(String nombreMostrado, String genero, String carpetaSprites) {}
+    public record OpcionPersonaje(String nombreMostrado, String genero, String carpetaSprites) {
+    }
 
     private final List<OpcionPersonaje> opciones = List.of(
-            new OpcionPersonaje("NOMBRE", "Chico", "/Recursos/Sprites/Personajes/Chico/"),
-            new OpcionPersonaje("NOMBRE", "Chica", "/Recursos/Sprites/Personajes/Chica/")
+            new OpcionPersonaje("NOMBRE1", "Chico", "/Recursos/Sprites/Personajes/Chico/"),
+            new OpcionPersonaje("NOMBRE2", "Chica", "/Recursos/Sprites/Personajes/Chica/")
     );
 
     private int indiceActual = 0;
     private GestorSprites spritesActual;
+    private Image imagenFondo;
 
-    private BotonJuego botonFlechaIzquierda;
-    private BotonJuego botonFlechaDerecha;
-    private BotonJuego botonIniciarPartida;
+    private JButton botonFlechaIzquierda;
+    private JButton botonFlechaDerecha;
+    private JButton botonIniciarPartida;
 
     private Timer timerIdle;
-    private double tiempoIdle = 0;
-    private int offsetY = 0;
+    private int cuadroIdleActual = 0;
 
     // -- CONSTRUCTOR --
 
@@ -32,12 +36,25 @@ public class SeleccionPersonajePanel extends JPanel {
         setLayout(null);
         setBackground(Color.BLACK);
 
+        cargarFondo();
         cargarSpritesOpcion(indiceActual);
         crearBotones();
         iniciarAnimacionIdle();
     }
 
-    //-- METODOS--
+    // -- METODOS --
+
+    private void cargarFondo() {
+        try (var is = getClass().getResourceAsStream("/Recursos/UI/Menu/Fondo/imagenSeleccionPersonaje.jpg")) {
+            if (is != null) {
+                imagenFondo = ImageIO.read(is);
+            } else {
+                System.out.println("No se encontró la imagen de fondo de selección.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error al cargar fondo de selección: " + e.getMessage());
+        }
+    }
 
     private void cargarSpritesOpcion(int indice) {
         String carpeta = opciones.get(indice).carpetaSprites();
@@ -45,27 +62,19 @@ public class SeleccionPersonajePanel extends JPanel {
     }
 
     private void crearBotones() {
-        botonFlechaIzquierda = new BotonJuego(
-                "/Recursos/UI/Menu/Botones/flechaIzquierda.png",
-                "/Recursos/UI/Menu/Botones/flechaIzquierdaHover.png"
-        );
+        botonFlechaIzquierda = new JButton("<");
         botonFlechaIzquierda.setBounds(150, 320, 60, 60);
+        botonFlechaIzquierda.setFont(new Font("Arial", Font.BOLD, 24));
         botonFlechaIzquierda.addActionListener(e -> cambiarPersonaje(-1));
 
-        botonFlechaDerecha = new BotonJuego(
-                "/Recursos/UI/Menu/Botones/flechaDerecha.png",
-                "/Recursos/UI/Menu/Botones/flechaDerechaHover.png"
-        );
+        botonFlechaDerecha = new JButton(">");
         botonFlechaDerecha.setBounds(590, 320, 60, 60);
+        botonFlechaDerecha.setFont(new Font("Arial", Font.BOLD, 24));
         botonFlechaDerecha.addActionListener(e -> cambiarPersonaje(1));
 
-        botonIniciarPartida = new BotonJuego(
-                "/Recursos/UI/Menu/Botones/iniciarPartida.png",
-                "/Recursos/UI/Menu/Botones/iniciarPartidaHover.png"
-        );
+        botonIniciarPartida = new JButton("Iniciar Partida");
         botonIniciarPartida.setBounds(280, 560, 200, 70);
-        // Este sí es una decisión real (arrancar el juego), así que su
-        // ActionListener lo va a registrar ControladorPrincipal, no acá.
+        botonIniciarPartida.setFont(new Font("Arial", Font.BOLD, 18));
 
         add(botonFlechaIzquierda);
         add(botonFlechaDerecha);
@@ -79,17 +88,18 @@ public class SeleccionPersonajePanel extends JPanel {
     }
 
     private void iniciarAnimacionIdle() {
-        // 10 cuadros por segundo. (tipico de idle)
-        timerIdle = new Timer(100, e -> {
-            cuadroIdleActual++;
+        timerIdle = new Timer(150, e -> {
+            cuadroIdleActual = (cuadroIdleActual + 1) % 4; // 4 columnas de frames
             repaint();
         });
         timerIdle.start();
     }
 
-    // -- METODOS PARA EL CONTROLADO --
+    // -- METODOS PARA EL CONTROLADOR --
 
-    public JButton getBotonIniciarPartida() { return botonIniciarPartida; }
+    public JButton getBotonIniciarPartida() {
+        return botonIniciarPartida;
+    }
 
     public String getGeneroSeleccionado() {
         return opciones.get(indiceActual).genero();
@@ -104,9 +114,13 @@ public class SeleccionPersonajePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
+        if (imagenFondo != null) {
+            g2.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
+        }
+
         g2.setColor(new Color(230, 160, 60));
         g2.setFont(new Font("Arial", Font.BOLD, 42));
-        g2.drawString("Character Select", getWidth() / 2 - 190, 80);
+        g2.drawString("Seleccione su personaje", getWidth() / 2 - 230, 80);
 
         int cartaAncho = 260, cartaAlto = 340;
         int cartaX = getWidth() / 2 - cartaAncho / 2;
@@ -123,13 +137,23 @@ public class SeleccionPersonajePanel extends JPanel {
         g2.drawString(nombre, getWidth() / 2 - nombre.length() * 6, cartaY + 40);
 
         if (spritesActual != null) {
-            var sprite = spritesActual.obtenerCuadroIdle(cuadroIdleActual);
-            if (sprite != null) {
+            BufferedImage hoja = spritesActual.obtener(EstadoPersonaje.IDLE);
+            if (hoja != null) {
+                int anchoFrame = NivelPanel.ANCHO_CUADRO;
+                int altoFrame = NivelPanel.ALTO_CUADRO;
+                int srcX = cuadroIdleActual * anchoFrame;
+                int srcY = 0; // fila 0 = mirando hacia abajo/frente, ajustar según su convención
+
                 int spriteAncho = 120, spriteAlto = 120;
                 int spriteX = getWidth() / 2 - spriteAncho / 2;
                 int spriteY = cartaY + 90;
-                g2.drawImage(sprite, spriteX, spriteY, spriteAncho, spriteAlto, this);
+
+                g2.drawImage(hoja,
+                        spriteX, spriteY, spriteX + spriteAncho, spriteY + spriteAlto,
+                        srcX, srcY, srcX + anchoFrame, srcY + altoFrame,
+                        this);
             }
         }
     }
+
 }

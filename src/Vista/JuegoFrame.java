@@ -12,6 +12,7 @@ public class JuegoFrame extends JFrame {
     private SeleccionPersonajePanel seleccionPersonajePanel;
     private NivelPanel nivelPanel;
     private AcertijoPanel acertijoPanel;
+    private PanelFundido panelFundido;
 
     public JuegoFrame() {
         setTitle("Silent Cat");
@@ -39,7 +40,16 @@ public class JuegoFrame extends JFrame {
         panelContenedor.add(acertijoPanel, "acertijo");
 
         add(panelContenedor);
+
+        panelFundido = new PanelFundido();
+        panelFundido.setVisible(false);
+        setGlassPane(panelFundido);
+
         setVisible(true);
+    }
+
+    public void mostrarPantallaConFundido (String pantalla) {
+        panelFundido.fundirYCorrer(() -> mostrarPantalla(pantalla));
     }
 
     // Alternar entre pantallas mediante CardLayout
@@ -55,6 +65,8 @@ public class JuegoFrame extends JFrame {
     public SeleccionPersonajePanel getSeleccionPersonajePanel() { return seleccionPersonajePanel; }
     public NivelPanel getNivelPanel() { return nivelPanel; }
     public AcertijoPanel getAcertijoPanel() { return acertijoPanel; }
+
+
 
 }
 
