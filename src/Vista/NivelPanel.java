@@ -6,7 +6,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class NivelPanel extends JPanel {
 
@@ -17,7 +19,6 @@ public class NivelPanel extends JPanel {
 //___________________CAPAS VISUALES________________
 private final List<InterfazVisual> capasVisuales = new ArrayList<>();
     
-
     // --- ENTIDADES Y SPRITES ---
     private Personaje personaje;
     private GestorSprites gestorSprites;
@@ -53,6 +54,11 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
     public static final int ALTO_CUADRO = 48;
 
     private static final boolean MOSTRAR_GRILLA = false; // true para ver las colisiones
+
+    // Cache para imágenes de items, evitando recargas repetidas
+
+    private final Map<String, Image> cacheImagenesItems = new HashMap<>();
+
 
 
     public NivelPanel() {
@@ -159,6 +165,11 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
         repaint();
     }
 
+    private Image obtenerImagenItem(String ruta) {
+        if (ruta == null) return null;
+        return cacheImagenesItems.computeIfAbsent(ruta, this::cargarImagenFondo);
+    }
+
     public int getCamaraX() { 
         return camaraX; 
     }
@@ -166,8 +177,6 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
     public int getCamaraY() { 
         return camaraY; 
     }
-
-
 
     public JButton getBotonPausa(){
         return botonPausa;
@@ -200,8 +209,6 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
         botonPausa.setBounds(700, 10, 90, 35); // ubicacion del boton
         add (botonPausa);
     }
-
-    // --- ANIMACIÓN ---
 
     // --- DELIMITACIÓN DE HITBOXES PARA RENDERIZADO / FÍSICA ---
 
@@ -374,6 +381,25 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
                         int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
                         g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
                     }
+            }
+        }
+
+        // 4.1 DIBUJAR ITEMS DEL NIVEL
+        if (nivelActual != null && nivelActual.getListaItems() != null) {
+            for (Item item : nivelActual.getListaItems()) {
+                if (item.isRecogido()) continue;
+
+                Image imagenItem = obtenerImagenItem(item.getRutaImagen());
+                int ix = item.getPosicionX();
+                int iy = item.getPosicionY();
+
+                if (imagenItem != null) {
+                    g2d.drawImage(imagenItem, ix, iy, MapaColision.TILE, MapaColision.TILE, this);
+                } else {
+                    // fallback visible si todavía no tenés el sprite listo
+                    g2d.setColor(Color.MAGENTA);
+                    g2d.fillRect(ix, iy, MapaColision.TILE, MapaColision.TILE);
+                }
             }
         }
     

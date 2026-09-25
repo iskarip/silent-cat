@@ -33,14 +33,6 @@ public class Nivel extends EspacioBase {
 
     //--SET Y GET--
 
-    public int getPosicionInicialX() {
-        return posicionInicialX;
-    }
-
-    public int getPosicionInicialY() {
-        return posicionInicialY;
-    }
-
     public boolean getNivelSuperado() {
         return this.nivelSuperado;
     }

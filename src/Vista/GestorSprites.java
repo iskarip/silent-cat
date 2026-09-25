@@ -12,7 +12,6 @@ public class GestorSprites {
     // EnumMap: un Map para cuando la clave es un enum.
     // Guarda una imagen fija para cada estado del personaje (excepto IDLE, que es un spritesheet animado).
     private final Map<EstadoPersonaje, BufferedImage> spritesFijos = new EnumMap<>(EstadoPersonaje.class);
-    private BufferedImage[] cuadrosIdle;
 
     public GestorSprites(String carpetaBase) {
         if (!carpetaBase.endsWith("/")) {

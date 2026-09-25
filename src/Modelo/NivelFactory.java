@@ -21,16 +21,6 @@ public class NivelFactory {
         nivel.agregarEnemigo(new Enemigo(100, 10, 1, 800, 80));
         nivel.agregarEnemigo(new Enemigo(100, 10, 2, 550, 320));
 
-    //para probar lo del controladorItems con la bateria nos falta poner al menos una bateria en el mapa :(
-    /* 
-        itemBateria bateria1 = new itemBateria();
-        bateria1.setPosicionX(300); // elegí cualquier posición dentro del mapa para probar
-        bateria1.setPosicionY(200);
-        nivel.agregarItem(bateria1);
-    */
-        
-        // TODO cuando definan posiciones: nivel.agregarItem(...), nivel.agregarHabitacion(...)
-     
         return nivel;
     }
 
@@ -40,6 +30,16 @@ public class NivelFactory {
         Nivel nivel = new Nivel(2, acertijo, "Recursos/Mapas/Grid/grid_sotano.txt","/Recursos/Mapas/Imagen/mapa_sotano.png", 12, 6);
         
         nivel.setRutaSpritesEnemigos("/Recursos/Sprites/Enemigos/Nurse/");
+
+        itemMedicina medicina1 = new itemMedicina(20);
+        medicina1.setPosicionX(700);
+        medicina1.setPosicionY(300);
+        nivel.agregarItem(medicina1);
+
+        itemBateria bateria1 = new itemBateria();
+        bateria1.setPosicionX(800); 
+        bateria1.setPosicionY(300);
+        nivel.agregarItem(bateria1);
 
         return nivel;
     }

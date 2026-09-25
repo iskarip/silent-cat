@@ -11,6 +11,7 @@ import Vista.GestorSprites;
 import Vista.AuraVisual;
 import Vista.FlashbackGato;
 import Vista.BarraBateria;
+import Vista.BarraVida;
 
 import javax.swing.Timer;
 
@@ -65,6 +66,13 @@ public class ControladorNivel {
 
         BarraBateria barraBateria = new BarraBateria();
         this.vista.agregarCapaVisual(barraBateria);
+
+        Personaje personajeActual = partida.getPersonaje();
+        if (personajeActual != null) {
+            BarraVida barraVida = new BarraVida(personajeActual.getPuntosVida());
+            this.vista.agregarCapaVisual(barraVida);
+            personajeActual.addPropertyChangeListener(barraVida);
+        }
 
 
         // Conexión de acciones únicas de teclado

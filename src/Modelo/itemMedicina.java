@@ -7,9 +7,11 @@ public class itemMedicina extends Item{
     private int curacion;
 
 //CONSTRUCTOR
-    public itemMedicina(String nombre,int curacion){
-        super (nombre); //aca lo que hace es llamar al constructor de item y pone recogido con false
-    this.curacion = curacion;
+
+    public itemMedicina( int curacion){
+        super("Medicina");
+        this.curacion = curacion;
+        this.rutaImagen = "/Recursos/Sprites/Items/medicina.png"; // ajustá al path real
     }
 
 //GET Y SET

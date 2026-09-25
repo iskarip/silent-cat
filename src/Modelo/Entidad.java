@@ -9,8 +9,10 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
     public static final double ESCALA = 2.5;
 
     protected int puntosVida;
+
     private int posicionX;
     private int posicionY;
+    
     protected Direccion direccion = Direccion.ABAJO;
 
     // -- CONSTRUCTOR --

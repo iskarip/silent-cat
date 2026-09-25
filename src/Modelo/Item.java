@@ -9,6 +9,8 @@ public class Item implements Interactuable, Posicionable { // item no tiene la n
     protected boolean recogido;
     protected int posicionX;
     protected int posicionY;
+    protected String rutaImagen;
+
 
     // --CONSTRUCTOR --
 
@@ -51,6 +53,10 @@ public class Item implements Interactuable, Posicionable { // item no tiene la n
 
     public void recoger(){
        recogido = true;
+    }
+
+    public String getRutaImagen() {
+    return rutaImagen;
     }
 
     @Override

@@ -29,10 +29,10 @@ public class MenuPanel extends JPanel {
         botonSalir = new BotonJuego("/Recursos/UI/Menu/Botones/Salir.png", "/Recursos/UI/Menu/Botones/SalirHover.png", "Recursos/Sonidos/UI/sonido3.wav");
 
         gbc.gridy = 0;
-        gbc.insets = new Insets(350, 0, 0, 0);
+        gbc.insets = new Insets(300, 0, 0, 0);
         add(botonNuevaPartida, gbc);
         gbc.gridy = 1;
-        gbc.insets = new Insets(0, 0, 0, 0);
+        gbc.insets = new Insets(10, 0, 0, 0);
         add(botonAjustes, gbc);
         gbc.gridy = 2;
         add(botonSalir, gbc);

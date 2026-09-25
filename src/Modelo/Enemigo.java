@@ -77,6 +77,7 @@ public class Enemigo extends Entidad {
         return new Rectangle(x + OFFSET_X_HITBOX, y + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
     }
 
+    @Override
     public void atacar(Entidad objetivo) {
         if (ticksEnfriamientoAtaque > 0) return; // en cooldown, no puede golpear de nuevo
 

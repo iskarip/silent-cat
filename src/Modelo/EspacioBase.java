@@ -5,8 +5,8 @@ import java.util.List;
 
 public abstract class EspacioBase implements EspacioJugable {
     
-    int posicionInicialX;
-    int posicionInicialY;
+    private int posicionInicialX;
+    private int posicionInicialY;
     protected MapaColision mapaColision;
     protected String rutaImagenFondo;
     protected List<Item> listaItems; // cada habitacion puede tener varios items, pero por ahora solo vamos a usar uno

@@ -1,6 +1,8 @@
 package Modelo;
 
 import java.awt.Rectangle;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 /**
  * Representa al jugador. Hereda de Entidad (vida, daño base, posición y el
@@ -25,6 +27,12 @@ public class Personaje extends Entidad {
     // Si no, conviene sacarlo para no dejar código muerto.
 
     private double multiplicadorVelocidad = 1.0;
+
+    // Para notificar cambios de vida al Controlador (que a su vez los pasa a la Vista)
+
+    public static final String PROP_VIDA = "puntosVida";
+    private final PropertyChangeSupport soporteCambios = new PropertyChangeSupport(this);
+
 
     private int nivelEstamina;
 
@@ -192,5 +200,20 @@ public class Personaje extends Entidad {
             inventario.quitarItem(item); // se "entrega" el objeto al resolver
         }
         return resuelto;
+    }
+
+    // Para que el Controlador pueda escuchar cambios de vida y pasarlos a la Vista
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        soporteCambios.addPropertyChangeListener(listener);
+    }
+
+    // Sobreescribimos el setter heredado de Entidad para poder notificar
+    // cuando cambia la vida, sin tocar nada en Entidad ni en Enemigo.
+    @Override
+    public void setPuntosVida(int puntosVida) {
+        int vidaAnterior = getPuntosVida();
+        super.setPuntosVida(puntosVida);
+        soporteCambios.firePropertyChange(PROP_VIDA, vidaAnterior, getPuntosVida());
     }
 }
