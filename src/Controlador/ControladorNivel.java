@@ -8,7 +8,7 @@ import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.EstadoPersonaje;
 import Vista.GestorSprites;
-import Vista.LinternaOverlay;
+import Vista.AuraVisual;
 import Vista.FlashbackGato;
 import Vista.BarraBateria;
 
@@ -30,7 +30,6 @@ public class ControladorNivel {
     private final ControladorItems controladorItems;
 
     //instancias del gato(el sonido, lentitud y lo visual)
-    private final Gato gato;
     private final FlashbackGato flashbackGato;
 
 
@@ -56,11 +55,11 @@ public class ControladorNivel {
 
 
         //instanciacion del modelo Gato y vista flashbackGato
-        this.gato = new Gato();
+    
         this.flashbackGato = new FlashbackGato();
 
         //Instanciacion de interfaces y registro en la lista de capasVisuales de NivelPanel
-        LinternaOverlay linternaOverlay = new LinternaOverlay();
+        AuraVisual linternaOverlay = new AuraVisual();
         this.vista.agregarCapaVisual(linternaOverlay);
         this.vista.agregarCapaVisual(this.flashbackGato);
 

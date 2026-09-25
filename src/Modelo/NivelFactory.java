@@ -21,16 +21,16 @@ public class NivelFactory {
         nivel.agregarEnemigo(new Enemigo(100, 10, 1, 800, 80));
         nivel.agregarEnemigo(new Enemigo(100, 10, 2, 550, 320));
 
+    //para probar lo del controladorItems con la bateria nos falta poner al menos una bateria en el mapa :(
+    /* 
+        itemBateria bateria1 = new itemBateria();
+        bateria1.setPosicionX(300); // elegí cualquier posición dentro del mapa para probar
+        bateria1.setPosicionY(200);
+        nivel.agregarItem(bateria1);
+    */
+        
         // TODO cuando definan posiciones: nivel.agregarItem(...), nivel.agregarHabitacion(...)
-
-itemBateria bateria1 = new itemBateria();
-bateria1.setPosicionX(300); //posicion x para probar lo del itembateria nomas
-bateria1.setPosicionY(200);
-nivel.agregarItem(bateria1);
-
-
-
-
+     
         return nivel;
     }
 
