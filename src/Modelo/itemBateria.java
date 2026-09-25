@@ -21,7 +21,10 @@ public class itemBateria extends Item {
 // -- METODOS --
 
     public void aplicarCarga(Personaje p) {
-        p.recargarLinterna(this.cantidadCarga);
+        if (!isRecogido()){
+            recoger();
+            p.recargarLinterna(this.cantidadCarga);
+        }
     }
 
     @Override

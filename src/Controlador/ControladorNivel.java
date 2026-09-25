@@ -27,7 +27,7 @@ public class ControladorNivel {
     private final ControladorCombate controladorCombate;
     private final ControladorEnemigos controladorEnemigos;
     private final ControladorAcertijo controladorAcertijo;
-
+    private final ControladorItems controladorItems;
 
     //instancias del gato(el sonido, lentitud y lo visual)
     private final Gato gato;
@@ -52,6 +52,8 @@ public class ControladorNivel {
         this.controladorCombate = new ControladorCombate();
         this.controladorEnemigos = new ControladorEnemigos();
         this.controladorAcertijo = new ControladorAcertijo(ventanaPrincipal.getAcertijoPanel(), ventanaPrincipal);
+        this.controladorItems = new ControladorItems();
+
 
         //instanciacion del modelo Gato y vista flashbackGato
         this.gato = new Gato();
@@ -180,6 +182,9 @@ public class ControladorNivel {
 
         // 4. Deteccion de proximidad al acertijo del nivel
         controladorAcertijo.comprobarActivacion(nivelActual, personaje);
+
+        //4.1 Deteccion de proximidad de items del nivel
+        controladorItems.actualizar(nivelActual, personaje);
 
         // 5. Consumo de la bateria de la Linterna
         contadorBateria++;

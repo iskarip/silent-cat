@@ -23,6 +23,14 @@ public class NivelFactory {
 
         // TODO cuando definan posiciones: nivel.agregarItem(...), nivel.agregarHabitacion(...)
 
+itemBateria bateria1 = new itemBateria();
+bateria1.setPosicionX(300); //posicion x para probar lo del itembateria nomas
+bateria1.setPosicionY(200);
+nivel.agregarItem(bateria1);
+
+
+
+
         return nivel;
     }
 
