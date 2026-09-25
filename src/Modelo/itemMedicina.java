@@ -1,42 +1,38 @@
 package Modelo;
 
-public class itemMedicina extends Item{
-    
-//ATRIBUTOS
+public class ItemMedicina extends Item {
 
     private int curacion;
 
-//CONSTRUCTOR
-
-    public itemMedicina( int curacion){
-        super("Medicina");
+    // Constructor con curación personalizada y posición
+    public ItemMedicina(int columna, int fila, int curacion) {
+        super("Medicina", "/Recursos/Sprites/Items/medicina.png", columna, fila);
         this.curacion = curacion;
-        this.rutaImagen = "/Recursos/Sprites/Items/medicina.png"; // ajustá al path real
     }
 
-//GET Y SET
-
-public int getCantidadCuracion(){
-    return curacion;
-}
-
-public void setCuracion(int curacion){
-    this.curacion = curacion;
-}
-
-//METODOS
-public void aplicarCuracion(Personaje personaje){
-    if (!isRecogido()){
-        recoger(); //entonces marca el item como recogido a verdadero
-        int nuevaVida = personaje.getPuntosVida() + this.curacion;
-        personaje.setPuntosVida(nuevaVida);
+    // Constructor con curación estándar (25)
+    public ItemMedicina(int columna, int fila) {
+        this(columna, fila, 25);
     }
 
-}
+    public int getCantidadCuracion() {
+        return curacion;
+    }
 
-@Override
-    public void interactuar(Personaje p){
+    public void setCuracion(int curacion) {
+        this.curacion = curacion;
+    }
+
+    public void aplicarCuracion(Personaje personaje) {
+        if (!isRecogido() && personaje.getPuntosVida() < 100) {
+            recoger();
+            int nuevaVida = Math.min(100, personaje.getPuntosVida() + this.curacion);
+            personaje.setPuntosVida(nuevaVida);
+        }
+    }
+
+    @Override
+    public void interactuar(Personaje p) {
         aplicarCuracion(p);
-}
-    
+    }
 }

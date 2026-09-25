@@ -14,13 +14,13 @@ import javax.swing.JOptionPane;
 public class ControladorPrincipal {
 
     private JuegoFrame ventana;
+    private ControladorNivel controladorNivelActual;
 
     public ControladorPrincipal(JuegoFrame ventana) {
         this.ventana = ventana;
 
         configurarEventosMenu();
         configurarEventosSeleccion();
-        // Aquí le asignas los ActionListeners a los botones de MenuPanel, SeleccionPersonajePanel, etc.
     }
 
     private void configurarEventosMenu() {
@@ -31,7 +31,6 @@ public class ControladorPrincipal {
         });
 
         menu.getBotonAjustes().addActionListener(e -> {
-            // Aquí puedes abrir un panel de ajustes o mostrar un mensaje
             JOptionPane.showMessageDialog(ventana, "Ajustes no implementados aún.");
         });
 
@@ -50,34 +49,37 @@ public class ControladorPrincipal {
     
     private void comenzarJuego(String genero) {
 
+        // Si ya existía un controlador previo, detenemos su Timer viejo
+        if (controladorNivelActual != null) {
+            controladorNivelActual.detener();
+        }
+
         // 1. Instanciación de Partida (Singleton)
         Partida partida = Partida.getInstancia();
         partida.iniciarPartida(3);
 
         // 2. Creación del personaje
         Personaje personaje = new Personaje("Protagonista", new Arma(), new Linterna());
-        partida.setPersonaje(personaje); // Importante para el Modelo
+        partida.setPersonaje(personaje);
         
-        // Colocar al personaje en la posición inicial del nivel actual
         Nivel nivel = partida.getNivelActual();
         personaje.colocarEnTile(nivel.getPosicionInicialX(), nivel.getPosicionInicialY());
         
-        // 3. Configuración de GestorSprites (Vista)
+        // 3. Configuración de GestorSprites
         GestorSprites spritesPersonaje = new GestorSprites("/Recursos/Sprites/Personajes/" + genero + "/");
 
-        // 4. Configuración de NivelPanel (Vista)
+        // 4. Configuración de NivelPanel
         NivelPanel nivelPanel = ventana.getNivelPanel();
         nivelPanel.reiniciarEstadoNivel();
         nivelPanel.setPersonaje(personaje);
         nivelPanel.setGestorSprites(spritesPersonaje);
 
-        // 5. Cambio de pantalla PRIMERO para que el panel sea visible en el CardLayout
+        // 5. Cambio de pantalla
         ventana.mostrarPantallaConFundido("nivel");
 
-        // 6. Instanciación e inicio del ControladorNivel SEGUNDO (para ganar el foco)
-        ControladorNivel controladorNivel = new ControladorNivel(partida, nivelPanel, ventana);
-        controladorNivel.iniciar(); 
+        // 6. Asignar e iniciar el ControladorNivel al atributo global
+        controladorNivelActual = new ControladorNivel(partida, nivelPanel, ventana);
+        controladorNivelActual.iniciar(); 
     }
-
 }
 

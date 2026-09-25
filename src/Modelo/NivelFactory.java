@@ -31,15 +31,18 @@ public class NivelFactory {
         
         nivel.setRutaSpritesEnemigos("/Recursos/Sprites/Enemigos/Nurse/");
 
-        itemMedicina medicina1 = new itemMedicina(20);
-        medicina1.setPosicionX(700);
-        medicina1.setPosicionY(300);
+        ItemMedicina medicina1 = new ItemMedicina(20,9,7);
         nivel.agregarItem(medicina1);
 
-        itemBateria bateria1 = new itemBateria();
-        bateria1.setPosicionX(800); 
-        bateria1.setPosicionY(300);
+        ItemBateria bateria1 = new ItemBateria(4,7);
         nivel.agregarItem(bateria1);
+
+        ItemBateria bateria2 = new ItemBateria(4,12);
+        nivel.agregarItem(bateria2);
+
+        ItemBateria bateria3 = new ItemBateria(19,4);
+        nivel.agregarItem(bateria3);
+
 
         return nivel;
     }

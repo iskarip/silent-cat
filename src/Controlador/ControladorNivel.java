@@ -29,6 +29,7 @@ public class ControladorNivel {
     private final ControladorEnemigos controladorEnemigos;
     private final ControladorAcertijo controladorAcertijo;
     private final ControladorItems controladorItems;
+    private final ControladorPausa controladorPausa;
 
     //instancias del gato(el sonido, lentitud y lo visual)
     private final FlashbackGato flashbackGato;
@@ -54,10 +55,13 @@ public class ControladorNivel {
         this.controladorAcertijo = new ControladorAcertijo(ventanaPrincipal.getAcertijoPanel(), ventanaPrincipal);
         this.controladorItems = new ControladorItems();
 
+        this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this);
 
         //instanciacion del modelo Gato y vista flashbackGato
     
         this.flashbackGato = new FlashbackGato();
+
+        this.vista.limpiarCapasVisuales();
 
         //Instanciacion de interfaces y registro en la lista de capasVisuales de NivelPanel
         AuraVisual linternaOverlay = new AuraVisual();
@@ -87,53 +91,46 @@ public class ControladorNivel {
         // Registrar el listener de teclado en la vista
         this.vista.addKeyListener(controladorTeclado);
 
-        // Configurar botones de pausa con lambdas
-        configurarBotonesPausa();
-
         // Configurar el Game Loop a 60 FPS 816 milisegundos)
         this.bucleDeJuego = new Timer(16, e -> actualizarJuego());
     }
 
     // -- METODOS --
 
-    private void configurarBotonesPausa() {
-        vista.getBotonPausa().addActionListener(e -> pausarJuego());
-        vista.getBotonReanudar().addActionListener(e -> reanudarJuego());
-        vista.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
-        vista.getBotonVolverMenu().addActionListener(e -> volverAlMenu());
-    }
-
-    // -- CONTROL DE EJECUCION DEL NIVEL --
     public void iniciar() {
         reiniciarEstado();
         sincronizarModeloConVista();
         bucleDeJuego.start();
     }
 
-        // Pausar o detener el bucle si volvemos al menú
-    public void detener () {
+    public void detener() {
         if (bucleDeJuego != null) {
             bucleDeJuego.stop();
         }
-    vista.removeKeyListener(controladorTeclado);
+        vista.removeKeyListener(controladorTeclado);
     }
 
-    private void pausarJuego () {
-        pausado = true;
-        vista.mostrarPausa();
+    // --- CONTROL DE PAUSA DESDE EL CONTROLADOR DEDICADO ---
+    public void setPausado(boolean pausado) {
+        this.pausado = pausado;
+        if (bucleDeJuego != null) {
+            if (pausado) {
+                bucleDeJuego.stop();
+            } else {
+                bucleDeJuego.start();
+            }
+        }
     }
 
-    private void reanudarJuego () {
-        pausado = false;
-        vista.ocultarPausa();
-        vista.requestFocusInWindow(); // recupera el foco para el teclado
+    public boolean isPausado() {
+        return pausado;
     }
-//debe llamar a detener antes de cambiar de pantalla, para que no siga ejecutando en 2do plano
-    private void volverAlMenu () {
-        detener();
+
+    public void reiniciarEstado() {
+        personajeMuerto = false;
         pausado = false;
-        vista.ocultarPausa();
-        ventanaPrincipal.mostrarPantalla("menu");
+        controladorTeclado.limpiarTeclas();
+        vista.reiniciarEstadoNivel();
     }
 
     // -- SINCRONIZACIÓN Y CICLO PRINCIPAL (MVC) --
@@ -229,12 +226,5 @@ private void probarFlashback() {
         flashbackGato.activar(vista);
     }
 }
-   
-    public void reiniciarEstado() {
-        personajeMuerto = false;
-        pausado = false;
-        controladorTeclado.limpiarTeclas();
-        vista.reiniciarEstadoNivel();
-    }
-}
 
+}

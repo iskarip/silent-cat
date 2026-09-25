@@ -13,13 +13,15 @@ import java.util.Map;
 public class NivelPanel extends JPanel {
 
     // --- MODELO Y ESTADO DEL NIVEL ---
+
     private Nivel nivelActual;
     private Image imagenFondoNivel; // imagen de planta baja
 
-//___________________CAPAS VISUALES________________
-private final List<InterfazVisual> capasVisuales = new ArrayList<>();
+    //--- CAPAS VISUALES ---
+    private final List<InterfazVisual> capasVisuales = new ArrayList<>();
     
     // --- ENTIDADES Y SPRITES ---
+
     private Personaje personaje;
     private GestorSprites gestorSprites;
     private GestorSprites spritesEnemigo;
@@ -40,12 +42,6 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
     private int ticksMuerte = 0;
     private boolean gameOverMostrado = false;
 
-    // -- BOTONES PARA PAUSAR PARTIDA, REANUDAR y VOLVER AL MENU --
-    private JButton botonPausa;
-    private JPanel panelPausa;
-    private JButton botonReanudar;
-    private JButton botonMenuPrincipal;
-
     //CONSTANTES DE ESCALADO Y ZOOM
     public static final double ZOOM = 4.0; // Zoom del personaje
 
@@ -53,23 +49,29 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
     public static final int ANCHO_CUADRO = 48;
     public static final int ALTO_CUADRO = 48;
 
-    private static final boolean MOSTRAR_GRILLA = false; // true para ver las colisiones
+ /*   private static final boolean MOSTRAR_GRILLA = false; // true para ver las colisiones */ 
 
     // Cache para imágenes de items, evitando recargas repetidas
 
     private final Map<String, Image> cacheImagenesItems = new HashMap<>();
 
+    // --- COMPONENTES DE PAUSA ---
 
+    private JButton botonPausa;
+    private PausaPanel pausaPanel;
+
+    // --- CONSSTRUCTOR ---
 
     public NivelPanel() {
         setFocusable(true);
         setDoubleBuffered(true);
         setLayout(null); // posicionamiento libre, para superponer botones al dibujo
         setBackground(Color.BLACK); // <-- Fondo negro
-        
-        crearBotonPausa();
-        crearPanelPausa();
     
+        //  Creacion del boton Pausa
+        crearBotonPausa();
+        this.pausaPanel = new PausaPanel();
+        add(pausaPanel);
 
         // Componentes flotantes para la pantalla de Game Over
         etiquetaGameOver = new JLabel("GAME OVER", SwingConstants.CENTER);
@@ -92,11 +94,14 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
             }
         });
     }
+
     // --- MÉTODOS PARA GESTIÓN DE CAPAS VISUALES / OVERLAYS ---
+
     public void agregarCapaVisual(InterfazVisual capa) {
         if (!capasVisuales.contains(capa)) {
             capasVisuales.add(capa);
         }
+
     }//este metodo llena la lista de capas visuales
 
     public void removerCapaVisual(InterfazVisual capa) {
@@ -144,8 +149,16 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
     public GestorSprites getSpritesEnemigo() { return spritesEnemigo; }
     public void setSpritesEnemigo(GestorSprites spritesEnemigo) { this.spritesEnemigo = spritesEnemigo; }
 
-    public void setEstado(EstadoPersonaje estado) { this.estadoActual = estado; repaint(); }
 
+    public void setEstado(EstadoPersonaje nuevoEstado) {
+        // Solo si el estado cambia, reiniciamos los contadores de animación para evitar saltos o parpadeos
+        if (this.estadoActual != nuevoEstado) {
+            this.estadoActual = nuevoEstado;
+            this.cuadroAnimacion = 0;
+            this.contadorTick = 0;
+            repaint();
+        }
+    }
     public Nivel getNivelActual() { return nivelActual; }
 
     public void setNivelActual(Nivel nivel) {
@@ -178,66 +191,36 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
         return camaraY; 
     }
 
-    public JButton getBotonPausa(){
-        return botonPausa;
-    }
-
-    public JButton getBotonReanudar (){
-        return botonReanudar;
-    }
-
-    public JButton getBotonMenuPrincipal() {
-        return botonMenuPrincipal;
-    }
-
     public JButton getBotonVolverMenu() {
         return botonVolverMenu;
     }
-
-    public void mostrarPausa () {
-        panelPausa.setVisible(true);
-    }
-
-    public void ocultarPausa () {
-        panelPausa.setVisible(false);
-    }
-
-    // -- BOTONES PARA PAUSAR PARTIDA, REANUDAR y VOLVER AL MENU --
-
-    private void crearBotonPausa () {
+    private void crearBotonPausa() {
         botonPausa = new JButton("PAUSAR");
-        botonPausa.setBounds(700, 10, 90, 35); // ubicacion del boton
-        add (botonPausa);
+        botonPausa.setBounds(700, 10, 90, 35);
+        botonPausa.setFocusable(false);
+        add(botonPausa);
     }
 
-    // --- DELIMITACIÓN DE HITBOXES PARA RENDERIZADO / FÍSICA ---
+    // --- MÉTODOS DE PAUSA ---
+    public JButton getBotonPausa() { return botonPausa; }
+    public PausaPanel getPausaPanel() { return pausaPanel; }
 
-    private void crearPanelPausa () {
-        panelPausa = new JPanel();
-        panelPausa.setLayout(new GridLayout(2, 1, 0, 10));
-        panelPausa.setBounds(300, 200, 200, 100);
-        panelPausa.setBackground(new Color(0, 0, 0, 180)); //negro semitransparente
+    public void mostrarPausa() { pausaPanel.setVisible(true); }
+    public void ocultarPausa() { pausaPanel.setVisible(false); }
 
-        botonReanudar = new JButton("REANUDAR PARTIDA");
-        botonMenuPrincipal = new JButton("MENU PRINCIPAL");
+    // --- MANEJO DE ANIMACIONES DE SPRITES --
 
-        panelPausa.add(botonReanudar);
-        panelPausa.add(botonMenuPrincipal);
-
-        panelPausa.setVisible(false);
-        add(panelPausa);
-    }
-
-
-    // --- MANEJO DE ANIMACIONES DE SPRITES ---
     public void actualizarAnimacion(boolean moviendose) {
-        if (moviendose) {
-            contadorTick++;
-            if (contadorTick % 6 == 0) {
-                cuadroAnimacion = (cuadroAnimacion + 1) % 6;
-            }
-        } else {
-            cuadroAnimacion = 0;
+        contadorTick++;
+        
+        // Si se mueve va más rápido (% 6), si está quieto (IDLE) va más lento (% 12 o % 15)
+        int velocidadAnimacion = moviendose ? 6 : 12; 
+        
+        if (contadorTick % velocidadAnimacion == 0) {
+            // IDLE tiene 4 frames, los demás estados tienen 6
+            int totalFrames = (estadoActual == EstadoPersonaje.IDLE) ? 4 : 6;
+            
+            cuadroAnimacion = (cuadroAnimacion + 1) % totalFrames;
         }
     }
 
@@ -276,6 +259,11 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
         estadoActual = EstadoPersonaje.IDLE;
         etiquetaGameOver.setVisible(false);
         botonVolverMenu.setVisible(false);
+
+    }
+
+    public void limpiarCapasVisuales() {
+        capasVisuales.clear();
     }
 
     // --- CICLO DE DIBUJADO (PAINT COMPONENT) ---
@@ -299,16 +287,36 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
         g2d.scale(ZOOM, ZOOM);
         g2d.translate(-camaraX, -camaraY);
 
-        // 2a. Fondo del nivel, escalado al tamaño del mapa
+        // 2. Fondo del nivel, escalado al tamaño del mapa
         if (imagenFondoNivel != null && nivelActual != null && nivelActual.getMapaColision() != null) {
             MapaColision mc = nivelActual.getMapaColision();
             g2d.drawImage(imagenFondoNivel, 0, 0,
                     mc.getColumnas() * MapaColision.TILE, mc.getFilas() * MapaColision.TILE, this);
         }
 
+        // DIBUJAR ITEMS DEL NIVEL
+        if (nivelActual != null && nivelActual.getListaItems() != null) {
+            for (Item item : nivelActual.getListaItems()) {
+                if (item.isRecogido()) continue;
+
+                Image imagenItem = obtenerImagenItem(item.getRutaImagen());
+                int ix = item.getPosicionX();
+                int iy = item.getPosicionY();
+
+                if (imagenItem != null) {
+                    // Se dibuja en sus dimensiones reales en los píxeles (ix, iy)
+                    g2d.drawImage(imagenItem, ix, iy, this);
+                } else {
+                    // fallback visible si todavía no tenés el sprite listo
+                    g2d.setColor(Color.MAGENTA);
+                    g2d.fillRect(ix, iy, MapaColision.TILE, MapaColision.TILE);
+                }
+            }
+        }
+
         // 2. DIBUJAR PISO Y OBSTÁCULOS (PALETA NEGRO Y AMARILLO)
         
-       if (MOSTRAR_GRILLA && nivelActual != null && nivelActual.getMapaColision() != null) {
+/*        if (MOSTRAR_GRILLA && nivelActual != null && nivelActual.getMapaColision() != null) {
             MapaColision mapaColision = nivelActual.getMapaColision();
             
             int tileSize = MapaColision.TILE;
@@ -343,7 +351,7 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
                 }
             }
         }
-
+*/
         // 3. DIBUJAR SPRITE DEL PROTAGONISTA
         BufferedImage hoja = (gestorSprites != null) ? gestorSprites.obtener(estadoActual) : null;
         int posX = personaje.getPosicionX();
@@ -381,25 +389,6 @@ private final List<InterfazVisual> capasVisuales = new ArrayList<>();
                         int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
                         g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
                     }
-            }
-        }
-
-        // 4.1 DIBUJAR ITEMS DEL NIVEL
-        if (nivelActual != null && nivelActual.getListaItems() != null) {
-            for (Item item : nivelActual.getListaItems()) {
-                if (item.isRecogido()) continue;
-
-                Image imagenItem = obtenerImagenItem(item.getRutaImagen());
-                int ix = item.getPosicionX();
-                int iy = item.getPosicionY();
-
-                if (imagenItem != null) {
-                    g2d.drawImage(imagenItem, ix, iy, MapaColision.TILE, MapaColision.TILE, this);
-                } else {
-                    // fallback visible si todavía no tenés el sprite listo
-                    g2d.setColor(Color.MAGENTA);
-                    g2d.fillRect(ix, iy, MapaColision.TILE, MapaColision.TILE);
-                }
             }
         }
     

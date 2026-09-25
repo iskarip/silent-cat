@@ -1,29 +1,27 @@
 package Modelo;
 
-public class itemBateria extends Item {
-
-// -- ATRIBUTOS --
+public class ItemBateria extends Item {
 
     private int cantidadCarga;
 
-// -- CONSTRUCTOR --
-
-    public itemBateria(){
-        super("Bateria");
-        cantidadCarga = 10;
-        this.rutaImagen = "/Recursos/Sprites/Items/bateria.png"; // ajustá al path real
+    // Constructor con posición en Tile
+    public ItemBateria(int columna, int fila) {
+        super("Bateria", "/Recursos/Sprites/Items/bateria.png", columna, fila);
+        this.cantidadCarga = 10;
     }
 
-// -- GET y SET --
+    // Constructor sobrecargado por si querés variar la carga
+    public ItemBateria(int columna, int fila, int cantidadCarga) {
+        super("Bateria", "/Recursos/Sprites/Items/bateria.png", columna, fila);
+        this.cantidadCarga = cantidadCarga;
+    }
 
-    public int getCantidadCarga(){
+    public int getCantidadCarga() {
         return cantidadCarga;
     }
 
-// -- METODOS --
-
     public void aplicarCarga(Personaje p) {
-        if (!isRecogido()){
+        if (!isRecogido()) {
             recoger();
             p.recargarLinterna(this.cantidadCarga);
         }
@@ -33,4 +31,5 @@ public class itemBateria extends Item {
     public void interactuar(Personaje p) {
         aplicarCarga(p);
     }
-}    
+
+}

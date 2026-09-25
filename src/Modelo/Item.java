@@ -1,62 +1,42 @@
 package Modelo;
 
-// -- ATRIBUTOS --
+public class Item implements Interactuable, Posicionable {
 
-public class Item implements Interactuable, Posicionable { // item no tiene la necesidad de ser una clase abstracta
-
-    // -- ATRIBUTOS --
     protected String nombre;
     protected boolean recogido;
     protected int posicionX;
     protected int posicionY;
     protected String rutaImagen;
 
-
-    // --CONSTRUCTOR --
-
-    public Item (String nombre){
-        this.recogido = false;
+    // Constructor básico sin posición
+    public Item(String nombre, String rutaImagen) {
         this.nombre = nombre;
+        this.rutaImagen = rutaImagen;
+        this.recogido = false;
     }
 
-    // -- GET y SET --
-
-    public String getNombre () {
-        return nombre;
+    // Constructor que posiciona directamente por Tile (columna, fila)
+    public Item(String nombre, String rutaImagen, int columna, int fila) {
+        this(nombre, rutaImagen);
+        colocarEnTile(columna, fila); // Asigna posicionX y posicionY multiplicando por TILE
     }
 
-    public boolean isRecogido(){
-        return recogido;
-    }
+    // -- GETTERS Y SETTERS --
+    public String getNombre() { return nombre; }
+    public boolean isRecogido() { return recogido; }
+    public void setRecogido(boolean valor) { this.recogido = valor; }
 
-    public void setRecogido(boolean valor){
-        recogido = valor;
-    }
+    @Override public int getPosicionX() { return posicionX; }
+    @Override public void setPosicionX(int posicionX) { this.posicionX = posicionX; }
 
-    public int getPosicionX() {
-        return posicionX;
-    }
+    @Override public int getPosicionY() { return posicionY; }
+    @Override public void setPosicionY(int posicionY) { this.posicionY = posicionY; }
 
-    public void setPosicionX(int posicionX) {
-        this.posicionX = posicionX;
-    }
+    public String getRutaImagen() { return rutaImagen; }
 
-    public int getPosicionY() {
-        return posicionY;
-    }
-
-    public void setPosicionY(int posicionY) {
-        this.posicionY = posicionY;
-    }
-
-    // -- METODOS --
-
-    public void recoger(){
-       recogido = true;
-    }
-
-    public String getRutaImagen() {
-    return rutaImagen;
+    // -- MÉTODOS --
+    public void recoger() {
+        this.recogido = true;
     }
 
     @Override
@@ -64,8 +44,4 @@ public class Item implements Interactuable, Posicionable { // item no tiene la n
         recoger();
         p.getInventario().agregarItem(this);
     }
-
-    // Este metodo hace que al interactuar (de la clase Interactuable), el elemento
-    // se guarde en el inventario. Cada subclase (como Medicina) lo define respectivamente
-    // si necesita una reaccion distinta.
 }
