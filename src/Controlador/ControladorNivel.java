@@ -12,6 +12,7 @@ import Vista.AuraVisual;
 import Vista.FlashbackGato;
 import Vista.BarraBateria;
 import Vista.BarraVida;
+import Vista.MensajeAmbiental;
 
 import javax.swing.Timer;
 
@@ -30,10 +31,11 @@ public class ControladorNivel {
     private final ControladorAcertijo controladorAcertijo;
     private final ControladorItems controladorItems;
     private final ControladorPausa controladorPausa;
+    private final ControladorAmbiente controladorAmbiente;
 
     //instancias del gato(el sonido, lentitud y lo visual)
     private final FlashbackGato flashbackGato;
-
+    private final MensajeAmbiental mensajeAmbiental;
 
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
@@ -56,10 +58,13 @@ public class ControladorNivel {
         this.controladorItems = new ControladorItems();
 
         this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this);
+        this.controladorAmbiente = new ControladorAmbiente();
+
 
         //instanciacion del modelo Gato y vista flashbackGato
     
         this.flashbackGato = new FlashbackGato();
+        this.mensajeAmbiental = new MensajeAmbiental();
 
         this.vista.limpiarCapasVisuales();
 
@@ -67,6 +72,7 @@ public class ControladorNivel {
         AuraVisual linternaOverlay = new AuraVisual();
         this.vista.agregarCapaVisual(linternaOverlay);
         this.vista.agregarCapaVisual(this.flashbackGato);
+        this.vista.agregarCapaVisual(this.mensajeAmbiental);
 
         BarraBateria barraBateria = new BarraBateria();
         this.vista.agregarCapaVisual(barraBateria);
@@ -186,6 +192,10 @@ public class ControladorNivel {
 
         //4.1 Deteccion de proximidad de items del nivel
         controladorItems.actualizar(nivelActual, personaje);
+
+        //4.2 Deteccion de proximidad a flashbacks y mensajes ambientales
+        controladorAmbiente.comprobarFlashbacks(nivelActual, personaje, partida.getGato(), flashbackGato, vista);
+        controladorAmbiente.comprobarMensajes(nivelActual, personaje, mensajeAmbiental);
 
         // 5. Consumo de la bateria de la Linterna
         contadorBateria++;

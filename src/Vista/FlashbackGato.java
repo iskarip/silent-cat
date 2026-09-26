@@ -2,6 +2,7 @@ package Vista;
 
 import javax.imageio.ImageIO;
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -14,7 +15,6 @@ public class FlashbackGato implements InterfazVisual {
     // --- VARIABLES Y ATRIBUTOS ---
     private boolean mostrandoFlashback = false;
     private int poseActual = 0;
-
 
     private Image imagenFlashback1;
     private Image imagenFlashback2;
@@ -90,9 +90,42 @@ public void activar(NivelPanel panel) {
         if (imagenAMostrar != null) {
             Composite composicionOriginal = g2d.getComposite();
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% opaco
+            
             g2d.drawImage(imagenAMostrar, 0, 0, ancho, alto, panel);
             g2d.setComposite(composicionOriginal); // Restaura transparencia
         }
+        
+        dibujarEstatica(g2d, ancho, alto); //esta fuera del if de imagen, cosa de que
+        //Si la imagen no se muestra, la estatica no va a depender de esta
+    //va a ser un efecto de estatica tipo tv vieja
+    }
+    private void dibujarEstatica(Graphics2D g2d, int ancho, int alto) {
+        Composite original = g2d.getComposite();
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.18f));
+
+        int cantidadLineas = 120;
+        for (int i = 0; i < cantidadLineas; i++) {
+            int x = (int) (Math.random() * ancho);
+            int y = (int) (Math.random() * alto);
+            int largo = 10 + (int) (Math.random() * 60);
+            int grosor = 1 + (int) (Math.random() * 2);
+
+            int gris = 180 + (int) (Math.random() * 75); // entre 180 y 255
+            g2d.setColor(new Color(gris, gris, gris));
+            g2d.fillRect(x, y, largo, grosor);
+        }
+    //el efecto pero lineas horizontales que parezca sin señal
+
+    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
+        for (int i = 0; i < 3; i++) {
+            int y = (int) (Math.random() * alto);
+            int alturaBanda = 4 + (int) (Math.random() * 10);
+            g2d.setColor(Color.BLACK);
+            g2d.fillRect(0, y, ancho, alturaBanda);
+        }
+
+        g2d.setComposite(original);
+
     }
 }
 

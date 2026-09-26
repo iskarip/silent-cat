@@ -73,6 +73,16 @@ public class NivelFactory {
 
         nivel.agregarHabitacion(crearHabitacionPalanca());
 
+        //el flashback automatico del gato al acercarse a tal punto del sotano
+        //queda ajustar la x, y y el radio con las coordenadas exactas
+        nivel.agregarPuntoFlashback(new PuntoFlashback(800, 300, 60));
+
+        //los mensajes tipo sh que dijimos
+        //hay q ajustarlos todavia (no se leer coordenadas)
+
+        nivel.agregarZonaMensaje(new ZonaMensaje(15, 8, 80, "Huele a sangre..."));
+        nivel.agregarZonaMensaje(new ZonaMensaje(2, 8, 80, "El aire se siente muy pesado."));
+
         return nivel;
     }
 

@@ -15,6 +15,10 @@ public class Nivel extends EspacioBase {
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
     private int acertijoX, acertijoY; // posicion donde se activa el acertijo del nivel
 
+    private List<PuntoFlashback> puntosFlashback = new ArrayList<>();
+    private List<ZonaMensaje> zonasMensaje = new ArrayList<>();
+
+
     private Gato gato; // null en los niveles que no lo tienen (ej: nivel 1 y 2)
 
 //--CONSTRUCTOR--
@@ -112,6 +116,23 @@ public class Nivel extends EspacioBase {
         if (h != null) {
             this.habitaciones.add(h);
         }
+    }
+
+    public void agregarPuntoFlashback(PuntoFlashback punto){
+        if(punto != null)
+            this.puntosFlashback.add(punto);
+    }
+
+    public List<PuntoFlashback> getPuntosFlashback(){
+        return this.puntosFlashback;
+    }
+
+    public void agregarZonaMensaje(ZonaMensaje zona){
+        if (zona!= null) this.zonasMensaje.add(zona);
+    }
+
+    public List<ZonaMensaje> getZonasMensaje(){
+        return this.zonasMensaje;
     }
 
 }
