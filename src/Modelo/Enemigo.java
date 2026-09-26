@@ -9,10 +9,10 @@ public class Enemigo extends Entidad {
 
 //--ATRIBUTOS--
 
-    private static final int ANCHO_HITBOX = (int) (16 * ESCALA);
-    private static final int ALTO_HITBOX = (int) (10 * ESCALA);
-    private static final int OFFSET_X_HITBOX = (int) (16 * ESCALA);
-    private static final int OFFSET_Y_HITBOX = (int) (15 * ESCALA);
+    private static final int ANCHO_HITBOX = (int) (10 * ESCALA);
+    private static final int ALTO_HITBOX = (int) (6 * ESCALA);
+    private static final int OFFSET_X_HITBOX = (int) (5 * ESCALA);
+    private static final int OFFSET_Y_HITBOX = (int) (11 * ESCALA);
 
     private int idEnemigo;
     private int danioBase;
@@ -30,6 +30,12 @@ public class Enemigo extends Entidad {
     private int ticksHastaCambiarDireccion = 0;
     private final Random random = new Random();
     private boolean moviendose = false;
+    private int ticksSinAvanzar = 0;
+    private static final int TICKS_ANTES_DE_ESQUIVAR = 20;
+    private int ticksEsquivando = 0;
+    private static final int DURACION_ESQUIVE = 25; // cuánto sostiene la dirección de esquive antes de volver a perseguir directo
+    private int dxEsquive = 0;
+    private int dyEsquive = 0;
 
 //--CONSTRUCTOR--
 
@@ -91,6 +97,13 @@ public class Enemigo extends Entidad {
 //metodo propio del enemigo (mover, patrullar)
 
     public void moverHaciaJugador(Personaje jugador, MapaColision mapa) {
+        if (ticksEsquivando > 0) {
+            moverConLimites(dxEsquive, dyEsquive, mapa);
+            ticksEsquivando--;
+            this.moviendose = true;
+            return;
+        }
+
         int deltaX = 1;
         int deltaY = 0;
 
@@ -110,19 +123,68 @@ public class Enemigo extends Entidad {
             direccion = Direccion.ARRIBA;
         }
 
+        int xAntesDeMover = getPosicionX();
+        int yAntesDeMover = getPosicionY();
+
         moverConLimites(deltaX, deltaY, mapa);
 
-        this.moviendose = (deltaX != 0 || deltaY != 0);
+        boolean logroAvanzar = (getPosicionX() != xAntesDeMover || getPosicionY() != yAntesDeMover);
 
+        if (logroAvanzar) {
+            ticksSinAvanzar = 0;
+        } else {
+            ticksSinAvanzar++;
+            if (ticksSinAvanzar > TICKS_ANTES_DE_ESQUIVAR) {
+                elegirDireccionDeEsquive(mapa);
+                ticksSinAvanzar = 0;
+            }
+        }
+
+        this.moviendose = (deltaX != 0 || deltaY != 0);
+    }
+
+    private void elegirDireccionDeEsquive(MapaColision mapa) {
+        int[][] direcciones = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+        for (int i = direcciones.length - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            int[] temp = direcciones[i];
+            direcciones[i] = direcciones[j];
+            direcciones[j] = temp;
+        }
+
+        for (int[] dir : direcciones) {
+            int intentoX = getPosicionX() + dir[0];
+            int intentoY = getPosicionY() + dir[1];
+            Rectangle hb = getHitboxEnPosicion(intentoX, intentoY);
+            if (mapa == null || mapa.esRectanguloValido(hb.x, hb.y, hb.width, hb.height)) {
+                dxEsquive = dir[0];
+                dyEsquive = dir[1];
+                ticksEsquivando = DURACION_ESQUIVE;
+                return;
+            }
+        }
     }
 
     private void moverConLimites(int deltaX, int deltaY, MapaColision mapa) {
         if (deltaX == 0 && deltaY == 0) return;
-        int nuevoX = getPosicionX() + deltaX;
-        int nuevoY = getPosicionY() + deltaY;
-        Rectangle hb = getHitboxEnPosicion(nuevoX, nuevoY);
-        if (mapa == null || mapa.esRectanguloValido(hb.x, hb.y, hb.width, hb.height)) {
-            mover(deltaX, deltaY);
+        
+        // avance en X
+        if (deltaX != 0) {
+            int intentoX = getPosicionX() + deltaX;
+            Rectangle hbX = getHitboxEnPosicion(intentoX, getPosicionY());
+            if (mapa == null || mapa.esRectanguloValido(hbX.x, hbX.y, hbX.width, hbX.height)) {
+                mover(deltaX, 0);
+            }
+        }
+
+        // avance en Y
+        if (deltaY != 0) {
+            int intentoY = getPosicionY() + deltaY;
+            Rectangle hbY = getHitboxEnPosicion(getPosicionX(), intentoY);
+            if (mapa == null || mapa.esRectanguloValido(hbY.x, hbY.y, hbY.width, hbY.height)) {
+                mover(0, deltaY);
+            }
         }
     }
 

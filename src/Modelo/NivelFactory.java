@@ -65,6 +65,12 @@ public class NivelFactory {
         ItemMedicina medicina1 = new ItemMedicina(20,9,7);
         nivel.agregarItem(medicina1);
 
+        ItemMedicina medicina2 = new ItemMedicina(10,9,25);
+        nivel.agregarItem(medicina2);
+
+        ItemMedicina medicina3 = new ItemMedicina(2,11,25);
+        nivel.agregarItem(medicina3);
+
         ItemBateria bateria1 = new ItemBateria(4,7);
         nivel.agregarItem(bateria1);
 

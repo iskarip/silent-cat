@@ -79,10 +79,18 @@ public class MapaColision {
        
         if (mapa == null) return true;
 
-        if (!esPosicionValida(x, y)) return false;
-        if (!esPosicionValida(x + ancho, y)) return false;
-        if (!esPosicionValida(x, y + alto)) return false;
-        if (!esPosicionValida(x + ancho, y + alto)) return false;
+        int columnaInicial = x / TILE;
+        int columnaFinal = (x + ancho - 1) / TILE;
+        int filaInicial = y / TILE;
+        int filaFinal = (y + alto - 1) / TILE;
+
+        for (int fila = filaInicial; fila <= filaFinal; fila++) {
+            for (int columna = columnaInicial; columna <= columnaFinal; columna++) {
+                if (fila < 0 || fila >= mapa.length) return false;
+                if (columna < 0 || columna >= mapa[0].length) return false;
+                if (!mapa[fila][columna]) return false;
+            }
+        }
        
         return true;
     }
