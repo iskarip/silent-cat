@@ -45,7 +45,7 @@ public class SeleccionPersonajePanel extends JPanel {
     // -- METODOS --
 
     private void cargarFondo() {
-        try (var is = getClass().getResourceAsStream("/Recursos/UI/Menu/Fondo/imagenSeleccionPersonaje.jpg")) {
+        try (var is = getClass().getResourceAsStream("/Recursos/UI/Menu/Fondo/imagenSeleccionPersonaje.png")) {
             if (is != null) {
                 imagenFondo = ImageIO.read(is);
             } else {
@@ -118,9 +118,13 @@ public class SeleccionPersonajePanel extends JPanel {
             g2.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
         }
 
+        /*
+
         g2.setColor(new Color(230, 160, 60));
         g2.setFont(new Font("Arial", Font.BOLD, 42));
         g2.drawString("Seleccione su personaje", getWidth() / 2 - 230, 80);
+
+                 */
 
         int cartaAncho = 260, cartaAlto = 340;
         int cartaX = getWidth() / 2 - cartaAncho / 2;
