@@ -10,10 +10,9 @@ import java.util.List;
 // facilitando la interacción con el mapa de colisión correspondiente a cada espacio.
 
 public interface EspacioJugable {
-
-    MapaColision getMapaColision(); // Este método debe ser implementado por cualquier clase que represente un espacio jugable,
-    // y debe devolver el mapa de colisión asociado a ese espacio.
-    List<Item> getListaItems(); // Este método debe ser implementado por cualquier clase que represente un espacio jugable,
-    // y debe devolver la lista de items presentes en ese espacio.
-    
+    MapaColision getMapaColision();
+    List<Item> getListaItems();
+    List<Enemigo> getListaEnemigos(); 
+    String getRutaImagenFondo();
+    String getRutaSpritesEnemigos(); // NUEVO
 }

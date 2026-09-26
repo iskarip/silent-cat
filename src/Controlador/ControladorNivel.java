@@ -140,10 +140,7 @@ public class ControladorNivel {
         Personaje personaje = partida.getPersonaje();
 
         if (nivelActual != null) {
-        vista.setNivelActual(nivelActual);
-        if (nivelActual.getRutaSpritesEnemigos() != null) {
-            vista.setSpritesEnemigo(new GestorSprites(nivelActual.getRutaSpritesEnemigos()));
-            }
+            vista.setNivelActual(nivelActual);
         }
 
         if (personaje != null) {

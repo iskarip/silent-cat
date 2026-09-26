@@ -9,9 +9,7 @@ public class Nivel extends EspacioBase {
 
     private int numeroNivel;
     private Acertijo acertijoNivel;
-    private List<Enemigo> listaEnemigos; // cada nivel puede tener varios enemigos, pero por ahora solo vamos a usar uno
     private List<Habitacion> habitaciones; // cada nivel puede tener varias habitaciones, pero por ahora solo vamos a usar una
-    private String rutaSpritesEnemigos;
     private boolean nivelSuperado;
     private boolean checkpoint; //va a ser una bandera, si es falso no se activa, verdadero activado
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
@@ -28,7 +26,6 @@ public class Nivel extends EspacioBase {
         this.nivelSuperado = false;
         this.checkpoint = false; //arranca desactivado por defecto
         this.habitaciones = new ArrayList<>();
-        this.listaEnemigos = new ArrayList<>();
     }
 
     //--SET Y GET--
@@ -51,10 +48,6 @@ public class Nivel extends EspacioBase {
 
     public Acertijo getAcertijo() {
         return this.acertijoNivel;
-    }
-
-    public List<Enemigo> getListaEnemigos() {
-        return this.listaEnemigos;
     }
 
     public void setGato(Gato gato) {
@@ -101,25 +94,12 @@ public class Nivel extends EspacioBase {
         this.acertijoY = acertijoY;
     }
 
-    public void setRutaSpritesEnemigos(String ruta) {
-        this.rutaSpritesEnemigos = ruta;
-    }
-
-    public String getRutaSpritesEnemigos() {
-        return rutaSpritesEnemigos;
-    }
 
 //--METODOS--
 
     public void guardarCheckpoint() {
         this.checkpoint = true;
         System.out.println("Checkpoint activado en el nivel " + this.numeroNivel + "!!!");
-    }
-
-    public void agregarEnemigo(Enemigo e) {
-        if (e != null) {
-            this.listaEnemigos.add(e);
-        }
     }
 
     public boolean verificarSiCompleto() {

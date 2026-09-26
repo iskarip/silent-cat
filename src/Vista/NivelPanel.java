@@ -15,6 +15,7 @@ public class NivelPanel extends JPanel {
     // --- MODELO Y ESTADO DEL NIVEL ---
 
     private Nivel nivelActual;
+    private EspacioJugable espacioActual;
     private Image imagenFondoNivel; // imagen de planta baja
 
     //--- CAPAS VISUALES ---
@@ -124,11 +125,10 @@ public class NivelPanel extends JPanel {
         int objetivoX = centroPersonajeX - (anchoVisible / 2);
         int objetivoY = centroPersonajeY - (altoVisible / 2);
 
-        // 4. Clamping: la cámara se frena al llegar al borde de los 50x24 bloques[cite: 14]
         int anchoMapaPx = 0;
         int altoMapaPx = 0;
-        if (nivelActual != null && nivelActual.getMapaColision() != null) {
-            MapaColision mc = nivelActual.getMapaColision();
+        if (espacioActual != null && espacioActual.getMapaColision() != null) {
+            MapaColision mc = espacioActual.getMapaColision();
             anchoMapaPx = mc.getColumnas() * MapaColision.TILE;
             altoMapaPx = mc.getFilas() * MapaColision.TILE;
         }
@@ -149,6 +149,16 @@ public class NivelPanel extends JPanel {
     public GestorSprites getSpritesEnemigo() { return spritesEnemigo; }
     public void setSpritesEnemigo(GestorSprites spritesEnemigo) { this.spritesEnemigo = spritesEnemigo; }
 
+    public EspacioJugable getEspacioActual() { return espacioActual; }
+
+    public void setEspacioActual(EspacioJugable espacio) {
+        this.espacioActual = espacio;
+        this.imagenFondoNivel = cargarImagenFondo(espacio.getRutaImagenFondo());
+        if (espacio.getRutaSpritesEnemigos() != null) {
+            this.spritesEnemigo = new GestorSprites(espacio.getRutaSpritesEnemigos());
+        }
+        repaint();
+    }
 
     public void setEstado(EstadoPersonaje nuevoEstado) {
         // Solo si el estado cambia, reiniciamos los contadores de animación para evitar saltos o parpadeos
@@ -169,16 +179,7 @@ public class NivelPanel extends JPanel {
     public void setNivelActual(Nivel nivel) {
         this.nivelActual = nivel;
         if (nivel != null) {
-            //carga la imagen de fondo
-            this.imagenFondoNivel = cargarImagenFondo(nivel.getRutaImagenFondo());
-
-            // DEBUG: borrar cuando se arregle
-            MapaColision mc = nivel.getMapaColision();
-            System.out.println("MAPA txt: " + mc.getColumnas() + " columnas x " + mc.getFilas() + " filas");
-            System.out.println("MAPA txt en pixeles: " + (mc.getColumnas() * MapaColision.TILE) + " x " + (mc.getFilas() * MapaColision.TILE));
-            if (imagenFondoNivel != null) {
-                System.out.println("IMAGEN png: " + imagenFondoNivel.getWidth(null) + " x " + imagenFondoNivel.getHeight(null));
-            }
+            setEspacioActual(nivel);
         }
         repaint();
     }
@@ -210,7 +211,12 @@ public class NivelPanel extends JPanel {
     public JButton getBotonPausa() { return botonPausa; }
     public PausaPanel getPausaPanel() { return pausaPanel; }
 
-    public void mostrarPausa() { pausaPanel.setVisible(true); }
+    public void mostrarPausa() { 
+        // Ajusta el overlay al tamaño exacto que tiene el NivelPanel en ese momento
+        pausaPanel.setBounds(0, 0, getWidth(), getHeight()); 
+        pausaPanel.setVisible(true); 
+    }
+
     public void ocultarPausa() { pausaPanel.setVisible(false); }
 
     // --- MANEJO DE ANIMACIONES DE SPRITES --
@@ -299,15 +305,15 @@ public class NivelPanel extends JPanel {
         g2d.translate(-camaraX, -camaraY);
 
         // 2. Fondo del nivel, escalado al tamaño del mapa
-        if (imagenFondoNivel != null && nivelActual != null && nivelActual.getMapaColision() != null) {
-            MapaColision mc = nivelActual.getMapaColision();
+        if (imagenFondoNivel != null && espacioActual != null && espacioActual.getMapaColision() != null) {
+            MapaColision mc = espacioActual.getMapaColision();
             g2d.drawImage(imagenFondoNivel, 0, 0,
                     mc.getColumnas() * MapaColision.TILE, mc.getFilas() * MapaColision.TILE, this);
         }
 
         // DIBUJAR ITEMS DEL NIVEL
-        if (nivelActual != null && nivelActual.getListaItems() != null) {
-            for (Item item : nivelActual.getListaItems()) {
+        if (espacioActual != null && espacioActual.getListaItems() != null) {
+            for (Item item : espacioActual.getListaItems()) {
                 if (item.isRecogido()) continue;
 
                 Image imagenItem = obtenerImagenItem(item.getRutaImagen());

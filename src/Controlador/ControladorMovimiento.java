@@ -58,7 +58,6 @@ public class ControladorMovimiento {
             } else {
                 vista.setEstado(EstadoPersonaje.IDLE);
             }
-            vista.actualizarAnimacion(seEstaMoviendo);
         } else if (seEstaMoviendo) {
             moverConLimites(personaje, mapa, vista, deltaX, deltaY);
         }
