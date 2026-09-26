@@ -1,112 +1,154 @@
 package Vista;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SeleccionPersonajePanel extends JPanel {
 
-    // -- ATRIBUTOS --
-
-    public record OpcionPersonaje(String nombreMostrado, String genero, String carpetaSprites) {
-    }
+    // Record inmutable para modelar las opciones de personaje
+    public record OpcionPersonaje(String genero, String carpetaSprites) {}
 
     private final List<OpcionPersonaje> opciones = List.of(
-            new OpcionPersonaje("NOMBRE1", "Chico", "/Recursos/Sprites/Personajes/Chico/"),
-            new OpcionPersonaje("NOMBRE2", "Chica", "/Recursos/Sprites/Personajes/Chica/")
+            new OpcionPersonaje("Chico", "/Recursos/Sprites/Personajes/Chico/"),
+            new OpcionPersonaje("Chica", "/Recursos/Sprites/Personajes/Chica/")
     );
 
+    private final List<GestorSprites> listaGestores = new ArrayList<>();
+
     private int indiceActual = 0;
-    private GestorSprites spritesActual;
     private Image imagenFondo;
 
+    // Componentes de interfaz
     private JButton botonFlechaIzquierda;
     private JButton botonFlechaDerecha;
     private JButton botonIniciarPartida;
+    private JButton botonVolverMenu;
 
-    private Timer timerIdle;
+    // Control de animación
+    private Timer timerAnimacion;
     private int cuadroIdleActual = 0;
 
-    // -- CONSTRUCTOR --
+    // Dimensiones estándar del frame de animación
+    private static final int ANCHO_FRAME = NivelPanel.ANCHO_CUADRO;
+    private static final int ALTO_FRAME = NivelPanel.ALTO_CUADRO;
+    private static final int TOTAL_FRAMES_IDLE = 4;
+
+    // Factor para que el personaje encaje dentro del marco de la imagen.
+    private static final double ESCALA_SPRITE = 4.8;
 
     public SeleccionPersonajePanel() {
         setLayout(null);
         setBackground(Color.BLACK);
 
         cargarFondo();
-        cargarSpritesOpcion(indiceActual);
-        crearBotones();
+        precargarGestores();
+        crearComponentesUI();
         iniciarAnimacionIdle();
     }
 
-    // -- METODOS --
 
     private void cargarFondo() {
-        try (var is = getClass().getResourceAsStream("/Recursos/UI/Menu/Fondo/imagenSeleccionPersonaje.png")) {
+        try (InputStream is = getClass().getResourceAsStream("/Recursos/UI/Menu/Fondo/imagenSeleccionPersonaje.png")) {
             if (is != null) {
-                imagenFondo = ImageIO.read(is);
+                this.imagenFondo = ImageIO.read(is);
             } else {
-                System.out.println("No se encontró la imagen de fondo de selección.");
+                System.out.println("[SeleccionPersonajePanel] Imagen de fondo no encontrada.");
             }
         } catch (Exception e) {
-            System.out.println("Error al cargar fondo de selección: " + e.getMessage());
+            System.out.println("[SeleccionPersonajePanel] Error al cargar fondo: " + e.getMessage());
         }
     }
 
-    private void cargarSpritesOpcion(int indice) {
-        String carpeta = opciones.get(indice).carpetaSprites();
-        spritesActual = new GestorSprites(carpeta);
+
+     // Precarga los sprites de Chico y Chica en memoria.
+    private void precargarGestores() {
+        for (OpcionPersonaje opcion : opciones) {
+            listaGestores.add(new GestorSprites(opcion.carpetaSprites()));
+        }
     }
 
-    private void crearBotones() {
-        botonFlechaIzquierda = new JButton("<");
-        botonFlechaIzquierda.setBounds(150, 320, 60, 60);
-        botonFlechaIzquierda.setFont(new Font("Arial", Font.BOLD, 24));
-        botonFlechaIzquierda.addActionListener(e -> cambiarPersonaje(-1));
 
-        botonFlechaDerecha = new JButton(">");
-        botonFlechaDerecha.setBounds(590, 320, 60, 60);
-        botonFlechaDerecha.setFont(new Font("Arial", Font.BOLD, 24));
-        botonFlechaDerecha.addActionListener(e -> cambiarPersonaje(1));
+     //Configura los botones de navegación (invisibles sobre las flechas) y de acción.
 
-        botonIniciarPartida = new JButton("Iniciar Partida");
-        botonIniciarPartida.setBounds(280, 560, 200, 70);
+    private void crearComponentesUI() {
+        // Flecha izquierda invisible
+        botonFlechaIzquierda = new JButton();
+        configurarBotonInvisible(botonFlechaIzquierda);
+        botonFlechaIzquierda.addActionListener(e -> alternarSeleccion(-1));
+
+        // Flecha derecha invisible
+        botonFlechaDerecha = new JButton();
+        configurarBotonInvisible(botonFlechaDerecha);
+        botonFlechaDerecha.addActionListener(e -> alternarSeleccion(1));
+
+        // Botón Iniciar Partida
+        botonIniciarPartida = new JButton("INICIAR PARTIDA");
         botonIniciarPartida.setFont(new Font("Arial", Font.BOLD, 18));
+        botonIniciarPartida.setFocusable(false);
+
+        // Botón Volver
+        botonVolverMenu = new JButton("VOLVER");
+        botonVolverMenu.setFont(new Font("Arial", Font.BOLD, 14));
+        botonVolverMenu.setFocusable(false);
 
         add(botonFlechaIzquierda);
         add(botonFlechaDerecha);
         add(botonIniciarPartida);
+        add(botonVolverMenu);
     }
 
-    private void cambiarPersonaje(int direccion) {
-        indiceActual = (indiceActual + direccion + opciones.size()) % opciones.size();
-        cargarSpritesOpcion(indiceActual);
+
+     //Hace transparente un JButton para que actúe de hitbox interactiva sobre el arte.
+
+    private void configurarBotonInvisible(JButton boton) {
+        boton.setOpaque(false);
+        boton.setContentAreaFilled(false);
+        boton.setBorderPainted(false);
+        boton.setFocusPainted(false);
+        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void alternarSeleccion(int paso) {
+        indiceActual = (indiceActual + paso + opciones.size()) % opciones.size();
+        cuadroIdleActual = 0;
         repaint();
     }
 
+
+     // Cicla la animación Idle del personaje activo a ~140ms por cuadro.
     private void iniciarAnimacionIdle() {
-        timerIdle = new Timer(150, e -> {
-            cuadroIdleActual = (cuadroIdleActual + 1) % 4; // 4 columnas de frames
+        timerAnimacion = new Timer(140, e -> {
+            cuadroIdleActual = (cuadroIdleActual + 1) % TOTAL_FRAMES_IDLE;
             repaint();
         });
-        timerIdle.start();
+        timerAnimacion.start();
     }
 
-    // -- METODOS PARA EL CONTROLADOR --
+    @Override
+    public void doLayout() {
+        super.doLayout();
 
-    public JButton getBotonIniciarPartida() {
-        return botonIniciarPartida;
-    }
+        int centroX = getWidth() / 2;
+        int centroY = getHeight() / 2;
 
-    public String getGeneroSeleccionado() {
-        return opciones.get(indiceActual).genero();
-    }
+        // Botón Volver (esquina superior izquierda)
+        botonVolverMenu.setBounds(40, 40, 110, 40);
 
-    public String getNombreSeleccionado() {
-        return opciones.get(indiceActual).nombreMostrado();
+        // Flechas invisibles calibradas sobre los adornos góticos laterales
+        int tamFlecha = 75;
+        int desfasajeY = -15; // Alineación vertical con las flechas del fondo
+        botonFlechaIzquierda.setBounds(centroX - 195, centroY + desfasajeY, tamFlecha, tamFlecha);
+        botonFlechaDerecha.setBounds(centroX + 120, centroY + desfasajeY, tamFlecha, tamFlecha);
+
+        // Botón Iniciar Partida sobre la alfombra
+        int anchoIniciar = 240;
+        int altoIniciar = 50;
+        botonIniciarPartida.setBounds(centroX - (anchoIniciar / 2), centroY + 220, anchoIniciar, altoIniciar);
     }
 
     @Override
@@ -114,50 +156,54 @@ public class SeleccionPersonajePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
+        // Interpolación cercana para mantener el pixel art nítido
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+        // 1. Dibujar el fondo completo de la mansión
         if (imagenFondo != null) {
             g2.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
         }
 
-        /*
+        int centroX = getWidth() / 2;
+        int centroY = getHeight() / 2;
 
-        g2.setColor(new Color(230, 160, 60));
-        g2.setFont(new Font("Arial", Font.BOLD, 42));
-        g2.drawString("Seleccione su personaje", getWidth() / 2 - 230, 80);
+        // 2. Dibujar el Sprite activo centrado adentro del marco tallado
+        if (indiceActual < listaGestores.size()) {
+            GestorSprites gestorActivo = listaGestores.get(indiceActual);
+            BufferedImage hojaActiva = gestorActivo.obtener(EstadoPersonaje.IDLE);
 
-                 */
+            if (hojaActiva != null) {
+                int spriteAncho = (int) (ANCHO_FRAME * ESCALA_SPRITE);
+                int spriteAlto  = (int) (ALTO_FRAME * ESCALA_SPRITE);
 
-        int cartaAncho = 260, cartaAlto = 340;
-        int cartaX = getWidth() / 2 - cartaAncho / 2;
-        int cartaY = 180;
-        g2.setColor(new Color(235, 190, 70));
-        g2.fillRoundRect(cartaX, cartaY, cartaAncho, cartaAlto, 20, 20);
-        g2.setColor(new Color(160, 100, 40));
-        g2.setStroke(new BasicStroke(4));
-        g2.drawRoundRect(cartaX, cartaY, cartaAncho, cartaAlto, 20, 20);
+                // Corte del cuadro de animación correspondiente (fila 0 de frente)
+                int srcX1 = cuadroIdleActual * ANCHO_FRAME;
+                int srcY1 = 0;
+                int srcX2 = srcX1 + ANCHO_FRAME;
+                int srcY2 = srcY1 + ALTO_FRAME;
 
-        g2.setColor(Color.WHITE);
-        g2.setFont(new Font("Arial", Font.BOLD, 22));
-        String nombre = getNombreSeleccionado();
-        g2.drawString(nombre, getWidth() / 2 - nombre.length() * 6, cartaY + 40);
+                // Coordenadas centradas con leve ajuste vertical (-15) para el hueco del marco
+                int destX = centroX - (spriteAncho / 2);
+                int destY = (centroY - 15) - (spriteAlto / 2);
 
-        if (spritesActual != null) {
-            BufferedImage hoja = spritesActual.obtener(EstadoPersonaje.IDLE);
-            if (hoja != null) {
-                int anchoFrame = NivelPanel.ANCHO_CUADRO;
-                int altoFrame = NivelPanel.ALTO_CUADRO;
-                int srcX = cuadroIdleActual * anchoFrame;
-                int srcY = 0; // fila 0 = mirando hacia abajo/frente, ajustar según su convención
-
-                int spriteAncho = 120, spriteAlto = 120;
-                int spriteX = getWidth() / 2 - spriteAncho / 2;
-                int spriteY = cartaY + 90;
-
-                g2.drawImage(hoja,
-                        spriteX, spriteY, spriteX + spriteAncho, spriteY + spriteAlto,
-                        srcX, srcY, srcX + anchoFrame, srcY + altoFrame,
-                        this);
+                g2.drawImage(hojaActiva,
+                        destX, destY, destX + spriteAncho, destY + spriteAlto,
+                        srcX1, srcY1, srcX2, srcY2, this);
             }
         }
     }
 
+    // --- MÉTODOS DE ACCESO PARA EL CONTROLADOR (MVC) ---
+
+    public JButton getBotonIniciarPartida() {
+        return botonIniciarPartida;
+    }
+
+    public JButton getBotonVolverMenu() {
+        return botonVolverMenu;
+    }
+
+    public String getGeneroSeleccionado() {
+        return opciones.get(indiceActual).genero();
+    }
 }

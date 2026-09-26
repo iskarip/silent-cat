@@ -42,8 +42,14 @@ public class ControladorPrincipal {
     private void configurarEventosSeleccion() {
         Vista.SeleccionPersonajePanel seleccion = ventana.getSeleccionPersonajePanel();
 
+        // Iniciar la partida
         seleccion.getBotonIniciarPartida().addActionListener(e -> {
             comenzarJuego(seleccion.getGeneroSeleccionado());
+        });
+
+        // Regresar a la pantalla de menú principal
+        seleccion.getBotonVolverMenu().addActionListener(e -> {
+            ventana.mostrarPantalla("menu");
         });
     }
     
