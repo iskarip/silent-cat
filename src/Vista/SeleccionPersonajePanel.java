@@ -105,7 +105,7 @@ public class SeleccionPersonajePanel extends JPanel {
     }
 
     private void crearComponentesUI() {
-        // Nombres exactos de tus archivos en /Recursos/UI/Menu/Botones/
+
         botonFlechaIzquierda = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaIzquierda.png", "<", 85, 70);
         botonFlechaDerecha   = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaDerecha.png", ">", 85, 70);
         botonIniciarPartida  = crearBotonPNG("/Recursos/UI/Menu/Botones/botonIniciarPartida.png", "INICIAR PARTIDA", 330, 115);
@@ -191,7 +191,7 @@ public class SeleccionPersonajePanel extends JPanel {
 
         int marcoOffsetY = 75;
 
-        // 2. DIBUJAR PERSONAJE INACTIVO TRANSPARENTE EN EL FONDO (30% OPACIDAD)
+        // 2.  PERSONAJE INACTIVO TRANSPARENTE EN EL FONDO
         int indiceInactivo = (indiceActual + 1) % opciones.size();
         if (indiceInactivo < listaGestores.size()) {
             GestorSprites gestorInactivo = listaGestores.get(indiceInactivo);
@@ -216,7 +216,7 @@ public class SeleccionPersonajePanel extends JPanel {
             }
         }
 
-        // 3. DIBUJAR SPRITE ACTIVO CENTRADO ADENTRO DEL MARCO GÓTICO
+        // 3. SPRITE ACTIVO DEL PERSONAJE DENTRO DEL RECUADRO
         if (indiceActual < listaGestores.size()) {
             GestorSprites gestorActivo = listaGestores.get(indiceActual);
             BufferedImage hojaActiva = gestorActivo.obtener(EstadoPersonaje.IDLE);
@@ -241,7 +241,7 @@ public class SeleccionPersonajePanel extends JPanel {
         }
     }
 
-    // --- MÉTODOS DE CONSULTA MVC ---
+    // --- MÉTODOS --
 
     public JButton getBotonIniciarPartida() {
         return botonIniciarPartida;
