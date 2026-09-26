@@ -10,7 +10,8 @@ import java.util.List;
 
 public class SeleccionPersonajePanel extends JPanel {
 
-    // Record inmutable para modelar las opciones de personaje
+    // -- ATRIBUTOS --
+
     public record OpcionPersonaje(String genero, String carpetaSprites) {}
 
     private final List<OpcionPersonaje> opciones = List.of(
@@ -29,17 +30,18 @@ public class SeleccionPersonajePanel extends JPanel {
     private JButton botonIniciarPartida;
     private JButton botonVolverMenu;
 
-    // Control de animación
+    // Animación idle del personaje
     private Timer timerAnimacion;
     private int cuadroIdleActual = 0;
 
-    // Dimensiones estándar del frame de animación
+    // Constantes de dimensiones
     private static final int ANCHO_FRAME = NivelPanel.ANCHO_CUADRO;
     private static final int ALTO_FRAME = NivelPanel.ALTO_CUADRO;
     private static final int TOTAL_FRAMES_IDLE = 4;
 
-    // Factor para que el personaje encaje dentro del marco de la imagen.
-    private static final double ESCALA_SPRITE = 4.8;
+    // Escala del personaje principal y del de fondo
+    private static final double ESCALA_ACTIVO = 6.8;
+    private static final double ESCALA_FONDO  = 4.0;
 
     public SeleccionPersonajePanel() {
         setLayout(null);
@@ -48,24 +50,21 @@ public class SeleccionPersonajePanel extends JPanel {
         cargarFondo();
         precargarGestores();
         crearComponentesUI();
-        iniciarAnimacionIdle();
+        iniciarAnimacion();
     }
 
-
     private void cargarFondo() {
-        try (InputStream is = getClass().getResourceAsStream("/Recursos/UI/Menu/Fondo/imagenSeleccionPersonaje.png")) {
+        try (InputStream is = getClass().getResourceAsStream("/Recursos/UI/Menu/Fondo/seleccionPersonaje.png")) {
             if (is != null) {
                 this.imagenFondo = ImageIO.read(is);
             } else {
-                System.out.println("[SeleccionPersonajePanel] Imagen de fondo no encontrada.");
+                System.out.println("[SeleccionPersonajePanel] Fondo no encontrado.");
             }
         } catch (Exception e) {
-            System.out.println("[SeleccionPersonajePanel] Error al cargar fondo: " + e.getMessage());
+            System.out.println("[SeleccionPersonajePanel] Error al leer fondo: " + e.getMessage());
         }
     }
 
-
-     // Precarga los sprites de Chico y Chica en memoria.
     private void precargarGestores() {
         for (OpcionPersonaje opcion : opciones) {
             listaGestores.add(new GestorSprites(opcion.carpetaSprites()));
@@ -73,44 +72,54 @@ public class SeleccionPersonajePanel extends JPanel {
     }
 
 
-     //Configura los botones de navegación (invisibles sobre las flechas) y de acción.
+    private JButton crearBotonPNG(String rutaRecurso, String textoAlternativo, int ancho, int alto) {
+        JButton boton = new JButton();
+        ImageIcon icono = null;
+
+        try {
+            java.net.URL url = getClass().getResource(rutaRecurso);
+            if (url != null) {
+                ImageIcon iconoOriginal = new ImageIcon(url);
+                Image escalada = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
+                icono = new ImageIcon(escalada);
+            } else {
+                System.out.println("[SeleccionPersonajePanel] No se encontró el recurso: " + rutaRecurso);
+            }
+        } catch (Exception ignored) {}
+
+        if (icono != null) {
+            boton.setIcon(icono);
+        } else {
+            boton.setText(textoAlternativo);
+            boton.setFont(new Font("Arial", Font.BOLD, 18));
+            boton.setForeground(new Color(220, 180, 70));
+        }
+
+        boton.setOpaque(false);
+        boton.setContentAreaFilled(false);
+        boton.setBorderPainted(false);
+        boton.setFocusPainted(false);
+        boton.setBorder(null);
+        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return boton;
+    }
 
     private void crearComponentesUI() {
-        // Flecha izquierda invisible
-        botonFlechaIzquierda = new JButton();
-        configurarBotonInvisible(botonFlechaIzquierda);
+        // Nombres exactos de tus archivos en /Recursos/UI/Menu/Botones/
+        botonFlechaIzquierda = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaIzquierda.png", "<", 85, 70);
+        botonFlechaDerecha   = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaDerecha.png", ">", 85, 70);
+        botonIniciarPartida  = crearBotonPNG("/Recursos/UI/Menu/Botones/botonIniciarPartida.png", "INICIAR PARTIDA", 330, 115);
+        botonVolverMenu      = crearBotonPNG("/Recursos/UI/Menu/Botones/botonVolver.png", "VOLVER", 170, 60);
+
+        botonVolverMenu      = crearBotonPNG("/Recursos/UI/Menu/Botones/botonVolver.png", "VOLVER", 210, 75);
+
         botonFlechaIzquierda.addActionListener(e -> alternarSeleccion(-1));
-
-        // Flecha derecha invisible
-        botonFlechaDerecha = new JButton();
-        configurarBotonInvisible(botonFlechaDerecha);
         botonFlechaDerecha.addActionListener(e -> alternarSeleccion(1));
-
-        // Botón Iniciar Partida
-        botonIniciarPartida = new JButton("INICIAR PARTIDA");
-        botonIniciarPartida.setFont(new Font("Arial", Font.BOLD, 18));
-        botonIniciarPartida.setFocusable(false);
-
-        // Botón Volver
-        botonVolverMenu = new JButton("VOLVER");
-        botonVolverMenu.setFont(new Font("Arial", Font.BOLD, 14));
-        botonVolverMenu.setFocusable(false);
 
         add(botonFlechaIzquierda);
         add(botonFlechaDerecha);
         add(botonIniciarPartida);
         add(botonVolverMenu);
-    }
-
-
-     //Hace transparente un JButton para que actúe de hitbox interactiva sobre el arte.
-
-    private void configurarBotonInvisible(JButton boton) {
-        boton.setOpaque(false);
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     private void alternarSeleccion(int paso) {
@@ -119,9 +128,7 @@ public class SeleccionPersonajePanel extends JPanel {
         repaint();
     }
 
-
-     // Cicla la animación Idle del personaje activo a ~140ms por cuadro.
-    private void iniciarAnimacionIdle() {
+    private void iniciarAnimacion() {
         timerAnimacion = new Timer(140, e -> {
             cuadroIdleActual = (cuadroIdleActual + 1) % TOTAL_FRAMES_IDLE;
             repaint();
@@ -135,20 +142,35 @@ public class SeleccionPersonajePanel extends JPanel {
 
         int centroX = getWidth() / 2;
         int centroY = getHeight() / 2;
+        int altoPanel = getHeight();
 
-        // Botón Volver (esquina superior izquierda)
-        botonVolverMenu.setBounds(40, 40, 110, 40);
+        // 1. BOTÓN VOLVER
+        int anchoVolver = 210;
+        int altoVolver = 75;
+        if (botonVolverMenu != null) {
+            botonVolverMenu.setBounds(35, altoPanel - altoVolver - 30, anchoVolver, altoVolver);
+        }
 
-        // Flechas invisibles calibradas sobre los adornos góticos laterales
-        int tamFlecha = 75;
-        int desfasajeY = -15; // Alineación vertical con las flechas del fondo
-        botonFlechaIzquierda.setBounds(centroX - 195, centroY + desfasajeY, tamFlecha, tamFlecha);
-        botonFlechaDerecha.setBounds(centroX + 120, centroY + desfasajeY, tamFlecha, tamFlecha);
+        // 2. FLECHAS LATERALES
+        int anchoFlecha = 85;
+        int altoFlecha = 70;
+        int desfasajeX = 220;
+        int desfasajeY = 75;
 
-        // Botón Iniciar Partida sobre la alfombra
-        int anchoIniciar = 240;
-        int altoIniciar = 50;
-        botonIniciarPartida.setBounds(centroX - (anchoIniciar / 2), centroY + 220, anchoIniciar, altoIniciar);
+        if (botonFlechaIzquierda != null) {
+            botonFlechaIzquierda.setBounds(centroX - desfasajeX - (anchoFlecha / 2), (centroY + desfasajeY) - (altoFlecha / 2), anchoFlecha, altoFlecha);
+        }
+        if (botonFlechaDerecha != null) {
+            botonFlechaDerecha.setBounds(centroX + desfasajeX - (anchoFlecha / 2), (centroY + desfasajeY) - (altoFlecha / 2), anchoFlecha, altoFlecha);
+        }
+
+        // 3. BOTÓN INICIAR PARTIDA
+        if (botonIniciarPartida != null) {
+            int anchoIniciar = 330;
+            int altoIniciar = 115;
+
+            botonIniciarPartida.setBounds(centroX - (anchoIniciar / 2), centroY + 350, anchoIniciar, altoIniciar);
+        }
     }
 
     @Override
@@ -156,10 +178,9 @@ public class SeleccionPersonajePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        // Interpolación cercana para mantener el pixel art nítido
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-        // 1. Dibujar el fondo completo de la mansión
+        // 1. DIBUJAR FONDO COMPLETO
         if (imagenFondo != null) {
             g2.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
         }
@@ -167,24 +188,51 @@ public class SeleccionPersonajePanel extends JPanel {
         int centroX = getWidth() / 2;
         int centroY = getHeight() / 2;
 
-        // 2. Dibujar el Sprite activo centrado adentro del marco tallado
+
+        int marcoOffsetY = 75;
+
+        // 2. DIBUJAR PERSONAJE INACTIVO TRANSPARENTE EN EL FONDO (30% OPACIDAD)
+        int indiceInactivo = (indiceActual + 1) % opciones.size();
+        if (indiceInactivo < listaGestores.size()) {
+            GestorSprites gestorInactivo = listaGestores.get(indiceInactivo);
+            BufferedImage hojaInactiva = gestorInactivo.obtener(EstadoPersonaje.IDLE);
+
+            if (hojaInactiva != null) {
+                Composite compOriginal = g2.getComposite();
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.40f));
+
+                int anchoInactivo = (int) (ANCHO_FRAME * ESCALA_FONDO);
+                int altoInactivo  = (int) (ALTO_FRAME * ESCALA_FONDO);
+
+                // Se coloca a la derecha o izquierda en la penumbra
+                int fondoX = (indiceActual == 0) ? (centroX + 235) : (centroX - 235 - anchoInactivo);
+                int fondoY = (centroY + marcoOffsetY) - (altoInactivo / 2);
+
+                g2.drawImage(hojaInactiva,
+                        fondoX, fondoY, fondoX + anchoInactivo, fondoY + altoInactivo,
+                        0, 0, ANCHO_FRAME, ALTO_FRAME, this);
+
+                g2.setComposite(compOriginal); // Restablecer opacidad completa
+            }
+        }
+
+        // 3. DIBUJAR SPRITE ACTIVO CENTRADO ADENTRO DEL MARCO GÓTICO
         if (indiceActual < listaGestores.size()) {
             GestorSprites gestorActivo = listaGestores.get(indiceActual);
             BufferedImage hojaActiva = gestorActivo.obtener(EstadoPersonaje.IDLE);
 
             if (hojaActiva != null) {
-                int spriteAncho = (int) (ANCHO_FRAME * ESCALA_SPRITE);
-                int spriteAlto  = (int) (ALTO_FRAME * ESCALA_SPRITE);
+                int spriteAncho = (int) (ANCHO_FRAME * ESCALA_ACTIVO);
+                int spriteAlto  = (int) (ALTO_FRAME * ESCALA_ACTIVO);
 
-                // Corte del cuadro de animación correspondiente (fila 0 de frente)
+                // Cuadro actual de la animación (fila 0 de frente)
                 int srcX1 = cuadroIdleActual * ANCHO_FRAME;
                 int srcY1 = 0;
                 int srcX2 = srcX1 + ANCHO_FRAME;
                 int srcY2 = srcY1 + ALTO_FRAME;
 
-                // Coordenadas centradas con leve ajuste vertical (-15) para el hueco del marco
                 int destX = centroX - (spriteAncho / 2);
-                int destY = (centroY - 15) - (spriteAlto / 2);
+                int destY = (centroY + marcoOffsetY) - (spriteAlto / 2);
 
                 g2.drawImage(hojaActiva,
                         destX, destY, destX + spriteAncho, destY + spriteAlto,
@@ -193,7 +241,7 @@ public class SeleccionPersonajePanel extends JPanel {
         }
     }
 
-    // --- MÉTODOS DE ACCESO PARA EL CONTROLADOR (MVC) ---
+    // --- MÉTODOS DE CONSULTA MVC ---
 
     public JButton getBotonIniciarPartida() {
         return botonIniciarPartida;
