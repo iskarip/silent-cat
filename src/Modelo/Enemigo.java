@@ -91,7 +91,7 @@ public class Enemigo extends Entidad {
 //metodo propio del enemigo (mover, patrullar)
 
     public void moverHaciaJugador(Personaje jugador, MapaColision mapa) {
-        int deltaX = 0;
+        int deltaX = 1;
         int deltaY = 0;
 
         if (jugador.getPosicionX() > this.getPosicionX()) {

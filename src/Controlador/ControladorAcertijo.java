@@ -11,11 +11,17 @@ public class ControladorAcertijo {
 // -- ATRIBUTOS --
     private static final int RADIO_ACTIVACION = 50; // distancia para activar el acetijo (prueba)
 
+    private static final int INTENTOS_MAXIMOS = 3;
+    private static final int DANIO_FALLO = 10;
+
     private final AcertijoPanel vista;
     private final JuegoFrame ventanaPrincipal;
 
     private boolean acertijoActivo = false;
     private Acertijo acertijoActual;
+    private Personaje personajeActual;
+    private int intentosRestantes;
+
 
 // -- CONSTRUCTOR --
     public ControladorAcertijo(AcertijoPanel vista, JuegoFrame ventanaPrincipal) {
@@ -37,7 +43,7 @@ public class ControladorAcertijo {
         double distancia = distanciaAlTrigger(nivelActual, personaje);
         
         if (distancia <= RADIO_ACTIVACION) {
-            iniciarAcertijo(acertijo);
+            iniciarAcertijo(acertijo, personaje);
         }
     }
 
@@ -51,9 +57,12 @@ public class ControladorAcertijo {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    private void iniciarAcertijo(Acertijo acertijo) {
+    private void iniciarAcertijo(Acertijo acertijo, Personaje personaje) {
         this.acertijoActivo = true;
         this.acertijoActual = acertijo;
+        this.personajeActual = personaje;
+        this.intentosRestantes = INTENTOS_MAXIMOS;
+
 
         vista.mostrarEnunciado(acertijo);
         ventanaPrincipal.mostrarPantalla("acertijo");
@@ -62,20 +71,37 @@ public class ControladorAcertijo {
     private void manejarRespuesta() {
         if (acertijoActual == null) return;
 
-        boolean esCorrecta = acertijoActual.validarRespuesta(vista.getRespuestaIngresada());
+//aca la idea es que el propio acertijo decide como validarse
+//Si comparando el texto ingresado por el usuario (acertijoNumerico owo)
+//revisando el inventario (acertijoobjeto u.u)
+//El controlador no necesita saber cual es cual
+
+        boolean esCorrecta = acertijoActual.validarRespuesta(vista.getRespuestaIngresada(), personajeActual);
 
         if (esCorrecta) {
             acertijoActual.setResuelto(true); // Se marca como resuelto
             volverAlNivel();
-        } else {
-            // le avisa que fallo y puede volver a intentar
-            vista.mostrarFeedback("Respuesta incorrecta. Intentalo de nuevo.");
+        return;
         }
-    }
-
+        
+            intentosRestantes --; 
+        
+            if (intentosRestantes <=0){
+                if(personajeActual != null){
+                    personajeActual.recibirDanio(DANIO_FALLO);
+                }
+                vista.mostrarFeedback("Sin intentos restantes :(. " + acertijoActual.getDescripcion());
+                volverAlNivel();
+            } else {
+                vista.mostrarFeedback("Respuesta incorrecta. Te quedan : " + intentosRestantes + " intentos.");
+                }
+        }
+        
+  
     private void volverAlNivel() {
         acertijoActivo = false;
         acertijoActual = null;
+        personajeActual = null;
         ventanaPrincipal.mostrarPantalla("nivel");
     }
 

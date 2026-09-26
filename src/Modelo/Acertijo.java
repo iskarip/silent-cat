@@ -51,6 +51,14 @@ public abstract class Acertijo implements Interactuable {
             return esCorrecta;
     }
 
+//Para que acertijoObjeto pueda sobreescribir y validar mirando el inventario
+//en lugar del texto sin tocar acertijonumerico ni el controlador
+
+    public boolean validarRespuesta (String respuesta, Personaje personaje){
+        return validarRespuesta(respuesta);
+    }
+
+
     // -- METODOS ABSTRACTOS --
 
     protected abstract boolean verificarRespuesta(String respuesta);

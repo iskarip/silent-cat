@@ -16,7 +16,7 @@ public class ControladorMovimiento {
         int deltaX = 0;
         int deltaY = 0;
 
-        int velocidadBase = 4;
+        int velocidadBase = 3;
         int velocidad = (int) (velocidadBase * personaje.getMultiplicadorVelocidad());
 
         // Lectura de teclas activas
@@ -38,6 +38,18 @@ public class ControladorMovimiento {
         }
 
         boolean seEstaMoviendo = (deltaX != 0 || deltaY != 0);
+        
+        //por si se mueve en diagonal (dos teclas presionadas a la vez)
+        //debemos reescalar el vecor para que la velocidad total sea siempre la misma
+        //sin importar en cuantos ejes se mueva a la vez.
+        
+        if (deltaX != 0 && deltaY !=0){
+            deltaX = (int) Math.round(deltaX * 0.7071); 
+            deltaY = (int) Math.round(deltaY * 0.7071);
+        }
+
+
+        
         // Asignación explícita del estado
         if (!vista.estaAtacando()) {
             if (seEstaMoviendo) {
