@@ -1,5 +1,6 @@
 package Controlador;
 
+import Vista.FinDelJuego;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.PausaPanel;
@@ -27,9 +28,15 @@ public class ControladorPausa {
         // Acciones dentro de la ventana de pausa
         pausaPanel.getBotonReanudar().addActionListener(e -> reanudar());
         pausaPanel.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
-        
-        // Botón de Game Over si el personaje muere
-        nivelPanel.getBotonVolverMenu().addActionListener(e -> volverAlMenu());
+
+        // Botones y acciones de fin del juego o Game Over.
+        FinDelJuego panelFin = nivelPanel.getFinDelJuego();
+        if (panelFin != null) {
+            panelFin.getBotonVolverMenu().addActionListener(e -> {
+                nivelPanel.ocultarFindelJuego();
+                volverAlMenu();
+            });
+        }
     }
 
     public void pausar() {

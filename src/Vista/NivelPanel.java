@@ -20,7 +20,7 @@ public class NivelPanel extends JPanel {
 
     //--- CAPAS VISUALES ---
     private final List<InterfazVisual> capasVisuales = new ArrayList<>();
-    
+
     // --- ENTIDADES Y SPRITES ---
 
     private Personaje personaje;
@@ -38,10 +38,12 @@ public class NivelPanel extends JPanel {
     private int camaraY = 0;
 
     // --- ELEMENTOS DE INTERFAZ (GAME OVER) ---
-    private JLabel etiquetaGameOver;
-    private JButton botonVolverMenu;
+    // private JLabel etiquetaGameOver;
+    // private JButton botonVolverMenu;
+
+    private FinDelJuego finDelJuego;
     private int ticksMuerte = 0;
-    private boolean gameOverMostrado = false;
+    private boolean finDelJuegoMostrado = false;
 
     //CONSTANTES DE ESCALADO Y ZOOM
     public static final double ZOOM = 4.0; // Zoom del personaje
@@ -50,7 +52,7 @@ public class NivelPanel extends JPanel {
     public static final int ANCHO_CUADRO = 48;
     public static final int ALTO_CUADRO = 48;
 
- /*   private static final boolean MOSTRAR_GRILLA = false; // true para ver las colisiones */ 
+    /*   private static final boolean MOSTRAR_GRILLA = false; // true para ver las colisiones */
 
     // Cache para imágenes de items, evitando recargas repetidas
 
@@ -61,22 +63,23 @@ public class NivelPanel extends JPanel {
     private JButton botonPausa;
     private PausaPanel pausaPanel;
 
-    // --- CONSSTRUCTOR ---
+    // --- CONSTRUCTOR ---
 
     public NivelPanel() {
         setFocusable(true);
         setDoubleBuffered(true);
         setLayout(null); // posicionamiento libre, para superponer botones al dibujo
         setBackground(Color.BLACK); // <-- Fondo negro
-    
+
         //  Creacion del boton Pausa
         crearBotonPausa();
         this.pausaPanel = new PausaPanel();
         add(pausaPanel);
 
         // Componentes flotantes para la pantalla de Game Over
-        etiquetaGameOver = new JLabel("GAME OVER", SwingConstants.CENTER);
-        etiquetaGameOver.setFont(new Font("Arial", Font.BOLD, 48));
+        /*
+       etiquetaGameOver = new JLabel("GAME OVER", SwingConstants.CENTER);
+       etiquetaGameOver.setFont(new Font("Arial", Font.BOLD, 48));
         etiquetaGameOver.setForeground(Color.RED);
         etiquetaGameOver.setBounds(250, 200, 300, 60);
         etiquetaGameOver.setVisible(false);
@@ -86,6 +89,11 @@ public class NivelPanel extends JPanel {
         botonVolverMenu.setBounds(320, 280, 160, 40);
         botonVolverMenu.setVisible(false);
         add(botonVolverMenu);
+
+         */
+
+        this.finDelJuego = new FinDelJuego();
+        add(finDelJuego);
 
         // Permite recuperar el foco del teclado al hacer clic sobre el canvas de juego
         addMouseListener(new java.awt.event.MouseAdapter() {
@@ -189,21 +197,39 @@ public class NivelPanel extends JPanel {
         return cacheImagenesItems.computeIfAbsent(ruta, this::cargarImagenFondo);
     }
 
-    public int getCamaraX() { 
-        return camaraX; 
+    public int getCamaraX() {
+        return camaraX;
     }
 
-    public int getCamaraY() { 
-        return camaraY; 
+    public int getCamaraY() {
+        return camaraY;
     }
 
+    /*
     public JButton getBotonVolverMenu() {
         return botonVolverMenu;
     }
+
+     */
+
+    public FinDelJuego getFinDelJuego() {
+        return finDelJuego;
+    }
+
     private void crearBotonPausa() {
-        botonPausa = new JButton("PAUSAR");
-        botonPausa.setBounds(700, 10, 90, 35);
-        botonPausa.setFocusable(false);
+        int ancho = 120;
+        int alto = 120;
+
+        // Instanciado usando BotonJuego.
+        botonPausa = new BotonJuego(
+                "/Recursos/UI/Pausa/Botones/BotonPausa.png",
+                "/Recursos/UI/Pausa/Botones/BotonPausaHover.png", // pasá null si no tenés versión hover
+                ancho,
+                alto
+        );
+
+        // Ubicación en la esquina superior derecha (X=730, Y=15)
+        botonPausa.setBounds(getWidth() - ancho - 25, 20, ancho, alto);
         add(botonPausa);
     }
 
@@ -211,10 +237,10 @@ public class NivelPanel extends JPanel {
     public JButton getBotonPausa() { return botonPausa; }
     public PausaPanel getPausaPanel() { return pausaPanel; }
 
-    public void mostrarPausa() { 
+    public void mostrarPausa() {
         // Ajusta el overlay al tamaño exacto que tiene el NivelPanel en ese momento
-        pausaPanel.setBounds(0, 0, getWidth(), getHeight()); 
-        pausaPanel.setVisible(true); 
+        pausaPanel.setBounds(0, 0, getWidth(), getHeight());
+        pausaPanel.setVisible(true);
     }
 
     public void ocultarPausa() { pausaPanel.setVisible(false); }
@@ -223,10 +249,10 @@ public class NivelPanel extends JPanel {
 
     public void actualizarAnimacion(boolean moviendose) {
         contadorTick++;
-        
+
         // Si se mueve va más rápido (% 6), si está quieto (IDLE) va más lento (% 12 o % 15)
-        int velocidadAnimacion = moviendose ? 6 : 12; 
-        
+        int velocidadAnimacion = moviendose ? 6 : 12;
+
         if (contadorTick % velocidadAnimacion == 0) {
             // IDLE tiene 4 frames, los demás estados tienen 6
             int totalFrames = obtenerTotalFrames(gestorSprites, estadoActual);
@@ -240,7 +266,7 @@ public class NivelPanel extends JPanel {
         BufferedImage hoja = sprites.obtener(estado);
         return (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
     }
-    
+
     public void avanzarAnimacionMuerte() {
         ticksMuerte++;
         if (ticksMuerte % 6 != 0) return;
@@ -248,9 +274,9 @@ public class NivelPanel extends JPanel {
         int totalFrames = obtenerTotalFramesMuerte(gestorSprites);
         if (cuadroAnimacion < totalFrames - 1) {
             cuadroAnimacion++;
-        } else if (!gameOverMostrado) {
-            gameOverMostrado = true;
-            mostrarGameOver();
+        } else if (!finDelJuegoMostrado) {
+            finDelJuegoMostrado = true;
+            mostrarFindelJuego();
         }
     }
 
@@ -264,20 +290,43 @@ public class NivelPanel extends JPanel {
         return obtenerTotalFramesMuerte(spritesEnemigo);
     }
 
+    /*
     public void mostrarGameOver() {
         etiquetaGameOver.setVisible(true);
         botonVolverMenu.setVisible(true);
     }
 
+    */
+
+    public void mostrarFindelJuego () {
+        if (finDelJuego != null ) {
+            finDelJuego.setBounds(0, 0, getWidth(), getHeight());
+            finDelJuego.setVisible(true);
+        }
+        if(botonPausa != null) {
+            botonPausa.setVisible(false);
+        }
+    }
+
+    public void ocultarFindelJuego() {
+        if (finDelJuego != null) {
+            finDelJuego.setVisible(false);
+        }
+        if (botonPausa != null) {
+            botonPausa.setVisible(true);
+        }
+    }
+
     public void reiniciarEstadoNivel() {
         ticksMuerte = 0;
-        gameOverMostrado = false;
+        finDelJuegoMostrado = false;
         cuadroAnimacion = 0;
         estadoActual = EstadoPersonaje.IDLE;
-        etiquetaGameOver.setVisible(false);
-        botonVolverMenu.setVisible(false);
-
+        // etiquetaGameOver.setVisible(false);
+        // botonVolverMenu.setVisible(false);
+        ocultarFindelJuego();
     }
+
 
     public void limpiarCapasVisuales() {
         capasVisuales.clear();
@@ -332,10 +381,10 @@ public class NivelPanel extends JPanel {
         }
 
         // 2. DIBUJAR PISO Y OBSTÁCULOS (PALETA NEGRO Y AMARILLO)
-        
+
 /*        if (MOSTRAR_GRILLA && nivelActual != null && nivelActual.getMapaColision() != null) {
             MapaColision mapaColision = nivelActual.getMapaColision();
-            
+
             int tileSize = MapaColision.TILE;
             int totalFilas = mapaColision.getFilas();
             int totalColumnas = mapaColision.getColumnas();
@@ -377,7 +426,7 @@ public class NivelPanel extends JPanel {
         if (hoja != null) {
             int frame = cuadroAnimacion % 6;
             dibujarSprite(g2d, gestorSprites, estadoActual, personaje.getDireccion(), frame, posX, posY);
-            
+
             Rectangle hb = personaje.getHitbox();
             g2d.setColor(Color.RED);
             g2d.drawRect(hb.x, hb.y, hb.width, hb.height);
@@ -387,39 +436,39 @@ public class NivelPanel extends JPanel {
         }
 
         // 4. DIBUJAR ENEMIGOS Y BARRAS DE VIDA
-        
+
         if (spritesEnemigo != null && nivelActual != null && nivelActual.getListaEnemigos() != null) {
             for (Enemigo e : nivelActual.getListaEnemigos()) {
                 int ex = e.getPosicionX();
                 int ey = e.getPosicionY();
-                
-                    if (e.estaVivo()) {
-                        EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
-                        int frame = (contadorTick / 6) % 6;
-                        dibujarSprite(g2d, spritesEnemigo, estadoEnemigo, e.getDireccion(), frame, ex, ey);
 
-                        // Barra de vida
-                        int anchoBarra = (int) (20 * ESCALA);
-                        g2d.setColor(Color.BLACK);
-                        g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
-                        g2d.setColor(Color.RED);
-                        int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
-                        g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
-                    }
+                if (e.estaVivo()) {
+                    EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
+                    int frame = (contadorTick / 6) % 6;
+                    dibujarSprite(g2d, spritesEnemigo, estadoEnemigo, e.getDireccion(), frame, ex, ey);
+
+                    // Barra de vida
+                    int anchoBarra = (int) (20 * ESCALA);
+                    g2d.setColor(Color.BLACK);
+                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
+                    g2d.setColor(Color.RED);
+                    int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
+                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
+                }
             }
         }
-    
+
         // RESTAURAR COORDENADAS ORIGINALES (PRE-CÁMARA)
         g2d.setTransform(transformOriginal);
 
         // 5. DIBUJAR CAPAS VIAUSLES EN ORDEN
         for (InterfazVisual capa : capasVisuales) {
-         capa.renderizar(g2d, getWidth(), getHeight(), this);
+            capa.renderizar(g2d, getWidth(), getHeight(), this);
         }
     }
 
     private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
-                            Direccion direccion, int frame, int x, int y) {
+                               Direccion direccion, int frame, int x, int y) {
         if (sprites == null) return;
         BufferedImage hoja = sprites.obtener(estado);
         if (hoja == null) return;
@@ -473,6 +522,23 @@ public class NivelPanel extends JPanel {
         } catch (java.io.IOException e) {
             System.out.println("[NivelPanel] Excepcion al leer imagen: " + e.getMessage());
             return null;
+        }
+    }
+
+    // Agrego del doLayout para que el boton de pausa siempre se ubique en el mismo lugar
+    // sin importar el tamaño de la pantalla
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+
+        if (botonPausa != null) {
+            int ancho = 65;
+            int alto = 65;
+            int margenDerecho = 25;
+            int margenSuperior = 20;
+
+            botonPausa.setBounds(getWidth() - ancho - margenDerecho, margenSuperior, ancho, alto);
         }
     }
 }

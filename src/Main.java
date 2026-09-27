@@ -6,6 +6,11 @@ import Vista.JuegoFrame;
 public class Main {
     public static void main (String [] args) {
 
+        // Activa la aceleración nativa por GPU de Windows
+        System.setProperty("sun.java2d.d3d", "true");
+        System.setProperty("sun.java2d.ddforcevram", "true");
+        System.setProperty("sun.java2d.render", "speed");
+
         SwingUtilities.invokeLater(() -> {
             JuegoFrame ventana = new JuegoFrame();
             new ControladorPrincipal(ventana);
