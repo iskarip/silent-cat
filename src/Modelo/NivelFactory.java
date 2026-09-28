@@ -29,7 +29,7 @@ public class NivelFactory {
 
         ItemMedicina medicina2 = new ItemMedicina(25,13,10);
         nivel.agregarItem(medicina2);
-
+        nivel.agregarZonaMensaje(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
         // Estaria bueno cambiar la manera de crear itemes, tengo una idea preguntarme -- ISKARI
 
         //Item lataDeAceite = new Item("Lata de Aceite", "/Recursos/Sprites/Items/lata_aceite.png", 5, 10);
