@@ -13,7 +13,7 @@ public class Nivel extends EspacioBase {
     private boolean nivelSuperado;
     private boolean checkpoint; //va a ser una bandera, si es falso no se activa, verdadero activado
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
-    private int acertijoX, acertijoY; // posicion donde se activa el acertijo del nivel
+    private int acertijoColumna, acertijoFila; // posicion donde se activa el acertijo del nivel
 
     private List<PuntoFlashback> puntosFlashback = new ArrayList<>();
     private List<ZonaMensaje> zonasMensaje = new ArrayList<>();
@@ -82,22 +82,31 @@ public class Nivel extends EspacioBase {
         this.accesoSiguienteNivelY = accesoSiguienteNivelY;
     }
 
-    public int getAcertijoX() {
-        return acertijoX;
+    // LOGICA PARA LOS ACERTIJOS
+
+    public void setAcertijoEnTile(int columna, int fila) {
+        this.acertijoColumna = columna;
+        this.acertijoFila = fila;
     }
 
-    public void setAcertijoX(int acertijoX) {
-        this.acertijoX = acertijoX;
+    public int getAcertijoColumna() {
+        return acertijoColumna;
+    }
+
+    public int getAcertijoFila() {
+        return acertijoFila;
+    }
+
+            // Devuelven el CENTRO del tile en píxeles, así ControladorAcertijo
+            // sigue llamando a getAcertijoX()/getAcertijoY() sin cambios.
+
+    public int getAcertijoX() {
+        return acertijoColumna * MapaColision.TILE + MapaColision.TILE / 2;
     }
 
     public int getAcertijoY() {
-        return acertijoY;
+        return acertijoFila * MapaColision.TILE + MapaColision.TILE / 2;
     }
-
-    public void setAcertijoY(int acertijoY) {
-        this.acertijoY = acertijoY;
-    }
-
 
 //--METODOS--
 

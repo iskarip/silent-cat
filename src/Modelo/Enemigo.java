@@ -39,14 +39,11 @@ public class Enemigo extends Entidad {
 
 //--CONSTRUCTOR--
 
-    public Enemigo(int puntosVida, int danioBase, int idEnemigo, int xInicial, int yInicial) {
+    public Enemigo(int puntosVida, int danioBase, int idEnemigo, int columna, int fila) {
         super(puntosVida);
         this.danioBase = danioBase;
         this.idEnemigo = idEnemigo;
-        setPosicionX(xInicial);
-        setPosicionY(yInicial);
-        this.spawnX = xInicial;
-        this.spawnY = yInicial;
+        colocarEnTile(columna, fila);
     }
 
 //--GET Y SET--
