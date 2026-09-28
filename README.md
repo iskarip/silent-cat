@@ -230,6 +230,23 @@ Esto quedaría demostrado al momento en el que el personaje interactue con el ob
 
     }
 
+# ENTREGA  4: Interfaz Visual 
+
+## Modificaciones a realizar: 
+**+ En NivelPanel:** Se redistruiran las funcionalidades del codigo para repartirlas en otras clases. Por el momento, esa clase 
+se encuentra con muchas funcionalidades que no le corresponden. 
+
+**+ En NivelFactory:** Por el momento conservamos esta primera idea de creacion de niveles pero esta planeado modificarlo para
+una mejor implementacion de los conceptos teoricos. 
+
+**Aclaracion** 
++ Por el momento tenemos la estetica del nivel 1, nivel 2 y nivel 3, pero aun el personaje no puede pasar por el nivel 1 y nivel 2.
++ Falta implementar la logica de los acertijos. 
++ Para jugar!: Con la letra "L" se puede prender y apagar la linterna. Con el espacio se pega. Con la letra "F" se pueden ver los blashback. 
+
+# Esperamos que les guste! 
+
+
 
 
 
