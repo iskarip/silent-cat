@@ -35,7 +35,7 @@ public class MenuPanel extends JPanel {
         // --- BOTÓN 1: NUEVA PARTIDA ---
         gbc.gridy = 0;
         // Insets(arriba, izquierda, abajo, derecha) -> Margen superior de 250px y 80px desde el borde izquierdo
-        gbc.insets = new Insets(250, 80, 15, 0); 
+        gbc.insets = new Insets(300, 80, 15, 0); 
         add(botonNuevaPartida, gbc);
 
         // --- BOTÓN 2: AJUSTES ---

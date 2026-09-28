@@ -5,6 +5,7 @@ import Modelo.Linterna;
 import Modelo.Nivel;
 import Modelo.Partida;
 import Modelo.Personaje;
+import Modelo.ReproductorSonido;
 import Vista.GestorSprites;
 import Vista.JuegoFrame;
 import Vista.MenuPanel;
@@ -15,16 +16,17 @@ public class ControladorPrincipal {
 
     private JuegoFrame ventana;
     private ControladorNivel controladorNivelActual;
+    public static final String MUSICA_MENU = "Recursos/Sonidos/UI/menu1.wav";
 
     public ControladorPrincipal(JuegoFrame ventana) {
         this.ventana = ventana;
-
         configurarEventosMenu();
         configurarEventosSeleccion();
     }
 
     private void configurarEventosMenu() {
         MenuPanel menu = ventana.getMenuPanel();
+        ReproductorSonido.reproducirEnLoop(MUSICA_MENU);
 
         menu.getBotonNuevaPartida().addActionListener(e -> {
             ventana.mostrarPantalla("seleccion");
@@ -54,6 +56,9 @@ public class ControladorPrincipal {
     }
     
     private void comenzarJuego(String genero) {
+
+        
+        ReproductorSonido.detenerMusica(); 
 
         // Si ya existía un controlador previo, detenemos su Timer viejo
         if (controladorNivelActual != null) {

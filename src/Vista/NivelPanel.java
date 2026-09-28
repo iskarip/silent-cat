@@ -46,7 +46,7 @@ public class NivelPanel extends JPanel {
     private boolean finDelJuegoMostrado = false;
 
     //CONSTANTES DE ESCALADO Y ZOOM
-    public static final double ZOOM = 4.0; // Zoom del personaje
+    public static final double ZOOM = 5.0; // Zoom del personaje
 
     public static final double ESCALA = 1.0;
     public static final int ANCHO_CUADRO = 48;
