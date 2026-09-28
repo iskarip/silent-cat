@@ -231,6 +231,13 @@ Esto quedaría demostrado al momento en el que el personaje interactue con el ob
     }
 
 
+### ENTREGA 4: INTERFAZ VISUAL ###
+
+**Enlace a documento explicativo:**
+
+https://docs.google.com/document/d/1oiAt7oy5ClhZ2OPFTxYV2c4uRL7WencAi1H2_CcWGb0/edit?usp=sharing
+
+
 
 
 
