@@ -1,16 +1,15 @@
 package Vista;
 
+import Modelo.ObservadorPersonaje;
 import Modelo.Personaje;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 // Esta clase dibuja la barra de vida del personaje en la pantalla y escucha cambios en la vida del personaje para actualizarse.
 // Aplica teoria : observer, ya que la barra de vida es un observador del personaje y se actualiza cuando el personaje cambia su vida.
-public class BarraVida implements InterfazVisual, PropertyChangeListener {
+public class BarraVida implements InterfazVisual, ObservadorPersonaje {
 
     private static final int X = 20;
     private static final int Y = 60; // debajo de la barra de batería
@@ -25,11 +24,24 @@ public class BarraVida implements InterfazVisual, PropertyChangeListener {
         this.vidaActual = vidaInicial;
     }
 
+    /*
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (Personaje.PROP_VIDA.equals(evt.getPropertyName())) {
             this.vidaActual = (int) evt.getNewValue();
         }
+    }
+
+     */
+
+    @Override
+    public void vidaCambio (int vidaActual, int vidaMaxima) {
+        this.vidaActual = vidaActual;
+    }
+
+    @Override
+    public void personajeMurio() {
+        this.vidaActual = 0;
     }
 
     @Override

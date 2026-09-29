@@ -81,7 +81,7 @@ public class ControladorNivel {
         if (personajeActual != null) {
             BarraVida barraVida = new BarraVida(personajeActual.getPuntosVida());
             this.vista.agregarCapaVisual(barraVida);
-            personajeActual.addPropertyChangeListener(barraVida);
+            personajeActual.agregarObservador(barraVida);
         }
 
 

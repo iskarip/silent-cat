@@ -49,7 +49,7 @@ El sistema sera un juego que permitira al usuario la eleccion de uno de los dos 
 
 ## 4. Diagrama de Clases UML (Conceptual)
 
-Enlace a CANVA: https://canva.link/c4rd5agxm72r0ff
+Enlace a draw.io: https://drive.google.com/file/d/1OYlUqmkDSLBpF4yocw-xF3axblk_VoJx/view?usp=sharing
 
 ## 5. Implementacion de Herencia y Polimorfismo
 
@@ -229,7 +229,15 @@ Esto quedaría demostrado al momento en el que el personaje interactue con el ob
     }
 
     }
+## 6. Documentacion y prototipo Visual
+https://docs.google.com/document/d/1oiAt7oy5ClhZ2OPFTxYV2c4uRL7WencAi1H2_CcWGb0/edit?usp=sharing
+<<<<<<< HEAD
 
+uml actualizado: Enlace a draw.io: https://drive.google.com/file/d/1OYlUqmkDSLBpF4yocw-xF3axblk_VoJx/view?usp=sharing
+=======
+>>>>>>> e7ceb2a87a7ca017f3dd00ef1b9af726d98c9277
+
+uml actualizado: Enlace a draw.io: https://drive.google.com/file/d/1OYlUqmkDSLBpF4yocw-xF3axblk_VoJx/view?usp=sharing
 
 ### ENTREGA 4: INTERFAZ VISUAL ###
 

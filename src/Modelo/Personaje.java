@@ -3,6 +3,8 @@ package Modelo;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Representa al jugador. Hereda de Entidad (vida, daño base, posición y el
@@ -30,15 +32,17 @@ public class Personaje extends Entidad {
 
     // Para notificar cambios de vida al Controlador (que a su vez los pasa a la Vista)
 
-    public static final String PROP_VIDA = "puntosVida";
-    private final PropertyChangeSupport soporteCambios = new PropertyChangeSupport(this);
-
+    //public static final String PROP_VIDA = "puntosVida";
+    //private final PropertyChangeSupport soporteCambios = new PropertyChangeSupport(this);
 
     private int nivelEstamina;
 
     private Arma arma;
     private Linterna linterna;
     private Inventario inventario;
+
+    // -- LISTA DE OBSERVADORES --
+    private final List<ObservadorPersonaje> observadores = new ArrayList<>();
 
 // -- MEDIDAS DEL HITBOX --
     private static final int ANCHO_HITBOX = (int) (6 * ESCALA);
@@ -60,7 +64,34 @@ public class Personaje extends Entidad {
         this.inventario = new Inventario();
     }
 
-// -- Getters y Setters --
+    // -- GESTION DE OBSERVADORES --
+
+    public void agregarObservador(ObservadorPersonaje observador) {
+        if (observador != null && !this.observadores.contains(observador)) {
+            this.observadores.add(observador);
+        }
+    }
+
+    public void removerObservador(ObservadorPersonaje observador) {
+        this.observadores.remove(observador);
+    }
+
+    public void notificarCambioVida() {
+        for (ObservadorPersonaje obs : this.observadores) {
+            obs.vidaCambio(getPuntosVida(), 100);
+            if (getPuntosVida() <= 0) {
+                obs.personajeMurio();
+            }
+        }
+    }
+
+    @Override
+    public void setPuntosVida (int puntosVida) {
+        super.setPuntosVida(puntosVida);
+        this.notificarCambioVida();
+    }
+
+    // -- GETTERS Y SETTERS --
 
     public String getNombrePersonaje(){
         return nombrePersonaje;
@@ -82,7 +113,7 @@ public class Personaje extends Entidad {
         return inventario;
     }
 
-// -- METODOS --
+    // -- METODOS --
 
     // Implementación concreta del método abstracto atacar() de Entidad.
     // Cada subclase de Entidad decide CÓMO ataca; Personaje usa su Arma.
@@ -202,18 +233,4 @@ public class Personaje extends Entidad {
         return resuelto;
     }
 
-    // Para que el Controlador pueda escuchar cambios de vida y pasarlos a la Vista
-
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        soporteCambios.addPropertyChangeListener(listener);
-    }
-
-    // Sobreescribimos el setter heredado de Entidad para poder notificar
-    // cuando cambia la vida, sin tocar nada en Entidad ni en Enemigo.
-    @Override
-    public void setPuntosVida(int puntosVida) {
-        int vidaAnterior = getPuntosVida();
-        super.setPuntosVida(puntosVida);
-        soporteCambios.firePropertyChange(PROP_VIDA, vidaAnterior, getPuntosVida());
-    }
 }
