@@ -80,6 +80,15 @@ public class ControladorNivel {
             BarraVida barraVida = new BarraVida(personajeActual.getPuntosVida());
             this.vista.agregarCapaVisual(barraVida);
             personajeActual.agregarObservador(barraVida);
+
+            // FinDelJuego esta relacionado con las acciones del personaje.
+            personajeActual.agregarObservador(this.vista.getFinDelJuego());
+
+            // Botón "Volver al Menú" de FinDelJuego
+            this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(e -> {
+                detener();
+                ventanaPrincipal.mostrarPantallaConFundido("menu"); // --> esto se puede cambiar.
+            });
         }
 
 
@@ -163,10 +172,8 @@ public class ControladorNivel {
         if (!personaje.estaVivo()) {
             if (!personajeMuerto) {
                 personajeMuerto = true;
-                System.out.println("El personaje murió.");
                 vista.setEstado(EstadoPersonaje.MURIENDO);
             }
-            vista.avanzarAnimacionMuerte();
             vista.repaint();
             return;
         }

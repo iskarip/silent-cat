@@ -4,32 +4,33 @@ import Modelo.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import javax.swing.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import javax.swing.*;
 
 public class NivelPanel extends JPanel {
 
-    // --- MODELO Y ESTADO DEL NIVEL ---
+    // CONSTANTES DE ESCALADO Y ZOOM
+    public static final double ZOOM = 5.0; // Zoom del personaje
+    public static final double ESCALA = 1.0;
+    public static final int ANCHO_CUADRO = 48;
+    public static final int ALTO_CUADRO = 48;
 
+    // --- MODELO Y ESTADO DEL NIVEL ---
     private Nivel nivelActual;
     private EspacioJugable espacioActual;
     private Image imagenFondoNivel; // imagen de planta baja
 
-    //--- CAPAS VISUALES ---
+    // --- CAPAS VISUALES ---
     private final List<InterfazVisual> capasVisuales = new ArrayList<>();
 
     // --- ENTIDADES Y SPRITES ---
-
     private Personaje personaje;
     private GestorSprites gestorSprites;
     private GestorSprites spritesEnemigo;
 
     // --- ESTADO VISUAL Y ANIMACIÓN ---
     private EstadoPersonaje estadoActual = EstadoPersonaje.IDLE;
-    //public static final double ZOOM = 1.75; // Zoom del personaje
     private int cuadroAnimacion = 0;
     private int contadorTick = 0;
 
@@ -37,31 +38,12 @@ public class NivelPanel extends JPanel {
     private int camaraX = 0;
     private int camaraY = 0;
 
-    // --- ELEMENTOS DE INTERFAZ (GAME OVER) ---
-
-    private FinDelJuego finDelJuego;
-    private int ticksMuerte = 0;
-    private boolean finDelJuegoMostrado = false;
-
-    //CONSTANTES DE ESCALADO Y ZOOM
-    public static final double ZOOM = 5.0; // Zoom del personaje
-
-    public static final double ESCALA = 1.0;
-    public static final int ANCHO_CUADRO = 48;
-    public static final int ALTO_CUADRO = 48;
-
-    /*   private static final boolean MOSTRAR_GRILLA = false; // true para ver las colisiones */
-
-    // Cache para imágenes de items, evitando recargas repetidas
-
-    private final Map<String, Image> cacheImagenesItems = new HashMap<>();
-
-    // --- COMPONENTES DE PAUSA ---
-
+    // --- COMPONENTES DE INTERFAZ (UI / OVERLAYS) ---
+    private final FinDelJuego finDelJuego;
     private JButton botonPausa;
-    private PausaPanel pausaPanel;
+    private final PausaPanel pausaPanel;
 
-    // --- CONSTRUCTOR ---
+    // CONSTRUCTOR
 
     public NivelPanel() {
         setFocusable(true);
@@ -69,12 +51,10 @@ public class NivelPanel extends JPanel {
         setLayout(null); // posicionamiento libre, para superponer botones al dibujo
         setBackground(Color.BLACK); // <-- Fondo negro
 
-        //  Creacion del boton Pausa
+        // Creacion del boton Pausa
         crearBotonPausa();
         this.pausaPanel = new PausaPanel();
         add(pausaPanel);
-
-        // Componentes flotantes para la pantalla de Game Over
 
         this.finDelJuego = new FinDelJuego();
         add(finDelJuego);
@@ -88,17 +68,54 @@ public class NivelPanel extends JPanel {
         });
     }
 
-    // --- MÉTODOS PARA GESTIÓN DE CAPAS VISUALES / OVERLAYS ---
+    // GESTIÓN DE INTERFAZ Y COMPONENTES SWING
+
+    private void crearBotonPausa() {
+        int ancho = 120;
+        int alto = 120;
+
+        // Instanciado usando BotonJuego.
+        botonPausa = new BotonJuego(
+                "/Recursos/UI/Pausa/Botones/BotonPausa.png",
+                "/Recursos/UI/Pausa/Botones/BotonPausaHover.png", // pasá null si no tenés versión hover
+                ancho,
+                alto
+        );
+
+        // Ubicación en la esquina superior derecha (X=730, Y=15)
+        botonPausa.setBounds(getWidth() - ancho - 25, 20, ancho, alto);
+        add(botonPausa);
+    }
+
+    // Agrego del doLayout para que el boton de pausa siempre se ubique en el mismo lugar
+    // sin importar el tamaño de la pantalla
+    @Override
+    public void doLayout() {
+        super.doLayout();
+
+        if (botonPausa != null) {
+            int ancho = 65;
+            int alto = 65;
+            int margenDerecho = 25;
+            int margenSuperior = 20;
+
+            botonPausa.setBounds(getWidth() - ancho - margenDerecho, margenSuperior, ancho, alto);
+        }
+    }
+   // GESTIÓN DE CAPAS VISUALES / OVERLAYS (POLIMORFISMO)
 
     public void agregarCapaVisual(InterfazVisual capa) {
         if (!capasVisuales.contains(capa)) {
             capasVisuales.add(capa);
         }
-
-    }//este metodo llena la lista de capas visuales
+    } // este metodo llena la lista de capas visuales
 
     public void removerCapaVisual(InterfazVisual capa) {
         capasVisuales.remove(capa);
+    }
+
+    public void limpiarCapasVisuales() {
+        capasVisuales.clear();
     }
 
     // --- LÓGICA DE CÁMARA (CÁLCULO EXCLUSIVAMENTE VISUAL) ---
@@ -131,184 +148,7 @@ public class NivelPanel extends JPanel {
         camaraY = Math.max(0, Math.min(objetivoY, maxCamY));
     }
 
-    // --- GETTERS Y SETTERS ---
-    public Personaje getPersonaje() { return personaje; }
-    public void setPersonaje(Personaje personaje) { this.personaje = personaje; repaint(); }
-
-    public GestorSprites getGestorSprites() { return gestorSprites; }
-    public void setGestorSprites(GestorSprites gestorSprites) { this.gestorSprites = gestorSprites; repaint(); }
-
-    public GestorSprites getSpritesEnemigo() { return spritesEnemigo; }
-    public void setSpritesEnemigo(GestorSprites spritesEnemigo) { this.spritesEnemigo = spritesEnemigo; }
-
-    public EspacioJugable getEspacioActual() { return espacioActual; }
-
-    public void setEspacioActual(EspacioJugable espacio) {
-        this.espacioActual = espacio;
-        this.imagenFondoNivel = cargarImagenFondo(espacio.getRutaImagenFondo());
-        if (espacio.getRutaSpritesEnemigos() != null) {
-            this.spritesEnemigo = new GestorSprites(espacio.getRutaSpritesEnemigos());
-        }
-        repaint();
-    }
-
-    public void setEstado(EstadoPersonaje nuevoEstado) {
-        // Solo si el estado cambia, reiniciamos los contadores de animación para evitar saltos o parpadeos
-        if (this.estadoActual != nuevoEstado) {
-            this.estadoActual = nuevoEstado;
-            this.cuadroAnimacion = 0;
-            this.contadorTick = 0;
-            repaint();
-        }
-    }
-
-    public boolean estaAtacando() {
-        return estadoActual == EstadoPersonaje.ATACANDO;
-    }
-
-    public Nivel getNivelActual() { return nivelActual; }
-
-    public void setNivelActual(Nivel nivel) {
-        this.nivelActual = nivel;
-        if (nivel != null) {
-            setEspacioActual(nivel);
-        }
-        repaint();
-    }
-
-    private Image obtenerImagenItem(String ruta) {
-        if (ruta == null) return null;
-        return cacheImagenesItems.computeIfAbsent(ruta, this::cargarImagenFondo);
-    }
-
-    public int getCamaraX() {
-        return camaraX;
-    }
-
-    public int getCamaraY() {
-        return camaraY;
-    }
-
-    /*
-    public JButton getBotonVolverMenu() {
-        return botonVolverMenu;
-    }
-
-     */
-
-    public FinDelJuego getFinDelJuego() {
-        return finDelJuego;
-    }
-
-    private void crearBotonPausa() {
-        int ancho = 120;
-        int alto = 120;
-
-        // Instanciado usando BotonJuego.
-        botonPausa = new BotonJuego(
-                "/Recursos/UI/Pausa/Botones/BotonPausa.png",
-                "/Recursos/UI/Pausa/Botones/BotonPausaHover.png", // pasá null si no tenés versión hover
-                ancho,
-                alto
-        );
-
-        // Ubicación en la esquina superior derecha (X=730, Y=15)
-        botonPausa.setBounds(getWidth() - ancho - 25, 20, ancho, alto);
-        add(botonPausa);
-    }
-
-    // --- MÉTODOS DE PAUSA ---
-    public JButton getBotonPausa() { return botonPausa; }
-    public PausaPanel getPausaPanel() { return pausaPanel; }
-
-    public void mostrarPausa() {
-        // Ajusta el overlay al tamaño exacto que tiene el NivelPanel en ese momento
-        pausaPanel.setBounds(0, 0, getWidth(), getHeight());
-        pausaPanel.setVisible(true);
-    }
-
-    public void ocultarPausa() { pausaPanel.setVisible(false); }
-
-    // --- MANEJO DE ANIMACIONES DE SPRITES --
-
-    public void actualizarAnimacion(boolean moviendose) {
-        contadorTick++;
-
-        // Si se mueve va más rápido (% 6), si está quieto (IDLE) va más lento (% 12 o % 15)
-        int velocidadAnimacion = moviendose ? 6 : 12;
-
-        if (contadorTick % velocidadAnimacion == 0) {
-            // IDLE tiene 4 frames, los demás estados tienen 6
-            int totalFrames = obtenerTotalFrames(gestorSprites, estadoActual);
-
-            cuadroAnimacion = (cuadroAnimacion + 1) % totalFrames;
-        }
-    }
-
-    private int obtenerTotalFrames(GestorSprites sprites, EstadoPersonaje estado) {
-        if (sprites == null) return 1;
-        BufferedImage hoja = sprites.obtener(estado);
-        return (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
-    }
-
-    public void avanzarAnimacionMuerte() {
-        ticksMuerte++;
-        if (ticksMuerte % 6 != 0) return;
-
-        int totalFrames = obtenerTotalFramesMuerte(gestorSprites);
-        if (cuadroAnimacion < totalFrames - 1) {
-            cuadroAnimacion++;
-        } else if (!finDelJuegoMostrado) {
-            finDelJuegoMostrado = true;
-            mostrarFindelJuego();
-        }
-    }
-
-    private int obtenerTotalFramesMuerte(GestorSprites sprites) {
-        if (sprites == null) return 1;
-        BufferedImage hoja = sprites.obtener(EstadoPersonaje.MURIENDO);
-        return (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
-    }
-
-    public int obtenerTotalFramesMuerteEnemigo() {
-        return obtenerTotalFramesMuerte(spritesEnemigo);
-    }
-
-    public void mostrarFindelJuego () {
-        if (finDelJuego != null ) {
-            finDelJuego.setBounds(0, 0, getWidth(), getHeight());
-            finDelJuego.setVisible(true);
-        }
-        if(botonPausa != null) {
-            botonPausa.setVisible(false);
-        }
-    }
-
-    public void ocultarFindelJuego() {
-        if (finDelJuego != null) {
-            finDelJuego.setVisible(false);
-        }
-        if (botonPausa != null) {
-            botonPausa.setVisible(true);
-        }
-    }
-
-    public void reiniciarEstadoNivel() {
-        ticksMuerte = 0;
-        finDelJuegoMostrado = false;
-        cuadroAnimacion = 0;
-        estadoActual = EstadoPersonaje.IDLE;
-        // etiquetaGameOver.setVisible(false);
-        // botonVolverMenu.setVisible(false);
-        ocultarFindelJuego();
-    }
-
-
-    public void limpiarCapasVisuales() {
-        capasVisuales.clear();
-    }
-
-    // --- CICLO DE DIBUJADO (PAINT COMPONENT) ---
+    // CICLO DE DIBUJADO PRINCIPAL (PAINT COMPONENT)
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -341,7 +181,8 @@ public class NivelPanel extends JPanel {
             for (Item item : espacioActual.getListaItems()) {
                 if (item.isRecogido()) continue;
 
-                Image imagenItem = obtenerImagenItem(item.getRutaImagen());
+                // Carga optimizada y cacheada a través de GestorSprites
+                Image imagenItem = GestorSprites.cargarImagen(item.getRutaImagen());
                 int ix = item.getPosicionX();
                 int iy = item.getPosicionY();
 
@@ -363,7 +204,9 @@ public class NivelPanel extends JPanel {
 
         if (hoja != null) {
             int frame = cuadroAnimacion % 6;
-            dibujarSprite(g2d, gestorSprites, estadoActual, personaje.getDireccion(), frame, posX, posY);
+            // Se delega el recorte exacto a GestorSprites
+            gestorSprites.dibujarCuadro(g2d, estadoActual, personaje.getDireccion(), frame,
+                    posX, posY, ANCHO_CUADRO, ALTO_CUADRO, ESCALA);
 
             Rectangle hb = personaje.getHitbox();
             g2d.setColor(Color.RED);
@@ -374,7 +217,6 @@ public class NivelPanel extends JPanel {
         }
 
         // 4. DIBUJAR ENEMIGOS Y BARRAS DE VIDA
-
         if (spritesEnemigo != null && nivelActual != null && nivelActual.getListaEnemigos() != null) {
             for (Enemigo e : nivelActual.getListaEnemigos()) {
                 int ex = e.getPosicionX();
@@ -383,15 +225,10 @@ public class NivelPanel extends JPanel {
                 if (e.estaVivo()) {
                     EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
                     int frame = (contadorTick / 6) % 6;
-                    dibujarSprite(g2d, spritesEnemigo, estadoEnemigo, e.getDireccion(), frame, ex, ey);
+                    spritesEnemigo.dibujarCuadro(g2d, estadoEnemigo, e.getDireccion(), frame, ex, ey, ANCHO_CUADRO, ALTO_CUADRO, ESCALA);
 
-                    // Barra de vida
-                    int anchoBarra = (int) (20 * ESCALA);
-                    g2d.setColor(Color.BLACK);
-                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
-                    g2d.setColor(Color.RED);
-                    int vidaActual = (int) (anchoBarra * (e.getPuntosVida() / 100.0));
-                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, vidaActual), 4);
+                    // Se delega a BarraVida
+                    //BarraVida.dibujarBarraEntidad(g2d, ex, ey, e.getPuntosVida(), 100, ESCALA);
                 }
             }
         }
@@ -405,78 +242,98 @@ public class NivelPanel extends JPanel {
         }
     }
 
-    private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
-                               Direccion direccion, int frame, int x, int y) {
-        if (sprites == null) return;
+    // --- MANEJO DE ANIMACIONES DE SPRITES --
+    public void actualizarAnimacion(boolean moviendose) {
+        contadorTick++;
+
+        // Si se mueve va más rápido (% 6), si está quieto (IDLE) va más lento (% 12 o % 15)
+        int velocidadAnimacion = moviendose ? 6 : 12;
+
+        if (contadorTick % velocidadAnimacion == 0) {
+            // IDLE tiene 4 frames, los demás estados tienen 6
+            int totalFrames = obtenerTotalFrames(gestorSprites, estadoActual);
+
+            cuadroAnimacion = (cuadroAnimacion + 1) % totalFrames;
+        }
+    }
+
+    private int obtenerTotalFrames(GestorSprites sprites, EstadoPersonaje estado) {
+        if (sprites == null) return 1;
         BufferedImage hoja = sprites.obtener(estado);
-        if (hoja == null) return;
-
-        int srcX1 = frame * ANCHO_CUADRO;
-        int srcY1 = direccion.getFila() * ALTO_CUADRO;
-        int srcX2 = srcX1 + ANCHO_CUADRO;
-        int srcY2 = srcY1 + ALTO_CUADRO;
-
-        int ancho = (int) (ANCHO_CUADRO * ESCALA);
-        int alto = (int) (ALTO_CUADRO * ESCALA);
-
-        g2d.drawImage(hoja, x, y, x + ancho, y + alto, srcX1, srcY1, srcX2, srcY2, this);
+        return (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
     }
 
-    // -- METODO PARA LA IMAGEN DE PLANTA BAJA --
-    private Image cargarImagenFondo(String ruta) {
-        if (ruta == null || ruta.trim().isEmpty()) {
-            System.out.println("[NivelPanel] La ruta de la imagen es nula o vacia.");
-            return null;
+    public void reiniciarEstadoNivel() {
+        cuadroAnimacion = 0;
+        estadoActual = EstadoPersonaje.IDLE;
+        if (finDelJuego != null) {
+            finDelJuego.setVisible(false);
         }
-
-        System.out.println("[NivelPanel] Intentando cargar fondo desde: " + ruta);
-
-        try {
-            // Intento 1: tal cual viene la ruta
-            java.net.URL url = getClass().getResource(ruta);
-            if (url != null) {
-                System.out.println("[NivelPanel] ¡Imagen cargada exitosamente via URL!");
-                return javax.imageio.ImageIO.read(url);
-            }
-
-            // Intento 2: forzando la barra inicial si no la tenía
-            if (!ruta.startsWith("/")) {
-                url = getClass().getResource("/" + ruta);
-                if (url != null) {
-                    System.out.println("[NivelPanel] ¡Imagen cargada agregando '/' inicial!");
-                    return javax.imageio.ImageIO.read(url);
-                }
-            }
-
-            // Intento 3: si está en raíz del proyecto como File directo
-            java.io.File archivo = new java.io.File(ruta.startsWith("/") ? ruta.substring(1) : ruta);
-            if (archivo.exists()) {
-                System.out.println("[NivelPanel] ¡Imagen cargada como File local!");
-                return javax.imageio.ImageIO.read(archivo);
-            }
-
-            System.out.println("[NivelPanel] ERROR: No se encontro el archivo en ninguna ruta probada: " + ruta);
-            return null;
-        } catch (java.io.IOException e) {
-            System.out.println("[NivelPanel] Excepcion al leer imagen: " + e.getMessage());
-            return null;
-        }
-    }
-
-    // Agrego del doLayout para que el boton de pausa siempre se ubique en el mismo lugar
-    // sin importar el tamaño de la pantalla
-
-    @Override
-    public void doLayout() {
-        super.doLayout();
-
         if (botonPausa != null) {
-            int ancho = 65;
-            int alto = 65;
-            int margenDerecho = 25;
-            int margenSuperior = 20;
-
-            botonPausa.setBounds(getWidth() - ancho - margenDerecho, margenSuperior, ancho, alto);
+            botonPausa.setVisible(true);
         }
+    }
+
+    // GETTERS Y SETTERS
+    public Personaje getPersonaje() { return personaje; }
+    public void setPersonaje(Personaje personaje) { this.personaje = personaje; repaint(); }
+
+    public GestorSprites getGestorSprites() { return gestorSprites; }
+    public void setGestorSprites(GestorSprites gestorSprites) { this.gestorSprites = gestorSprites; repaint(); }
+
+    public GestorSprites getSpritesEnemigo() { return spritesEnemigo; }
+    public void setSpritesEnemigo(GestorSprites spritesEnemigo) { this.spritesEnemigo = spritesEnemigo; }
+
+    public EspacioJugable getEspacioActual() { return espacioActual; }
+    public void setEspacioActual(EspacioJugable espacio) {
+        this.espacioActual = espacio;
+        this.imagenFondoNivel = GestorSprites.cargarImagen(espacio.getRutaImagenFondo());
+        if (espacio.getRutaSpritesEnemigos() != null) {
+            this.spritesEnemigo = new GestorSprites(espacio.getRutaSpritesEnemigos());
+        }
+        repaint();
+    }
+
+    public void setEstado(EstadoPersonaje nuevoEstado) {
+        // Solo si el estado cambia, reiniciamos los contadores de animación para evitar saltos o parpadeos
+        if (this.estadoActual != nuevoEstado) {
+            this.estadoActual = nuevoEstado;
+            this.cuadroAnimacion = 0;
+            this.contadorTick = 0;
+            repaint();
+        }
+    }
+
+    public boolean estaAtacando() {
+        return estadoActual == EstadoPersonaje.ATACANDO;
+    }
+
+    public Nivel getNivelActual() { return nivelActual; }
+    public void setNivelActual(Nivel nivel) {
+        this.nivelActual = nivel;
+        if (nivel != null) {
+            setEspacioActual(nivel);
+        }
+        repaint();
+    }
+
+    public int getCamaraX() {
+        return camaraX;
+    }
+
+    public int getCamaraY() {
+        return camaraY;
+    }
+
+    public FinDelJuego getFinDelJuego() {
+        return finDelJuego;
+    }
+
+    public JButton getBotonPausa() {
+        return botonPausa;
+    }
+
+    public PausaPanel getPausaPanel() {
+        return pausaPanel;
     }
 }

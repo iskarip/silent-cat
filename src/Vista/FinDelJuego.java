@@ -1,9 +1,12 @@
 package Vista;
 
-import javax.swing.*;
-import java.awt.*;
+import Modelo.ObservadorPersonaje;
 
-public class FinDelJuego extends JPanel {
+import Modelo.ObservadorPersonaje;
+import java.awt.*;
+import javax.swing.*;
+
+public class FinDelJuego extends JPanel implements ObservadorPersonaje {
 
     private Image imagenCalavera;
     private BotonJuego botonVolverMenu;
@@ -20,15 +23,7 @@ public class FinDelJuego extends JPanel {
     }
 
     private void cargarRecursos() {
-        try {
-            // Imagen de la calavera.
-            java.net.URL url = getClass().getResource("/Recursos/UI/Menu/Fondo/calaveraMuerte.png");
-            if (url != null) {
-                this.imagenCalavera = new ImageIcon(url).getImage();
-            }
-        } catch (Exception e) {
-            System.out.println("[FinDelJuego] No se pudo cargar imagen: " + e.getMessage());
-        }
+      this.imagenCalavera = GestorSprites.cargarImage("/Recursos/UI/Menu/Fondo/calaveraMuerte.png");
     }
 
     private void crearComponentes() {
@@ -42,6 +37,25 @@ public class FinDelJuego extends JPanel {
         add(botonVolverMenu);
     }
 
+    // -- GESTION DEL OBSERVER --
+    @Override
+    public void vidaCambio(int vidaActual, int vidaMaxima) {
+        if (vidaActual > 0 && isVisible()) {
+            setVisible(false);
+        }
+    }
+
+    @Override
+    public void personajeMurio() {
+        // el modelo es el que notifica la muerte.
+        if (getParent() != null) {
+            setBounds(0, 0, getParent().getWidth(), getParent().getHeight());
+        }
+        setVisible(true);
+        repaint();
+    }
+
+    // -- CICLO DE DIBUJADO --
     @Override
     public void doLayout() {
         super.doLayout();

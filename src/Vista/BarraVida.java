@@ -24,18 +24,8 @@ public class BarraVida implements InterfazVisual, ObservadorPersonaje {
         this.vidaActual = vidaInicial;
     }
 
-    /*
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (Personaje.PROP_VIDA.equals(evt.getPropertyName())) {
-            this.vidaActual = (int) evt.getNewValue();
-        }
-    }
-
-     */
-
-    @Override
-    public void vidaCambio (int vidaActual, int vidaMaxima) {
+    public void vidaCambio(int vidaActual, int vidaMaxima) {
         this.vidaActual = vidaActual;
     }
 
@@ -44,6 +34,7 @@ public class BarraVida implements InterfazVisual, ObservadorPersonaje {
         this.vidaActual = 0;
     }
 
+    // --- BARRA PRINCIPAL DEL JUGADOR (HUD SUPERIOR) ---
     @Override
     public void renderizar(Graphics2D g2d, int ancho, int alto, NivelPanel panel) {
         Personaje personaje = panel.getPersonaje();
@@ -67,4 +58,24 @@ public class BarraVida implements InterfazVisual, ObservadorPersonaje {
         g2d.setColor(Color.WHITE);
         g2d.drawRoundRect(X, Y, ANCHO, ALTO, RADIO_BORDE, RADIO_BORDE);
     }
+
+    /*
+    // --- DIBUJADO DE BARRA SOBRE CABEZA DE ENTIDADES EN EL MUNDO (ENEMIGOS / JEFES) ---
+
+    public static void dibujarBarraEntidad(Graphics2D g2d, int x, int y, int vidaActual, int vidaMaxima, double escala) {
+        int anchoBarra = (int) (20 * escala);
+        int posRelativaX = x + (int) (14 * escala);
+        int posRelativaY = y - 6;
+
+        // Fondo negro
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(posRelativaX, posRelativaY, anchoBarra, 4);
+
+        // Barra roja proporcional a la salud
+        g2d.setColor(Color.RED);
+        int vidaCalculada = (int) (anchoBarra * ((double) vidaActual / Math.max(1, vidaMaxima)));
+        g2d.fillRect(posRelativaX, posRelativaY, Math.max(0, vidaCalculada), 4);
+    }
+
+     */
 }

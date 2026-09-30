@@ -23,17 +23,21 @@ public class ControladorPausa {
 
     private void configurarEventos() {
         // Accionar pausa desde el botón flotante en pantalla
-        nivelPanel.getBotonPausa().addActionListener(e -> pausar());
+        if (nivelPanel.getBotonPausa() != null) {
+            nivelPanel.getBotonPausa().addActionListener(e -> pausar());
+        }
 
         // Acciones dentro de la ventana de pausa
-        pausaPanel.getBotonReanudar().addActionListener(e -> reanudar());
-        pausaPanel.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
+        if (pausaPanel != null) {
+            pausaPanel.getBotonReanudar().addActionListener(e -> reanudar());
+            pausaPanel.getBotonMenuPrincipal().addActionListener(e -> volverAlMenu());
+        }
 
         // Botones y acciones de fin del juego o Game Over.
         FinDelJuego panelFin = nivelPanel.getFinDelJuego();
         if (panelFin != null) {
             panelFin.getBotonVolverMenu().addActionListener(e -> {
-                nivelPanel.ocultarFindelJuego();
+                panelFin.setVisible(false);
                 volverAlMenu();
             });
         }
@@ -41,19 +45,35 @@ public class ControladorPausa {
 
     public void pausar() {
         controladorNivel.setPausado(true);
-        nivelPanel.mostrarPausa();
+        if (pausaPanel != null) {
+            pausaPanel.setBounds(0, 0, nivelPanel.getWidth(), nivelPanel.getHeight());
+            pausaPanel.setVisible(true);
+        }
+        if (nivelPanel.getBotonPausa() != null) {
+            nivelPanel.getBotonPausa().setVisible(false);
+        }
     }
 
     public void reanudar() {
         controladorNivel.setPausado(false);
-        nivelPanel.ocultarPausa();
+        if (pausaPanel != null) {
+            pausaPanel.setVisible(false);
+        }
+        if (nivelPanel.getBotonPausa() != null) {
+            nivelPanel.getBotonPausa().setVisible(true);
+        }
         nivelPanel.requestFocusInWindow(); // Devuelve el foco al teclado del juego
     }
 
     public void volverAlMenu() {
         controladorNivel.detener();
-        nivelPanel.ocultarPausa();
-        ventanaPrincipal.mostrarPantalla("menu");
+        if (pausaPanel != null) {
+            pausaPanel.setVisible(false);
+        }
+        if (nivelPanel.getBotonPausa() != null) {
+            nivelPanel.getBotonPausa().setVisible(true);
+        }
+        ventanaPrincipal.mostrarPantallaConFundido("menu");
     }
 
 }
