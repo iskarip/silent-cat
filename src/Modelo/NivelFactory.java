@@ -24,14 +24,11 @@ public class NivelFactory {
         nivel.agregarEnemigo(new Enemigo(100, 10, 1, 4, 11));
         nivel.agregarEnemigo(new Enemigo(100, 10, 2, 22, 3));
 
-        ItemMedicina medicina1 = new ItemMedicina(10,13,10);
-        nivel.agregarItem(medicina1);
-
-        ItemMedicina medicina2 = new ItemMedicina(25,13,10);
-        nivel.agregarItem(medicina2);
+        nivel.agregarItem(new ItemMedicina(10,13,10));
+        nivel.agregarItem(new ItemMedicina(25,13,10));
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
        
-        nivel.agregarZona(new ZonaMensaje(18, 6, 1, "Esta roto, no puedo pasar poca acá"));
+        nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Esta roto, no puedo pasar poca acá"));
 
         nivel.agregarZona(new PuntoFlashback(25, 8, 2));
 
