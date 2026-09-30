@@ -34,13 +34,14 @@ public class ControladorPausa {
         }
 
         // Botones y acciones de fin del juego o Game Over.
-        FinDelJuego panelFin = nivelPanel.getFinDelJuego();
+       /* FinDelJuego panelFin = nivelPanel.getFinDelJuego();
         if (panelFin != null) {
             panelFin.getBotonVolverMenu().addActionListener(e -> {
                 panelFin.setVisible(false);
                 volverAlMenu();
             });
-        }
+
+        */
     }
 
     public void pausar() {

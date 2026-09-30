@@ -86,8 +86,10 @@ public class ControladorNivel {
 
             // Botón "Volver al Menú" de FinDelJuego
             this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(e -> {
-                detener();
-                ventanaPrincipal.mostrarPantallaConFundido("menu"); // --> esto se puede cambiar.
+                detener(); // Detiene el loop
+                this.vista.getFinDelJuego().setVisible(false); // <--- IMPORTANTE: Ocultar el overlay
+                this.vista.reiniciarEstadoNivel();             // <--- Reiniciar contadores/estado
+                ventanaPrincipal.mostrarPantalla("menu");       // <--- Cambio directo a "menu"
             });
         }
 
