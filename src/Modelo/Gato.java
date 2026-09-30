@@ -1,73 +1,48 @@
 package Modelo;
-import java.util.List; // es el tipo que use para guardar la lista de rutas de sonidos
-import java.util.Random; //es para elegir un sonido aleatorio de la lista
 
+import java.awt.Rectangle;
+import java.util.List;
+import java.util.Random;
 
-public class Gato {
-    
-//ATRIBUTOS
+public class Gato extends EntidadPasiva implements Interactuable {
 
-private Boolean encontrado;
+    private static final int ANCHO_HITBOX = (int) (8 * ESCALA);   // ajustar al sprite
+    private static final int ALTO_HITBOX = (int) (6 * ESCALA);
+    private static final int OFFSET_X_HITBOX = (int) (4 * ESCALA);
+    private static final int OFFSET_Y_HITBOX = (int) (8 * ESCALA);
 
-private List<String> sonidosFlashback = List.of(
-    "Recursos/Sonidos/sonidos_gato/flashback1.wav",
-    "Recursos/Sonidos/sonidos_gato/flashback2.wav",
-    "Recursos/Sonidos/sonidos_gato/flashback3.wav",
-    "Recursos/Sonidos/sonidos_gato/flashback4.wav"
-);
+    private boolean encontrado = false;
 
-private List<String> sonidosEncuentro = List.of(
-    "Recursos/Sonidos/sonidos_gato/encuentro1.wav",
-    "Recursos/Sonidos/sonidos_gato/encuentro2.wav",
-    "Recursos/Sonidos/sonidos_gato/encuentro3.wav",
-    "Recursos/Sonidos/sonidos_gato/encuentro4.wav"
-);
+    private final List<String> sonidosEncuentro = List.of(
+        "Recursos/Sonidos/sonidos_gato/encuentro1.wav",
+        "Recursos/Sonidos/sonidos_gato/encuentro2.wav",
+        "Recursos/Sonidos/sonidos_gato/encuentro3.wav",
+        "Recursos/Sonidos/sonidos_gato/encuentro4.wav"
+    );
+    private final Random random = new Random();
 
-private Random random = new Random(); //Sirve para elegir cual sonido reproducir (De mi lista de sonidos)
+    public Gato(int columna, int fila) {
+        colocarEnTile(columna, fila);
+    }
 
-private static final long DURACION_LENTITUD_MS = 2000;
+    public boolean getEncontrado() { return encontrado; }
+    public void setEncontrado(boolean encontrado) { this.encontrado = encontrado; }
 
-//CONSTRUCTOR
+    @Override
+    public Rectangle getHitbox() {
+        return new Rectangle(getPosicionX() + OFFSET_X_HITBOX, getPosicionY() + OFFSET_Y_HITBOX,
+                             ANCHO_HITBOX, ALTO_HITBOX);
+    }
 
-public Gato(){
-        this.encontrado = false; //el gato se inicializa como no encontrado
-}
+    public void reproducirSonidoEncuentro() {
+        ReproductorSonido.reproducir(sonidosEncuentro.get(random.nextInt(sonidosEncuentro.size())));
+    }
 
-//GET Y SET
-
-public boolean getEncontrado(){
-    return encontrado;
-}
-
-public void setEncontrado(boolean encontrado){
-    this.encontrado = encontrado;
-}
-
-//METODOS
-
-public void reproducirSonidoFlashback(){
-    int indice = random.nextInt(sonidosFlashback.size());
-    ReproductorSonido.reproducir(sonidosFlashback.get(indice));
-}
-
-public void reproducirSonidoEncuentro(){
-    int indice= random.nextInt(sonidosEncuentro.size());
-    ReproductorSonido.reproducir(sonidosEncuentro.get(indice));
-}
-
-//acca movi lo de flashback para que respete mvc (Sonido + lentitud + cuando se revirete)
-
-public void activarEfectoFlashback(Personaje personaje){
-    reproducirSonidoFlashback();
-    personaje.aplicarLentitud();
-
-    java.util.Timer temporizador = new java.util.Timer(true); // el "true" es como el setDaemon
-    temporizador.schedule(new java.util.TimerTask() {
-        @Override
-        public void run() {
-            personaje.quitarLentitud();
-             }
-        }, DURACION_LENTITUD_MS);
-    
+    @Override
+    public void interactuar(Personaje p) {
+        if (!encontrado) {
+            encontrado = true;
+            reproducirSonidoEncuentro();
+        }
     }
 }

@@ -1,39 +1,49 @@
 package Controlador;
 
-import Modelo.Gato;
 import Modelo.Nivel;
+import Modelo.ObservadorAmbiente;
 import Modelo.Personaje;
-import Modelo.PuntoFlashback;
-import Modelo.ZonaMensaje;
+import Modelo.ZonaProximidad;
 import Vista.FlashbackGato;
 import Vista.MensajeAmbiental;
 import Vista.NivelPanel;
 
+// Conecta las zonas del modelo con las capas visuales.
+// Implementa ObservadorAmbiente: las zonas le piden "mostrá esto" y él sabe
+// con qué clase de la Vista hacerlo. Así el modelo nunca conoce la Vista.
 
-public class ControladorAmbiente {
-    
-    public void comprobarFlashbacks (Nivel nivel, Personaje personaje, Gato gato, FlashbackGato flashbackGatoVista, NivelPanel vista){
-        if (nivel.getPuntosFlashback() ==null) return;
+public class ControladorAmbiente implements ObservadorAmbiente {
 
-        for(PuntoFlashback punto : nivel.getPuntosFlashback()){
-            if (!punto.getActivado() && punto.estaCerca(personaje)) {
-                punto.marcarActivado();
-                if (gato != null) {
-                    gato.activarEfectoFlashback(personaje);
-                }
-                flashbackGatoVista.activar(vista);
-            }
+    private final FlashbackGato flashbackGato;
+    private final MensajeAmbiental mensajeAmbiental;
+    private final NivelPanel vista;
+
+    public ControladorAmbiente(FlashbackGato flashbackGato,
+                               MensajeAmbiental mensajeAmbiental,
+                               NivelPanel vista) {
+        this.flashbackGato = flashbackGato;
+        this.mensajeAmbiental = mensajeAmbiental;
+        this.vista = vista;
+    }
+
+    // Se llama en cada tick. Recorre todas las zonas del nivel; cada una decide
+    // sola si corresponde activarse y qué mostrar. Acá no hay ifs por tipo de zona.
+    public void comprobarZonas(Nivel nivel, Personaje personaje) {
+        for (ZonaProximidad zona : nivel.getZonas()) {
+            zona.comprobar(personaje, this);
         }
     }
-        //ahora repito casi lo mismo pero para zonas de mensajes
-     public void comprobarMensajes(Nivel nivel, Personaje personaje, MensajeAmbiental Mensaje) {
-        if (nivel== null || nivel.getZonasMensaje() == null) return;
- 
-        for (ZonaMensaje zona : nivel.getZonasMensaje()) {
-            if (!zona.getActivado() && zona.estaCerca(personaje)) {
-                zona.marcarActivado();
-                Mensaje.mostrarMensaje(zona.getMensaje());
-            }
-        }
+
+    // Pedido de una ZonaMensaje: el texto aparece en pantalla y se desvanece solo
+    // (MensajeAmbiental calcula la opacidad al dibujarse).
+    @Override
+    public void mostrarMensaje(String mensaje) {
+        mensajeAmbiental.mostrarMensaje(mensaje);
+    }
+
+    // Pedido de un PuntoFlashback: muestra la imagen del flashback.
+    @Override
+    public void mostrarFlashback() {
+        flashbackGato.activar(vista);
     }
 }

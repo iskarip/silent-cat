@@ -43,7 +43,7 @@ public class MensajeAmbiental implements InterfazVisual {
         Composite original = g2d.getComposite();
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacidad));
  
-        g2d.setFont(new Font("Serif", Font.ITALIC, 20));
+        g2d.setFont(new Font("Serif", Font.ITALIC, 40));
         g2d.setColor(new Color(180, 20, 20)); // rojizo, tipo Silent Hill
         int anchoTexto = g2d.getFontMetrics().stringWidth(mensajeActual);
         int x = (ancho - anchoTexto) / 2;

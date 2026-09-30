@@ -1,8 +1,6 @@
 package Modelo;
 
 import java.awt.Rectangle;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,18 +15,14 @@ import java.util.List;
  * Interactuable son Item y Acertijo, no Personaje.
  */
 
-public class Personaje extends Entidad {
+public class Personaje extends EntidadCombatible {
 
     // -- ATRIBUTOS --
 
     private String nombrePersonaje;
 
-    // TODO (pendiente de decisión grupal): este atributo se inicializa pero
-    // ningún método lo lee ni lo modifica todavía. Si el juego va a tener
-    // correr/esquivar, falta consumirEstamina()/recuperarEstamina().
-    // Si no, conviene sacarlo para no dejar código muerto.
-
     private double multiplicadorVelocidad = 1.0;
+    private int ticksLentitud = 0;
 
     // Para notificar cambios de vida al Controlador (que a su vez los pasa a la Vista)
 
@@ -141,7 +135,7 @@ public class Personaje extends Entidad {
         }
     }
 
-    public void atacar(Entidad objetivo) {
+    public void atacar(EntidadCombatible objetivo) {
         if (arma.usarArma()) {
             int danio = arma.calcularDanio();
             objetivo.recibirDanio(danio);
@@ -164,12 +158,16 @@ public class Personaje extends Entidad {
        linterna.recargarLinterna(cantidad);
     }
 
-    public void aplicarLentitud(){
-        this.multiplicadorVelocidad=0.4;
+    public void aplicarLentitud(int ticks) {
+    this.multiplicadorVelocidad = 0.4;
+    this.ticksLentitud = ticks;
     }
 
-    public void quitarLentitud(){
-     this.multiplicadorVelocidad=1.0;
+    public void actualizarEfectos() {      
+        if (ticksLentitud > 0) {
+            ticksLentitud--;
+            if (ticksLentitud == 0) multiplicadorVelocidad = 1.0;
+        }
     }
 
     public double getMultiplicadorVelocidad(){

@@ -3,7 +3,6 @@ package Controlador;
 import Modelo.Partida;
 import Modelo.Nivel;
 import Modelo.Personaje;
-import Modelo.Gato;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.EstadoPersonaje;
@@ -58,13 +57,12 @@ public class ControladorNivel {
         this.controladorItems = new ControladorItems();
 
         this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this);
-        this.controladorAmbiente = new ControladorAmbiente();
-
 
         //instanciacion del modelo Gato y vista flashbackGato
     
         this.flashbackGato = new FlashbackGato();
         this.mensajeAmbiental = new MensajeAmbiental();
+        this.controladorAmbiente = new ControladorAmbiente(flashbackGato, mensajeAmbiental, vista);
 
         this.vista.limpiarCapasVisuales();
 
@@ -87,7 +85,6 @@ public class ControladorNivel {
 
         // Conexión de acciones únicas de teclado
         this.controladorTeclado.setAccionAtaque(this::atacar);
-        this.controladorTeclado.setAccionDebugFlashback(this::probarFlashback);
         this.controladorTeclado.setAccionLinterna(() -> {
             if (!pausado && !personajeMuerto) {
                 partida.getPersonaje().usarLinterna();
@@ -193,9 +190,11 @@ public class ControladorNivel {
         //4.1 Deteccion de proximidad de items del nivel
         controladorItems.actualizar(nivelActual, personaje);
 
-        //4.2 Deteccion de proximidad a flashbacks y mensajes ambientales
-        controladorAmbiente.comprobarFlashbacks(nivelActual, personaje, partida.getGato(), flashbackGato, vista);
-        controladorAmbiente.comprobarMensajes(nivelActual, personaje, mensajeAmbiental);
+        // 4.2 Zonas de proximidad (flashbacks y mensajes): cada zona decide qué hacer
+        controladorAmbiente.comprobarZonas(nivelActual, personaje);
+
+        // 4.3 Descuenta los efectos temporales del personaje (lentitud)
+        personaje.actualizarEfectos();
 
         // 5. Consumo de la bateria de la Linterna
         contadorBateria++;
@@ -204,6 +203,7 @@ public class ControladorNivel {
             personaje.getLinterna().gastarBateria();
             contadorBateria= 0;
         }
+
 
         // 6. Redibujado en pantalla
         vista.repaint();
@@ -216,22 +216,5 @@ public class ControladorNivel {
             controladorCombate.ejecutarAtaque(partida.getPersonaje(), partida.getNivelActual(), vista);
         }
     }
-
-
-//ahora el controlador le preguntaria a PARTIDA.JAVA ya no a nivel, ya que agregue el gato en partida para que aparezca el flashback desde el nivel 1
-private void probarFlashback() {
-    if (pausado) return;
-
-    Personaje personaje = partida.getPersonaje();
-    Gato gato = partida.getGato();
-
-    if (personaje != null && gato != null) {
-        // 1. Sonido y ralentización del personaje (Modelo)
-        gato.activarEfectoFlashback(personaje);
-
-        // 2. Muestra la imagen del flashback en pantalla (Vista)
-        flashbackGato.activar(vista);
-    }
-}
 
 }

@@ -38,8 +38,6 @@ public class NivelPanel extends JPanel {
     private int camaraY = 0;
 
     // --- ELEMENTOS DE INTERFAZ (GAME OVER) ---
-    // private JLabel etiquetaGameOver;
-    // private JButton botonVolverMenu;
 
     private FinDelJuego finDelJuego;
     private int ticksMuerte = 0;
@@ -77,20 +75,6 @@ public class NivelPanel extends JPanel {
         add(pausaPanel);
 
         // Componentes flotantes para la pantalla de Game Over
-        /*
-       etiquetaGameOver = new JLabel("GAME OVER", SwingConstants.CENTER);
-       etiquetaGameOver.setFont(new Font("Arial", Font.BOLD, 48));
-        etiquetaGameOver.setForeground(Color.RED);
-        etiquetaGameOver.setBounds(250, 200, 300, 60);
-        etiquetaGameOver.setVisible(false);
-        add(etiquetaGameOver);
-
-        botonVolverMenu = new JButton("Volver al menú");
-        botonVolverMenu.setBounds(320, 280, 160, 40);
-        botonVolverMenu.setVisible(false);
-        add(botonVolverMenu);
-
-         */
 
         this.finDelJuego = new FinDelJuego();
         add(finDelJuego);
@@ -290,14 +274,6 @@ public class NivelPanel extends JPanel {
         return obtenerTotalFramesMuerte(spritesEnemigo);
     }
 
-    /*
-    public void mostrarGameOver() {
-        etiquetaGameOver.setVisible(true);
-        botonVolverMenu.setVisible(true);
-    }
-
-    */
-
     public void mostrarFindelJuego () {
         if (finDelJuego != null ) {
             finDelJuego.setBounds(0, 0, getWidth(), getHeight());
@@ -380,44 +356,6 @@ public class NivelPanel extends JPanel {
             }
         }
 
-        // 2. DIBUJAR PISO Y OBSTÁCULOS (PALETA NEGRO Y AMARILLO)
-
-/*        if (MOSTRAR_GRILLA && nivelActual != null && nivelActual.getMapaColision() != null) {
-            MapaColision mapaColision = nivelActual.getMapaColision();
-
-            int tileSize = MapaColision.TILE;
-            int totalFilas = mapaColision.getFilas();
-            int totalColumnas = mapaColision.getColumnas();
-
-            // Colores temáticos:
-            Color paredRelleno = new Color(255, 0, 0, 90);
-            Color paredBorde   = new Color(255, 0, 0, 160);
-
-            Color sueloRelleno = new Color(0, 255, 0, 40);
-            Color sueloBorde   = new Color(0, 255, 0, 100);
-
-            for (int f = 0; f < totalFilas; f++) {
-                for (int c = 0; c < totalColumnas; c++) {
-                    int x = c * tileSize;
-                    int y = f * tileSize;
-
-                    if (!mapaColision.esPosicionValida(x + 16, y + 16)) {
-                        // PARED / OBSTÁCULO (1 en el txt) -> Negro
-                        g2d.setColor(paredRelleno);
-                        g2d.fillRect(x, y, tileSize, tileSize);
-                        g2d.setColor(paredBorde);
-                        g2d.drawRect(x, y, tileSize, tileSize);
-                    } else {
-                        // SUELO TRANSITABLE (0 en el txt) -> Amarillo
-                        g2d.setColor(sueloRelleno);
-                        g2d.fillRect(x, y, tileSize, tileSize);
-                        g2d.setColor(sueloBorde);
-                        g2d.drawRect(x, y, tileSize, tileSize);
-                    }
-                }
-            }
-        }
-*/
         // 3. DIBUJAR SPRITE DEL PROTAGONISTA
         BufferedImage hoja = (gestorSprites != null) ? gestorSprites.obtener(estadoActual) : null;
         int posX = personaje.getPosicionX();

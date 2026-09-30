@@ -18,7 +18,6 @@ public class Partida {
     private Partida() {
         this.niveles = new HashMap<>();
         this.numeroNivelActual = 1;
-        this.gato = new Gato(); // se crea una sola vez el gato
     }
 
     // -- SETS Y GETS --

@@ -1,5 +1,5 @@
 package Modelo;
 
-public class EntidadPasiva {
+public abstract class EntidadPasiva extends Entidad {
     
 }

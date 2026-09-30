@@ -2,7 +2,7 @@ package Modelo;
 import java.util.Random;
 import java.awt.Rectangle;
 
-public class Enemigo extends Entidad {
+public class Enemigo extends EntidadCombatible {
 
 //como vamos a tener diferentes enemigos definimos usar id enemigo
 //para diferenciar lo que hace cada uno.
@@ -81,7 +81,7 @@ public class Enemigo extends Entidad {
     }
 
     @Override
-    public void atacar(Entidad objetivo) {
+    public void atacar(EntidadCombatible objetivo) {
         if (ticksEnfriamientoAtaque > 0) return; // en cooldown, no puede golpear de nuevo
 
         if (objetivo != null) {

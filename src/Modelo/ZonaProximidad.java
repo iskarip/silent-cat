@@ -1,34 +1,41 @@
+
 package Modelo;
 
-//va a ser superclase para poder usarla de herencia en zonamensaje y puntoflashback
-//del flashback del gato que se va a ctivar por zona y de los mensajes que vamos a ir mostrando
-
-//por lo tanto es la base de cualquier zona a la que el pj se acerque
-
 //va a ser abstracta porque siempre se va a usar coon un puntoFlashback o una zonamensaje, nunca solita
+
+// Base de toda zona del mapa que reacciona UNA sola vez cuando el personaje se acerca.
+// Esta clase decide CUÁNDO se activa (comprobar); cada hija decide QUÉ pasa (alActivar).
 public abstract class ZonaProximidad {
+
     protected int x, y, radio;
     protected boolean activado = false;
 
-    //va a recibir columna y fila, como nuestros items
-    public ZonaProximidad(int columna, int fila, int radioEnTiles){
+    // Recibe columna, fila y radio en TILES (igual que los items) y los pasa a píxeles.
+    public ZonaProximidad(int columna, int fila, int radioEnTiles) {
         this.x = columna * MapaColision.TILE;
         this.y = fila * MapaColision.TILE;
-        this.radio = radioEnTiles *MapaColision.TILE;
+        this.radio = radioEnTiles * MapaColision.TILE;
     }
 
-    public boolean estaCerca(Personaje personaje){
+    // true si el personaje está dentro del radio de la zona.
+    public boolean estaCerca(Personaje personaje) {
         int dx = personaje.getPosicionX() - x;
         int dy = personaje.getPosicionY() - y;
         return Math.sqrt((double) dx * dx + (double) dy * dy) <= radio;
     }
 
-    public boolean getActivado(){
-        return activado;
+    public boolean getActivado() { return activado; }
+
+    // Se llama en cada tick. Si el personaje está cerca y la zona todavía no se
+    // activó, la marca como activada y ejecuta su efecto. Devuelve true solo esa vez.
+    public boolean comprobar(Personaje personaje, ObservadorAmbiente observador) {
+        if (activado || !estaCerca(personaje)) return false;
+        activado = true;
+        alActivar(personaje, observador);
+        return true;
     }
 
-    public void marcarActivado(){
-      this.activado = true;
-    }
-
+    // Efecto propio de cada zona. Puede modificar al personaje (modelo) y/o
+    // pedirle al observador que muestre algo (vista), sin conocer la vista.
+    protected abstract void alActivar(Personaje personaje, ObservadorAmbiente observador);
 }

@@ -9,6 +9,8 @@ import java.io.IOException;
 
 public class MenuPanel extends JPanel {
 
+    private final ParticulasAmbiente particulas;
+    private final Timer temporizador;
     private BufferedImage imagenFondo;
 
     private BotonJuego botonNuevaPartida;
@@ -16,7 +18,23 @@ public class MenuPanel extends JPanel {
     private BotonJuego botonSalir;
 
     public MenuPanel() {
+        
         cargarFondo();
+
+        particulas = new ParticulasAmbiente(80, 1280, 720);
+
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                particulas.setTamanio(getWidth(), getHeight());
+            }
+        });
+
+        temporizador = new Timer(16, e -> { // ~60 FPS
+            particulas.actualizar();
+            repaint();
+        });
+        temporizador.start();
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -65,8 +83,13 @@ public class MenuPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;
+        particulas.dibujar(g2); // encima del fondo, debajo de botones/titulo
         if (imagenFondo != null) {
             g.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
+            particulas.dibujar(g2); // encima del fondo, debajo de botones/titulo
         }
-    }
+
+
+}
 }

@@ -29,7 +29,12 @@ public class NivelFactory {
 
         ItemMedicina medicina2 = new ItemMedicina(25,13,10);
         nivel.agregarItem(medicina2);
-        nivel.agregarZonaMensaje(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
+        nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
+       
+        nivel.agregarZona(new ZonaMensaje(18, 6, 1, "Esta roto, no puedo pasar poca acá"));
+
+        nivel.agregarZona(new PuntoFlashback(25, 8, 2));
+
         // Estaria bueno cambiar la manera de crear itemes, tengo una idea preguntarme -- ISKARI
 
         //Item lataDeAceite = new Item("Lata de Aceite", "/Recursos/Sprites/Items/lata_aceite.png", 5, 10);
@@ -75,13 +80,13 @@ public class NivelFactory {
 
         //el flashback automatico del gato al acercarse a tal punto del sotano
         //queda ajustar la x, y y el radio con las coordenadas exactas
-        nivel.agregarPuntoFlashback(new PuntoFlashback(800, 300, 60));
+        nivel.agregarZona(new PuntoFlashback(25, 9, 2));
 
         //los mensajes tipo sh que dijimos
         //hay q ajustarlos todavia (no se leer coordenadas)
 
-        nivel.agregarZonaMensaje(new ZonaMensaje(15, 8, 80, "Huele a sangre..."));
-        nivel.agregarZonaMensaje(new ZonaMensaje(2, 8, 80, "El aire se siente muy pesado."));
+        nivel.agregarZona(new ZonaMensaje(15, 8, 2, "Huele a sangre..."));
+        nivel.agregarZona(new ZonaMensaje(2, 8, 2, "El aire se siente muy pesado."));
 
         return nivel;
     }
