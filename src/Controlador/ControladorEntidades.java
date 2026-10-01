@@ -5,7 +5,7 @@ import Modelo.Nivel;
 import Modelo.Personaje;
 import Vista.NivelPanel;
 
-public class ControladorEnemigos {
+public class ControladorEntidades {
 
     public void actualizar(Nivel nivelActual, Personaje personaje, NivelPanel vista) {
         if (nivelActual == null || personaje == null) return;

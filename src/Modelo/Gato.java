@@ -34,15 +34,48 @@ public class Gato extends EntidadPasiva implements Interactuable {
                              ANCHO_HITBOX, ALTO_HITBOX);
     }
 
+    private Rectangle getHitboxEnPosicion(int x, int y){
+        return new Rectangle (x + OFFSET_X_HITBOX, y + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
+    }
+
     public void reproducirSonidoEncuentro() {
         ReproductorSonido.reproducir(sonidosEncuentro.get(random.nextInt(sonidosEncuentro.size())));
+    }
+//implementacion del metodo abstracto de EntidadPasiva, nuestro gato caminaria
+//hacia donde esta el personaje, sin atravesar paredes. Antes de ser encontardo se queda quieto?
+
+
+   @Override
+    public void moverse(Personaje objetivo, MapaColision mapa) {
+        if(!encontrado) return; //si no lo encontramos, no se mueve.
+       
+        int deltaX = 0;
+        int deltaY = 0;
+ 
+        if (objetivo.getPosicionX() > this.getPosicionX()) {
+            deltaX = 1;
+            direccion = Direccion.DERECHA;
+        } else if (objetivo.getPosicionX() < this.getPosicionX()) {
+            deltaX = -1;
+            direccion = Direccion.IZQUIERDA;
+        }
+ 
+        if (objetivo.getPosicionY() > this.getPosicionY()) {
+            deltaY = 1;
+            direccion = Direccion.ABAJO;
+        } else if (objetivo.getPosicionY() < this.getPosicionY()) {
+            deltaY = -1;
+            direccion = Direccion.ARRIBA;
+        }
+ 
+        moverConLimites(deltaX, deltaY, mapa);
     }
 
     @Override
     public void interactuar(Personaje p) {
         if (!encontrado) {
-            encontrado = true;
             reproducirSonidoEncuentro();
+            setEncontrado(true);
         }
     }
 }

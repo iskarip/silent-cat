@@ -33,6 +33,7 @@ public class NivelFactory {
 
         agregarVariosItems(nivel, (columna,fila) -> new ItemMedicina (columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
         
+        agregarVarias(nivel,(columna, fila) -> new Rata (columna, fila), new int[]{13, 12});
         
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
         nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Esta roto, no puedo pasar poca acá"));

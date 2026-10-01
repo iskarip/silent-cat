@@ -44,7 +44,7 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
     public void setPosicionY(int posicionY) {
         this.posicionY = posicionY;
     }
-    
+
     // -- COMPORTAMIENTO POR DEFECTO (las subclases lo sobrescriben) --
 
     public boolean estaVivo() { return true; }
@@ -64,6 +64,23 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
     public void mover(int deltaX, int deltaY) {
         this.posicionX += deltaX;
         this.posicionY += deltaY;
+    }
+
+    protected void moverConLimites(int deltaX, int deltaY, MapaColision mapa) {
+        if (deltaX != 0) {
+            Rectangle hb = getHitbox();
+            hb.translate(deltaX, 0);
+            if (mapa == null || mapa.esRectanguloValido(hb.x, hb.y, hb.width, hb.height)) {
+                mover(deltaX, 0);
+            }
+        }
+        if (deltaY != 0) {
+            Rectangle hb = getHitbox();
+            hb.translate(0, deltaY);
+            if (mapa == null || mapa.esRectanguloValido(hb.x, hb.y, hb.width, hb.height)) {
+                mover(0, deltaY);
+            }
+        }
     }
 
 

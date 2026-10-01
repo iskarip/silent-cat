@@ -17,7 +17,6 @@ public class Nivel extends EspacioBase {
 
     private List<ZonaProximidad> zonas = new ArrayList<>();
 
-    private Gato gato; // null en los niveles que no lo tienen (ej: nivel 1 y 2)
 
 //--CONSTRUCTOR--
 
@@ -51,14 +50,8 @@ public class Nivel extends EspacioBase {
     public Acertijo getAcertijo() {
         return this.acertijoNivel;
     }
+    
 
-    public void setGato(Gato gato) {
-        this.gato = gato;
-    }
-
-    public Gato getGato() {
-        return this.gato;
-    }// puede devolver null si el nivel no tiene gato
 
     public List<Habitacion> getHabitaciones() {
         return this.habitaciones;
@@ -115,8 +108,7 @@ public class Nivel extends EspacioBase {
 
     public boolean verificarSiCompleto() {
         boolean acertijoOk = acertijoNivel.getResuelto();
-        boolean gatoOk = (gato == null) || gato.getEncontrado();
-        return acertijoOk && gatoOk;
+        return acertijoOk;
     }
 
     public void agregarHabitacion(Habitacion h) {

@@ -163,29 +163,6 @@ public class Enemigo extends EntidadCombatible {
         }
     }
 
-    private void moverConLimites(int deltaX, int deltaY, MapaColision mapa) {
-        if (deltaX == 0 && deltaY == 0) return;
-        
-        // avance en X
-        if (deltaX != 0) {
-            int intentoX = getPosicionX() + deltaX;
-            Rectangle hbX = getHitboxEnPosicion(intentoX, getPosicionY());
-            if (mapa == null || mapa.esRectanguloValido(hbX.x, hbX.y, hbX.width, hbX.height)) {
-                mover(deltaX, 0);
-            }
-        }
-
-        // avance en Y
-        if (deltaY != 0) {
-            int intentoY = getPosicionY() + deltaY;
-            Rectangle hbY = getHitboxEnPosicion(getPosicionX(), intentoY);
-            if (mapa == null || mapa.esRectanguloValido(hbY.x, hbY.y, hbY.width, hbY.height)) {
-                mover(0, deltaY);
-            }
-        }
-    }
-
-
     public void patrullar(MapaColision mapa) {
         ticksHastaCambiarDireccion--;
         if (ticksHastaCambiarDireccion <= 0) {

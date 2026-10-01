@@ -26,7 +26,7 @@ public class ControladorNivel {
     private final ControladorTeclado controladorTeclado;
     private final ControladorMovimiento controladorMovimiento;
     private final ControladorCombate controladorCombate;
-    private final ControladorEnemigos controladorEnemigos;
+    private final ControladorEntidades controladorEntidades;
     private final ControladorAcertijo controladorAcertijo;
     private final ControladorItems controladorItems;
     private final ControladorPausa controladorPausa;
@@ -52,7 +52,7 @@ public class ControladorNivel {
         this.controladorTeclado = new ControladorTeclado();
         this.controladorMovimiento = new ControladorMovimiento();
         this.controladorCombate = new ControladorCombate();
-        this.controladorEnemigos = new ControladorEnemigos();
+        this.controladorEntidades = new ControladorEntidades();
         this.controladorAcertijo = new ControladorAcertijo(ventanaPrincipal.getAcertijoPanel(), ventanaPrincipal);
         this.controladorItems = new ControladorItems();
 
@@ -189,7 +189,7 @@ public class ControladorNivel {
         );
 
         // 3. IA y actualización de los enemigos
-        controladorEnemigos.actualizar(nivelActual, personaje, vista);
+        controladorEntidades.actualizar(nivelActual, personaje, vista);
         
         // 4. Deteccion de proximidad al acertijo del nivel
         controladorAcertijo.comprobarActivacion(nivelActual, personaje);
@@ -200,7 +200,7 @@ public class ControladorNivel {
         // 4.2 Zonas de proximidad (flashbacks y mensajes): cada zona decide qué hacer
         controladorAmbiente.comprobarZonas(nivelActual, personaje);
 
-        // 4.3 Descuenta los efectos temporales del personaje (lentitud)
+        // 4.4 Descuenta los efectos temporales del personaje (lentitud)
         personaje.actualizarEfectos();
 
         // 5. Consumo de la bateria de la Linterna

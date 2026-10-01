@@ -18,7 +18,7 @@ public class Rata extends EntidadPasiva {
     private boolean moviendose = false;
 
     public Rata(int columna, int fila) {
-        this.rutaSprites = "/Recursos/Sprites/Enemigos/Rata/"; // poné tu carpeta real
+        this.rutaSprites = "/Recursos/Sprites/Rata/"; // poné tu carpeta real
         colocarEnTile(columna, fila);
     }
 
@@ -33,8 +33,8 @@ public class Rata extends EntidadPasiva {
         return moviendose;
     }
 
-   /* @Override
-    public void actualizar(Personaje jugador, MapaColision mapa) {
+    @Override
+    public void moverse(Personaje objetivo, MapaColision mapa) {
         ticksHastaCambiar--;
         if (ticksHastaCambiar <= 0) {
             elegirDireccion();
@@ -43,7 +43,7 @@ public class Rata extends EntidadPasiva {
         moverConLimites(dx, dy, mapa);
         moviendose = (dx != 0 || dy != 0);
     }
-*/ 
+
     private void elegirDireccion() {
         dx = 0;
         dy = 0;
