@@ -12,7 +12,6 @@ import java.util.List;
 public interface EspacioJugable {
     MapaColision getMapaColision();
     List<Item> getListaItems();
-    List<Enemigo> getListaEnemigos(); 
+    List<Entidad> getListaEntidades();
     String getRutaImagenFondo();
-    String getRutaSpritesEnemigos(); // NUEVO
 }

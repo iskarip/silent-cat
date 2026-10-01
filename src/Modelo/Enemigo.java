@@ -39,10 +39,12 @@ public class Enemigo extends EntidadCombatible {
 
 //--CONSTRUCTOR--
 
-    public Enemigo(int puntosVida, int danioBase, int idEnemigo, int columna, int fila) {
+    public Enemigo(int puntosVida, int danioBase, int idEnemigo,
+                int columna, int fila, String rutaSprites) {
         super(puntosVida);
         this.danioBase = danioBase;
         this.idEnemigo = idEnemigo;
+        this.rutaSprites = rutaSprites;   // atributo heredado de Entidad
         colocarEnTile(columna, fila);
     }
 
@@ -60,13 +62,11 @@ public class Enemigo extends EntidadCombatible {
         return this.danioBase;
     }
 
+    @Override
     public boolean estaMoviendose() {
         return this.moviendose;
     }
 
-//uso de override para los metodos heredados, atacar y recibirDanio
-
-    //sacar este println cuando la Vista (Swing) muestre el ataque visualmente
     @Override
     public Rectangle getHitbox() {
         return construirHitbox(getPosicionX(), getPosicionY());
@@ -262,6 +262,14 @@ public class Enemigo extends EntidadCombatible {
             patrullar(mapa);
         } else {
             patrullar(mapa);
+        }
+    }
+
+    @Override
+    public void actualizar(Personaje jugador, MapaColision mapa) {
+        actualizarComportamiento(jugador, jugador.getLinterna().getEncendido(), mapa);
+        if (jugador.getHitbox().intersects(getHitbox())) {
+            atacar(jugador);
         }
     }
 

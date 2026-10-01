@@ -5,7 +5,10 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.*;
 
 public class NivelPanel extends JPanel {
@@ -27,12 +30,14 @@ public class NivelPanel extends JPanel {
     // --- ENTIDADES Y SPRITES ---
     private Personaje personaje;
     private GestorSprites gestorSprites;
-    private GestorSprites spritesEnemigo;
+    private final Map<String, GestorSprites> cacheSprites = new HashMap<>();
 
     // --- ESTADO VISUAL Y ANIMACIÓN ---
     private EstadoPersonaje estadoActual = EstadoPersonaje.IDLE;
     private int cuadroAnimacion = 0;
     private int contadorTick = 0;
+    private int ticksMuerte = 0;
+    private boolean finDelJuegoMostrado = false;
 
     // --- CÁMARA ---
     private int camaraX = 0;
@@ -216,19 +221,26 @@ public class NivelPanel extends JPanel {
             g2d.fillOval(posX, posY, 40, 40);
         }
 
-        // 4. DIBUJAR ENEMIGOS Y BARRAS DE VIDA
-        if (spritesEnemigo != null && nivelActual != null && nivelActual.getListaEnemigos() != null) {
-            for (Enemigo e : nivelActual.getListaEnemigos()) {
+        // 4. DIBUJAR ENTIDADES (enemigos, ratas, etc.)
+        if (espacioActual != null && espacioActual.getListaEntidades() != null) {
+            for (Entidad e : espacioActual.getListaEntidades()) {
+                if (!e.estaVivo()) continue;
+
+                GestorSprites sprites = obtenerSprites(e.getRutaSprites());
+                EstadoPersonaje estado = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
+                int frame = (contadorTick / 6) % obtenerTotalFrames(sprites, estado);
                 int ex = e.getPosicionX();
                 int ey = e.getPosicionY();
 
-                if (e.estaVivo()) {
-                    EstadoPersonaje estadoEnemigo = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
-                    int frame = (contadorTick / 6) % 6;
-                    spritesEnemigo.dibujarCuadro(g2d, estadoEnemigo, e.getDireccion(), frame, ex, ey, ANCHO_CUADRO, ALTO_CUADRO, ESCALA);
+                dibujarSprite(g2d, sprites, estado, e.getDireccion(), frame, ex, ey);
 
-                    // Se delega a BarraVida
-                    //BarraVida.dibujarBarraEntidad(g2d, ex, ey, e.getPuntosVida(), 100, ESCALA);
+                if (e.mostrarBarraVida()) {
+                    int anchoBarra = (int) (20 * ESCALA);
+                    g2d.setColor(Color.BLACK);
+                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
+                    g2d.setColor(Color.RED);
+                    int anchoVida = (int) (anchoBarra * (e.getPorcentajeVida() / 100.0));
+                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, anchoVida), 4);
                 }
             }
         }
@@ -264,15 +276,69 @@ public class NivelPanel extends JPanel {
     }
 
     public void reiniciarEstadoNivel() {
+        ticksMuerte = 0;
+        finDelJuegoMostrado = false;
         cuadroAnimacion = 0;
         estadoActual = EstadoPersonaje.IDLE;
-        if (finDelJuego != null) {
-            finDelJuego.setVisible(false);
-        }
-        if (botonPausa != null) {
-            botonPausa.setVisible(true);
+        ocultarFindelJuego();
+    }
+
+    private GestorSprites obtenerSprites(String ruta) {
+        if (ruta == null) return null;
+        return cacheSprites.computeIfAbsent(ruta, GestorSprites::new);
+    }
+
+    private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
+                           Direccion direccion, int frame, int x, int y) {
+        if (sprites == null) return;
+        BufferedImage hoja = sprites.obtener(estado);
+        if (hoja == null) return;
+
+        int srcX1 = frame * ANCHO_CUADRO;
+        int srcY1 = direccion.getFila() * ALTO_CUADRO;
+        int srcX2 = srcX1 + ANCHO_CUADRO;
+        int srcY2 = srcY1 + ALTO_CUADRO;
+
+        int ancho = (int) (ANCHO_CUADRO * ESCALA);
+        int alto = (int) (ALTO_CUADRO * ESCALA);
+
+        g2d.drawImage(hoja, x, y, x + ancho, y + alto, srcX1, srcY1, srcX2, srcY2, this);
+    }
+
+    public void avanzarAnimacionMuerte() {
+        ticksMuerte++;
+        if (ticksMuerte % 6 != 0) return;
+
+        BufferedImage hoja = (gestorSprites == null) ? null : gestorSprites.obtener(EstadoPersonaje.MURIENDO);
+        int totalFrames = (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
+
+        if (cuadroAnimacion < totalFrames - 1) {
+            cuadroAnimacion++;
+        } else if (!finDelJuegoMostrado) {
+            finDelJuegoMostrado = true;
+            mostrarFindelJuego();
         }
     }
+
+    public void mostrarFindelJuego() {
+        if (finDelJuego != null) {
+            finDelJuego.setBounds(0, 0, getWidth(), getHeight());
+            finDelJuego.setVisible(true);
+        }
+        if (botonPausa != null) botonPausa.setVisible(false);
+    }
+
+    public void ocultarFindelJuego() {
+        if (finDelJuego != null) finDelJuego.setVisible(false);
+        if (botonPausa != null) botonPausa.setVisible(true);
+    }
+
+    public void mostrarPausa() {
+        pausaPanel.setBounds(0, 0, getWidth(), getHeight());
+        pausaPanel.setVisible(true);
+    }
+
+    public void ocultarPausa() { pausaPanel.setVisible(false); }
 
     // GETTERS Y SETTERS
     public Personaje getPersonaje() { return personaje; }
@@ -281,16 +347,11 @@ public class NivelPanel extends JPanel {
     public GestorSprites getGestorSprites() { return gestorSprites; }
     public void setGestorSprites(GestorSprites gestorSprites) { this.gestorSprites = gestorSprites; repaint(); }
 
-    public GestorSprites getSpritesEnemigo() { return spritesEnemigo; }
-    public void setSpritesEnemigo(GestorSprites spritesEnemigo) { this.spritesEnemigo = spritesEnemigo; }
-
     public EspacioJugable getEspacioActual() { return espacioActual; }
+
     public void setEspacioActual(EspacioJugable espacio) {
         this.espacioActual = espacio;
         this.imagenFondoNivel = GestorSprites.cargarImagen(espacio.getRutaImagenFondo());
-        if (espacio.getRutaSpritesEnemigos() != null) {
-            this.spritesEnemigo = new GestorSprites(espacio.getRutaSpritesEnemigos());
-        }
         repaint();
     }
 

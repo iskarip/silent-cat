@@ -7,16 +7,15 @@ public abstract class EspacioBase implements EspacioJugable {
     
     private int posicionInicialX;
     private int posicionInicialY;
-    protected String rutaSpritesEnemigos; // NUEVO
     protected MapaColision mapaColision;
     protected String rutaImagenFondo;
     protected List<Item> listaItems;
-    protected List<Enemigo> listaEnemigos; // NUEVO
+    protected List<Entidad> listaEntidades;
 
     public EspacioBase(String rutaGrid, String rutaImagenFondo, int posicionInicialX, int posicionInicialY) {
         this.rutaImagenFondo = rutaImagenFondo;
         this.listaItems = new ArrayList<>();
-        this.listaEnemigos = new ArrayList<>(); // NUEVO
+        this.listaEntidades = new ArrayList<>();
         this.posicionInicialX = posicionInicialX;
         this.posicionInicialY = posicionInicialY;
 
@@ -46,20 +45,10 @@ public abstract class EspacioBase implements EspacioJugable {
         }
     }
 
-    public void agregarEnemigo(Enemigo e) { // NUEVO (antes vivía en Nivel)
+    public void agregarEntidad(Entidad e) { // NUEVO (antes vivía en Nivel)
         if (e != null) {
-            this.listaEnemigos.add(e);
+            this.listaEntidades.add(e);
         }
-    }
-
-    
-    public void setRutaSpritesEnemigos(String ruta) { // NUEVO
-        this.rutaSpritesEnemigos = ruta;
-    }
-
-    @Override
-    public String getRutaSpritesEnemigos() { // NUEVO
-        return rutaSpritesEnemigos;
     }
 
     @Override
@@ -73,7 +62,7 @@ public abstract class EspacioBase implements EspacioJugable {
     }
 
     @Override
-    public List<Enemigo> getListaEnemigos() { // NUEVO
-        return listaEnemigos;
+    public List<Entidad> getListaEntidades() { 
+        return listaEntidades;
     }
 }

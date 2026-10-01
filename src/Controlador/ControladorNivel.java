@@ -189,10 +189,8 @@ public class ControladorNivel {
         );
 
         // 3. IA y actualización de los enemigos
-        if (nivelActual.getListaEnemigos() != null) {
-            controladorEnemigos.actualizar(nivelActual, personaje, vista);
-        }
-
+        controladorEnemigos.actualizar(nivelActual, personaje, vista);
+        
         // 4. Deteccion de proximidad al acertijo del nivel
         controladorAcertijo.comprobarActivacion(nivelActual, personaje);
 

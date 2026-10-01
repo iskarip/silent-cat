@@ -3,6 +3,7 @@ package Controlador;
 import Modelo.Personaje;
 import Modelo.Nivel;
 import Modelo.Enemigo;
+import Modelo.Entidad;
 import Vista.EstadoPersonaje;
 import Vista.NivelPanel;
 
@@ -38,22 +39,14 @@ public class ControladorCombate {
         
         // TODO 4: Evaluar la colision contra cada enemigo vivo
 
-        if (nivelActual.getListaEnemigos() != null) {
-            for (Enemigo enemigo : nivelActual.getListaEnemigos()) {
-                if (enemigo.estaVivo()) {
-                    Rectangle cuerpoEnemigo = enemigo.getHitbox();
-                    System.out.println("Ataque: " + hitboxGolpe + " | Enemigo: " + cuerpoEnemigo + " | Intersecta: " + hitboxGolpe.intersects(cuerpoEnemigo));
-                    if (hitboxGolpe.intersects(cuerpoEnemigo)) {
-                        // Delegación polimórfica: el personaje ataca usando su arma
-                        personaje.atacar(enemigo);
-                    }
+        if (nivelActual.getListaEntidades() != null) {
+            for (Entidad e : nivelActual.getListaEntidades()) {
+                if (e.estaVivo() && hitboxGolpe.intersects(e.getHitbox())) {
+                    personaje.atacar(e);
                 }
             }
         }
-
         // TODO 5: Temporizador con lambda para volver al estado IDLE
-
-        iniciarTimerVueltaAIdle(vista);
     }
 
     private void iniciarTimerVueltaAIdle(NivelPanel vista) {

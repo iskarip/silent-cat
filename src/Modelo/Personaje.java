@@ -142,6 +142,12 @@ public class Personaje extends EntidadCombatible {
         }
     }
 
+    public void atacar(Entidad objetivo) {
+        if (arma.usarArma()) {
+            objetivo.recibirDanio(arma.calcularDanio());
+        }
+    }
+
     public void usarLinterna(){
         if (linterna.getEncendido()){
             linterna.apagarLinterna();
