@@ -13,6 +13,9 @@ public interface EspacioJugable {
     MapaColision getMapaColision();
     List<Item> getListaItems();
     List<Enemigo> getListaEnemigos(); 
+    
+    List<EntidadPasiva> getListaEntidadesPasivas(); //Agregue por si implementamos mas entidad pasivas ademas del gato (ratas) y asi es mas limpio
+    
     String getRutaImagenFondo();
     String getRutaSpritesEnemigos(); // NUEVO
 }

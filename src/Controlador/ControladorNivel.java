@@ -31,6 +31,8 @@ public class ControladorNivel {
     private final ControladorItems controladorItems;
     private final ControladorPausa controladorPausa;
     private final ControladorAmbiente controladorAmbiente;
+    private final ControladorEntidadesPasivas controladorEntidadesPasivas;
+
 
     //instancias del gato(el sonido, lentitud y lo visual)
     private final FlashbackGato flashbackGato;
@@ -55,6 +57,7 @@ public class ControladorNivel {
         this.controladorEnemigos = new ControladorEnemigos();
         this.controladorAcertijo = new ControladorAcertijo(ventanaPrincipal.getAcertijoPanel(), ventanaPrincipal);
         this.controladorItems = new ControladorItems();
+        this.controladorEntidadesPasivas = new ControladorEntidadesPasivas();
 
         this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this);
 
@@ -202,7 +205,10 @@ public class ControladorNivel {
         // 4.2 Zonas de proximidad (flashbacks y mensajes): cada zona decide qué hacer
         controladorAmbiente.comprobarZonas(nivelActual, personaje);
 
-        // 4.3 Descuenta los efectos temporales del personaje (lentitud)
+        //4.3 IA de entidades pasivas (gato y quizas a futuro otras) cada zona decidiira que hacer
+        controladorEntidadesPasivas.actualizar(nivelActual, personaje);
+
+        // 4.4 Descuenta los efectos temporales del personaje (lentitud)
         personaje.actualizarEfectos();
 
         // 5. Consumo de la bateria de la Linterna

@@ -12,11 +12,14 @@ public abstract class EspacioBase implements EspacioJugable {
     protected String rutaImagenFondo;
     protected List<Item> listaItems;
     protected List<Enemigo> listaEnemigos; // NUEVO
+    protected List<EntidadPasiva> listaEntidadPasivas; //nuevo a implementar owo
+
 
     public EspacioBase(String rutaGrid, String rutaImagenFondo, int posicionInicialX, int posicionInicialY) {
         this.rutaImagenFondo = rutaImagenFondo;
         this.listaItems = new ArrayList<>();
         this.listaEnemigos = new ArrayList<>(); // NUEVO
+        this.listaEntidadPasivas = new ArrayList<>(); //nuevo owo
         this.posicionInicialX = posicionInicialX;
         this.posicionInicialY = posicionInicialY;
 
@@ -51,6 +54,13 @@ public abstract class EspacioBase implements EspacioJugable {
             this.listaEnemigos.add(e);
         }
     }
+    //al igual que agregar enemigo voy a pdoer agregar entidades pasivas sin immportar el tipo
+    public void agregarEntidadPasiva (EntidadPasiva e){
+        if (e!= null){
+            this.listaEntidadPasivas.add(e);
+        }
+    }
+
 
     
     public void setRutaSpritesEnemigos(String ruta) { // NUEVO
@@ -76,4 +86,10 @@ public abstract class EspacioBase implements EspacioJugable {
     public List<Enemigo> getListaEnemigos() { // NUEVO
         return listaEnemigos;
     }
+
+    @Override 
+    public List<EntidadPasiva> getListaEntidadesPasivas(){
+        return listaEntidadPasivas;
+    }
+
 }
