@@ -52,6 +52,7 @@ public class NivelPanel extends JPanel {
 
     public NivelPanel() {
         setFocusable(true);
+        setFocusTraversalKeysEnabled(false); // para que Tab llegue al KeyListener
         setDoubleBuffered(true);
         setLayout(null); // posicionamiento libre, para superponer botones al dibujo
         setBackground(Color.BLACK); // <-- Fondo negro
@@ -186,18 +187,27 @@ public class NivelPanel extends JPanel {
             for (Item item : espacioActual.getListaItems()) {
                 if (item.isRecogido()) continue;
 
-                // Carga optimizada y cacheada a través de GestorSprites
                 Image imagenItem = GestorSprites.cargarImagen(item.getRutaImagen());
-                int ix = item.getPosicionX();
-                int iy = item.getPosicionY();
+                int lado = (int) (MapaColision.TILE * item.getEscala()); // lado máximo en píxeles de mundo
 
                 if (imagenItem != null) {
-                    // Se dibuja en sus dimensiones reales en los píxeles (ix, iy)
-                    g2d.drawImage(imagenItem, ix, iy, this);
+                    int anchoOrig = imagenItem.getWidth(this);
+                    int altoOrig = imagenItem.getHeight(this);
+
+                    // encaja la imagen en un cuadrado de "lado" manteniendo la proporción
+                    double proporcion = Math.min((double) lado / anchoOrig, (double) lado / altoOrig);
+                    int w = Math.max(1, (int) (anchoOrig * proporcion));
+                    int h = Math.max(1, (int) (altoOrig * proporcion));
+
+                    // centrado en su tile
+                    int ix = item.getPosicionX() + (MapaColision.TILE - w) / 2;
+                    int iy = item.getPosicionY() + (MapaColision.TILE - h) / 2;
+                    g2d.drawImage(imagenItem, ix, iy, w, h, this);
                 } else {
-                    // fallback visible si todavía no tenés el sprite listo
+                    int ix = item.getPosicionX() + (MapaColision.TILE - lado) / 2;
+                    int iy = item.getPosicionY() + (MapaColision.TILE - lado) / 2;
                     g2d.setColor(Color.MAGENTA);
-                    g2d.fillRect(ix, iy, MapaColision.TILE, MapaColision.TILE);
+                    g2d.fillRect(ix, iy, lado, lado);
                 }
             }
         }
@@ -226,22 +236,25 @@ public class NivelPanel extends JPanel {
             for (Entidad e : espacioActual.getListaEntidades()) {
                 if (!e.estaVivo()) continue;
 
-                GestorSprites sprites = obtenerSprites(e.getRutaSprites());
-                EstadoPersonaje estado = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
-                int frame = (contadorTick / 6) % obtenerTotalFrames(sprites, estado);
-                int ex = e.getPosicionX();
-                int ey = e.getPosicionY();
+                    GestorSprites sprites = obtenerSprites(e.getRutaSprites());
+                    EstadoPersonaje estado = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
+                    int frame = (contadorTick / 6) % obtenerTotalFrames(sprites, estado);
+                    double escE = e.getEscalaSprite();
+                    int ex = e.getPosicionX();
+                    int ey = e.getPosicionY();
 
-                dibujarSprite(g2d, sprites, estado, e.getDireccion(), frame, ex, ey);
+                    dibujarSprite(g2d, sprites, estado, e.getDireccion(), frame, ex, ey, escE);
 
-                if (e.mostrarBarraVida()) {
-                    int anchoBarra = (int) (20 * ESCALA);
-                    g2d.setColor(Color.BLACK);
-                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, anchoBarra, 4);
-                    g2d.setColor(Color.RED);
-                    int anchoVida = (int) (anchoBarra * (e.getPorcentajeVida() / 100.0));
-                    g2d.fillRect(ex + (int) (14 * ESCALA), ey - 6, Math.max(0, anchoVida), 4);
-                }
+                    if (e.mostrarBarraVida()) {
+                        // el tope del sprite bajó al achicarlo, la barra lo acompaña
+                        int ajusteY = (int) (ALTO_CUADRO * ESCALA * (1 - escE));
+                        int anchoBarra = (int) (20 * ESCALA);
+                        g2d.setColor(Color.BLACK);
+                        g2d.fillRect(ex + (int) (14 * ESCALA), ey + ajusteY - 6, anchoBarra, 4);
+                        g2d.setColor(Color.RED);
+                        int anchoVida = (int) (anchoBarra * (e.getPorcentajeVida() / 100.0));
+                        g2d.fillRect(ex + (int) (14 * ESCALA), ey + ajusteY - 6, Math.max(0, anchoVida), 4);
+                    }
             }
         }
 
@@ -288,22 +301,28 @@ public class NivelPanel extends JPanel {
         return cacheSprites.computeIfAbsent(ruta, GestorSprites::new);
     }
 
-    private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
-                           Direccion direccion, int frame, int x, int y) {
-        if (sprites == null) return;
-        BufferedImage hoja = sprites.obtener(estado);
-        if (hoja == null) return;
+        private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
+                                Direccion direccion, int frame, int x, int y, double escalaSprite) {
+            if (sprites == null) return;
+            BufferedImage hoja = sprites.obtener(estado);
+            if (hoja == null) return;
 
-        int srcX1 = frame * ANCHO_CUADRO;
-        int srcY1 = direccion.getFila() * ALTO_CUADRO;
-        int srcX2 = srcX1 + ANCHO_CUADRO;
-        int srcY2 = srcY1 + ALTO_CUADRO;
+            int srcX1 = frame * ANCHO_CUADRO;
+            int srcY1 = direccion.getFila() * ALTO_CUADRO;
+            int srcX2 = srcX1 + ANCHO_CUADRO;
+            int srcY2 = srcY1 + ALTO_CUADRO;
 
-        int ancho = (int) (ANCHO_CUADRO * ESCALA);
-        int alto = (int) (ALTO_CUADRO * ESCALA);
+            int anchoBase = (int) (ANCHO_CUADRO * ESCALA);
+            int altoBase  = (int) (ALTO_CUADRO * ESCALA);
+            int ancho = (int) (anchoBase * escalaSprite);
+            int alto  = (int) (altoBase * escalaSprite);
 
-        g2d.drawImage(hoja, x, y, x + ancho, y + alto, srcX1, srcY1, srcX2, srcY2, this);
-    }
+            // ancla en los pies: centrado en X, pegado abajo en Y
+            int dx = x + (anchoBase - ancho) / 2;
+            int dy = y + (altoBase - alto);
+
+            g2d.drawImage(hoja, dx, dy, dx + ancho, dy + alto, srcX1, srcY1, srcX2, srcY2, this);
+        }
 
     public void avanzarAnimacionMuerte() {
         ticksMuerte++;

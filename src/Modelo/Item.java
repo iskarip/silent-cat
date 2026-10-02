@@ -4,14 +4,16 @@ import java.awt.Rectangle;
 
 public class Item implements Interactuable, Posicionable {
 
-private static final int RADIO_RECOGIDA = 6;
+    private static final int RADIO_RECOGIDA = 6;
+    public static final double ESCALA_DEFECTO = 0.5;
 
     protected String nombre;
     protected boolean recogido;
     protected int posicionX;
     protected int posicionY;
     protected String rutaImagen;
-
+    protected double escala = ESCALA_DEFECTO;
+    
     // Constructor básico sin posición
     public Item(String nombre, String rutaImagen) {
         this.nombre = nombre;
@@ -35,6 +37,9 @@ private static final int RADIO_RECOGIDA = 6;
 
     @Override public int getPosicionY() { return posicionY; }
     @Override public void setPosicionY(int posicionY) { this.posicionY = posicionY; }
+
+    public double getEscala() { return escala; }
+    public void setEscala(double escala) { this.escala = Math.max(0.1, escala); }
 
     public String getRutaImagen() { return rutaImagen; }
 

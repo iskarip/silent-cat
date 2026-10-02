@@ -7,6 +7,7 @@ import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.EstadoPersonaje;
 import Vista.GestorSprites;
+import Vista.InventarioVisual;
 import Vista.AuraVisual;
 import Vista.FlashbackGato;
 import Vista.BarraBateria;
@@ -71,6 +72,10 @@ public class ControladorNivel {
         this.vista.agregarCapaVisual(linternaOverlay);
         this.vista.agregarCapaVisual(this.flashbackGato);
         this.vista.agregarCapaVisual(this.mensajeAmbiental);
+
+        InventarioVisual inventarioVisual = new InventarioVisual();
+        this.vista.agregarCapaVisual(inventarioVisual);
+        this.controladorTeclado.setAccionInventario(inventarioVisual::alternar);
 
         BarraBateria barraBateria = new BarraBateria();
         this.vista.agregarCapaVisual(barraBateria);

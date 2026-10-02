@@ -6,10 +6,11 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
 
     // -- ATRIBUTOS --
 
-    public static final double ESCALA = 2.5;
+    public static final double ESCALA = 2.5; 
     private int posicionX;
     private int posicionY;
     protected String rutaSprites;
+    protected double escalaSprite = 1.0; 
     
     protected Direccion direccion = Direccion.ABAJO;
 
@@ -43,6 +44,10 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
 
     public void setPosicionY(int posicionY) {
         this.posicionY = posicionY;
+    }
+
+    public double getEscalaSprite() { 
+        return escalaSprite; 
     }
 
     // -- COMPORTAMIENTO POR DEFECTO (las subclases lo sobrescriben) --

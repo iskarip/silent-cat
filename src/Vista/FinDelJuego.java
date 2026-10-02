@@ -1,8 +1,6 @@
 package Vista;
 
 import Modelo.ObservadorPersonaje;
-
-import Modelo.ObservadorPersonaje;
 import java.awt.*;
 import javax.swing.*;
 

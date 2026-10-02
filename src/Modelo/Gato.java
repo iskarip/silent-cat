@@ -23,6 +23,8 @@ public class Gato extends EntidadPasiva implements Interactuable {
 
     public Gato(int columna, int fila) {
         colocarEnTile(columna, fila);
+        this.escalaSprite = 0.3; // Ajustar según el sprite real
+        this.rutaSprites = "/Recursos/Sprites/Gato/";
     }
 
     public boolean getEncontrado() { return encontrado; }

@@ -33,16 +33,16 @@ public class NivelFactory {
 
         agregarVariosItems(nivel, (columna,fila) -> new ItemMedicina (columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
         
-        agregarVarias(nivel,(columna, fila) -> new Rata (columna, fila), new int[]{13, 12});
+        agregarVarias(nivel,(columna, fila) -> new Rata (columna, fila), new int[]{15, 12});
         
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
         nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Esta roto, no puedo pasar poca acá"));
 
         nivel.agregarZona(new PuntoFlashback(25, 8, 2));
 
-
-        //Item lataDeAceite = new Item("Lata de Aceite", "/Recursos/Sprites/Items/lata_aceite.png", 5, 10);
-       // nivel.agregarItem(lataDeAceite);
+        Item llave = new Item("Llave", "/Recursos/Sprites/Items/llave.png", 15, 12);
+        llave.setEscala(0.5);
+        nivel.agregarItem(llave); // ESTA LLAVE ES PURAMENTE DE PRUEBA
 
         return nivel;
     }
