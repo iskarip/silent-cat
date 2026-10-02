@@ -29,7 +29,7 @@ public class NivelFactory {
         
         agregarVarias(nivel,(columna, fila) -> new Enemigo(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{4, 11}, new int[]{22, 3});
 
-        //nivel.setAcertijoEnTile(22, 9); TODO: hay que ajustar el panel de acertijo y que coincida cuando implementemos el iventario
+        // nivel.setAcertijoEnTile(22, 9); TODO: hay que ajustar el panel de acertijo y que coincida cuando implementemos el iventario
 
         agregarVariosItems(nivel, (columna,fila) -> new ItemMedicina (columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
         

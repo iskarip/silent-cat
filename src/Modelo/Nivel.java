@@ -2,6 +2,7 @@ package Modelo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Rectangle;
 
 public class Nivel extends EspacioBase {
 
@@ -16,6 +17,8 @@ public class Nivel extends EspacioBase {
     private int acertijoColumna, acertijoFila; // posicion donde se activa el acertijo del nivel
 
     private List<ZonaProximidad> zonas = new ArrayList<>();
+
+    private static final int RADIO_ACTIVACION_ACERTIJO = 50;
 
 
 //--CONSTRUCTOR--
@@ -100,6 +103,16 @@ public class Nivel extends EspacioBase {
     }
 
 //--METODOS--
+    
+    // true si el acertijo existe, sigue sin resolverse y el personaje esta en su zona
+    public boolean acertijoAlAlcance(Personaje personaje) {
+        if (acertijoNivel == null || acertijoNivel.getResuelto()) {
+            return false;
+        }
+        double distancia = Math.hypot(personaje.getPosicionX() - getAcertijoX(),
+                                      personaje.getPosicionY() - getAcertijoY());
+        return distancia <= RADIO_ACTIVACION_ACERTIJO;
+    }
 
     public void guardarCheckpoint() {
         this.checkpoint = true;
@@ -119,6 +132,19 @@ public class Nivel extends EspacioBase {
 
     public void agregarZona(ZonaProximidad zona) {
         if (zona != null) zonas.add(zona);
+    }
+
+    // aplica el ataque del personaje a todas las entidades vivas que quedan dentro del golpe
+    public void resolverAtaque(Personaje atacante) {
+        if (listaEntidades == null) return;
+
+        Rectangle hitboxGolpe = atacante.getHitboxAtaque();
+
+        for (Entidad e : listaEntidades) {
+            if (e.estaVivo() && hitboxGolpe.intersects(e.getHitbox())) {
+                atacante.atacar(e);
+            }
+        }
     }
 
     public List<ZonaProximidad> getZonas() {

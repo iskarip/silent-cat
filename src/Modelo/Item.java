@@ -1,6 +1,10 @@
 package Modelo;
 
+import java.awt.Rectangle;
+
 public class Item implements Interactuable, Posicionable {
+
+private static final int RADIO_RECOGIDA = 6;
 
     protected String nombre;
     protected boolean recogido;
@@ -37,6 +41,22 @@ public class Item implements Interactuable, Posicionable {
     // -- MÉTODOS --
     public void recoger() {
         this.recogido = true;
+    }
+
+    // true si todavía está en el piso y el hitbox recibido lo toca
+    public boolean estaAlAlcance(Rectangle hitboxJugador) {
+        if (recogido) return false;
+
+        int centroX = posicionX + (MapaColision.TILE / 2);
+        int centroY = posicionY + (MapaColision.TILE / 2);
+
+        Rectangle zonaRecogida = new Rectangle(
+            centroX - RADIO_RECOGIDA,
+            centroY - RADIO_RECOGIDA,
+            RADIO_RECOGIDA * 2,
+            RADIO_RECOGIDA * 2
+        );
+        return hitboxJugador.intersects(zonaRecogida);
     }
 
     @Override

@@ -23,6 +23,7 @@ public class Personaje extends EntidadCombatible {
 
     private double multiplicadorVelocidad = 1.0;
     private int ticksLentitud = 0;
+    private boolean moviendose = false;
 
     // Para notificar cambios de vida al Controlador (que a su vez los pasa a la Vista)
 
@@ -44,6 +45,8 @@ public class Personaje extends EntidadCombatible {
     private static final int OFFSET_X_HITBOX = (int) (7 * ESCALA);
     private static final int OFFSET_Y_HITBOX = (int) (15 * ESCALA);
     private static final int ALCANCE_ATAQUE = (int) (18 * ESCALA);
+    private  static final int VELOCIDAD_BASE = 3;
+    private static final double FACTOR_DIAGONAL = 0.7071;
 
 // -- CONSTRUCTOR --
 
@@ -116,10 +119,6 @@ public class Personaje extends EntidadCombatible {
         return construirHitbox(getPosicionX(), getPosicionY());
     }
 
-    public Rectangle getHitboxEnPosicion(int x, int y) {
-        return construirHitbox(x, y);
-    }
-
     private Rectangle construirHitbox(int x, int y) {
         return new Rectangle(x + OFFSET_X_HITBOX, y + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
     }
@@ -178,6 +177,33 @@ public class Personaje extends EntidadCombatible {
 
     public double getMultiplicadorVelocidad(){
         return multiplicadorVelocidad;
+    }
+
+    // el personaje decide cuantos pixeles avanza
+    public void mover(int direccionX, int direccionY, MapaColision mapa) {
+        int velocidad = (int) (VELOCIDAD_BASE * multiplicadorVelocidad);
+        int deltaX = direccionX * velocidad;
+        int deltaY = direccionY * velocidad;
+
+        if (deltaX != 0 && deltaY != 0) {
+            deltaX = (int) Math.round(deltaX * FACTOR_DIAGONAL);
+            deltaY = (int) Math.round(deltaY * FACTOR_DIAGONAL);
+        }
+
+        // hacia dónde mira el sprite
+        if (direccionX != 0) {
+            setDireccion(direccionX > 0 ? Direccion.DERECHA : Direccion.IZQUIERDA);
+        } else if (direccionY != 0) {
+            setDireccion(direccionY > 0 ? Direccion.ABAJO : Direccion.ARRIBA);
+        }
+
+        moviendose = (deltaX != 0 || deltaY != 0);
+        moverConLimites(deltaX, deltaY, mapa);   // heredado de Entidad, ya valida paredes por eje
+    }
+
+    @Override
+    public boolean estaMoviendose() {
+        return moviendose;
     }
 
     // Punto de entrada genérico para interactuar con CUALQUIER cosa que

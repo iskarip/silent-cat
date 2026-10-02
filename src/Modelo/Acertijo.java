@@ -8,6 +8,10 @@ public abstract class Acertijo implements Interactuable {
     private String descripcion;
     private boolean resuelto;
 
+    private static final int INTENTOS_MAXIMOS = 3;
+    private static final int DANIO_FALLO = 10;
+    private int intentosRestantes = INTENTOS_MAXIMOS;
+
 // -- CONSTRUCTOR --
 
     public Acertijo (int id, String descripcion){
@@ -30,8 +34,12 @@ public abstract class Acertijo implements Interactuable {
         return resuelto;
     }
 
-    public void setResuelto(boolean resuelto){
+    protected void setResuelto(boolean resuelto){
         this.resuelto = resuelto;
+    }
+
+    public int getIntentosRestantes() {
+        return intentosRestantes;
     }
 
 // -- METODOS --
@@ -56,6 +64,24 @@ public abstract class Acertijo implements Interactuable {
 
     public boolean validarRespuesta (String respuesta, Personaje personaje){
         return validarRespuesta(respuesta);
+    }
+
+    public void reiniciarIntentos(){
+        intentosRestantes = INTENTOS_MAXIMOS;
+    }
+
+    // evalua la respuesta y descuenta un intento si falla
+    public boolean responder(String respuesta, Personaje personaje) {
+        if (validarRespuesta(respuesta, personaje)) {
+            return true;
+        }
+
+        intentosRestantes--;
+
+        if (intentosRestantes <= 0) {
+            personaje.recibirDanio(DANIO_FALLO);
+        }
+        return false;
     }
 
 

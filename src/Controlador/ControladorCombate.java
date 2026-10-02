@@ -1,12 +1,10 @@
 package Controlador;
 
-import Modelo.Entidad;
 import Modelo.Nivel;
 import Modelo.Personaje;
 import Vista.EstadoPersonaje;
 import Vista.NivelPanel;
 
-import java.awt.Rectangle;
 import javax.swing.Timer;
 
 public class ControladorCombate {
@@ -23,15 +21,7 @@ public class ControladorCombate {
         vista.setEstado(EstadoPersonaje.ATACANDO);
         iniciarTimerVueltaAIdle(vista); // primero el timer, así nunca queda trabado
 
-        Rectangle hitboxGolpe = personaje.getHitboxAtaque();
-
-        if (nivelActual.getListaEntidades() != null) {
-            for (Entidad e : nivelActual.getListaEntidades()) {
-                if (e.estaVivo() && hitboxGolpe.intersects(e.getHitbox())) {
-                    personaje.atacar(e);
-                }
-            }
-        }
+        nivelActual.resolverAtaque(personaje);
     }
 
     private void iniciarTimerVueltaAIdle(NivelPanel vista) {
