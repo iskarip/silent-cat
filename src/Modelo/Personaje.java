@@ -24,13 +24,17 @@ public class Personaje extends EntidadCombatible {
     private double multiplicadorVelocidad = 1.0;
     private int ticksLentitud = 0;
     private boolean moviendose = false;
+    private boolean corriendo = false;
+    private boolean agotado = false;
+    private double restoX = 0;
+    private double restoY = 0;
 
     // Para notificar cambios de vida al Controlador (que a su vez los pasa a la Vista)
 
     //public static final String PROP_VIDA = "puntosVida";
     //private final PropertyChangeSupport soporteCambios = new PropertyChangeSupport(this);
 
-    private int nivelEstamina;
+    private double nivelEstamina;
 
     private Arma arma;
     private Linterna linterna;
@@ -47,6 +51,11 @@ public class Personaje extends EntidadCombatible {
     private static final int ALCANCE_ATAQUE = (int) (18 * ESCALA);
     private static final int VELOCIDAD_BASE = 2;
     private static final double FACTOR_DIAGONAL = 0.7071;
+    private static final double FACTOR_CORRER = 1.6;          // corriendo va 60% más rápido
+    private static final double ESTAMINA_MAXIMA = 100;
+    private static final double GASTO_CORRER = 0.5;           
+    private static final double RECUPERACION = 0.2;           
+    private static final double UMBRAL_RECUPERACION = 25;     // agotada, necesita 25 para volver a correr
 
 // -- CONSTRUCTOR --
 
@@ -55,7 +64,7 @@ public class Personaje extends EntidadCombatible {
     public Personaje (String nombrePersonaje, Arma arma, Linterna linterna){
         super(100); // Asignación de Vida y daño base (heredado de Entidad)
         this.nombrePersonaje = nombrePersonaje;
-        this.nivelEstamina = 100;
+        this.nivelEstamina = ESTAMINA_MAXIMA;
         this.arma = arma;
         this.linterna = linterna;
         this.inventario = new Inventario();
@@ -95,7 +104,7 @@ public class Personaje extends EntidadCombatible {
     }
 
     public int getNivelEstamina(){
-        return nivelEstamina;
+        return (int) nivelEstamina;
     }
 
     public Arma getArma(){
@@ -134,17 +143,17 @@ public class Personaje extends EntidadCombatible {
         }
     }
 
+    // pregunta al arma si esta lista, se llama UNA vez por golpe
+    public boolean intentarAtacar() {
+        return arma.usarArma();
+    }
+
     public void atacar(EntidadCombatible objetivo) {
-        if (arma.usarArma()) {
-            int danio = arma.calcularDanio();
-            objetivo.recibirDanio(danio);
-        }
+        objetivo.recibirDanio(arma.calcularDanio());
     }
 
     public void atacar(Entidad objetivo) {
-        if (arma.usarArma()) {
-            objetivo.recibirDanio(arma.calcularDanio());
-        }
+        objetivo.recibirDanio(arma.calcularDanio());
     }
 
     public void usarLinterna(){
@@ -173,6 +182,7 @@ public class Personaje extends EntidadCombatible {
             ticksLentitud--;
             if (ticksLentitud == 0) multiplicadorVelocidad = 1.0;
         }
+        arma.actualizar();
     }
 
     public double getMultiplicadorVelocidad(){
@@ -180,30 +190,67 @@ public class Personaje extends EntidadCombatible {
     }
 
     // el personaje decide cuantos pixeles avanza
-    public void mover(int direccionX, int direccionY, MapaColision mapa) {
-        int velocidad = (int) (VELOCIDAD_BASE * multiplicadorVelocidad);
-        int deltaX = direccionX * velocidad;
-        int deltaY = direccionY * velocidad;
+    public void mover(int direccionX, int direccionY, boolean quiereCorrer, MapaColision mapa) {
+        boolean hayMovimiento = (direccionX != 0 || direccionY != 0);                               
+        corriendo = quiereCorrer && hayMovimiento && !agotado && ticksLentitud == 0;                 
 
-        if (deltaX != 0 && deltaY != 0) {
-            deltaX = (int) Math.round(deltaX * FACTOR_DIAGONAL);
-            deltaY = (int) Math.round(deltaY * FACTOR_DIAGONAL);
+        double velocidad = VELOCIDAD_BASE * multiplicadorVelocidad;
+        if (corriendo) {                                                                             
+            velocidad *= FACTOR_CORRER;                                                          
+        }
+        double pasoX = direccionX * velocidad;
+        double pasoY = direccionY * velocidad;
+
+        if (direccionX != 0 && direccionY != 0) {
+            pasoX *= FACTOR_DIAGONAL;
+            pasoY *= FACTOR_DIAGONAL;
         }
 
-        // hacia dónde mira el sprite
+        restoX += pasoX;
+        restoY += pasoY;
+
+        int deltaX = (int) restoX;
+        int deltaY = (int) restoY;
+
+        restoX -= deltaX;
+        restoY -= deltaY;
+
+        if (direccionX == 0) restoX = 0;
+        if (direccionY == 0) restoY = 0;
+
         if (direccionX != 0) {
             setDireccion(direccionX > 0 ? Direccion.DERECHA : Direccion.IZQUIERDA);
         } else if (direccionY != 0) {
             setDireccion(direccionY > 0 ? Direccion.ABAJO : Direccion.ARRIBA);
         }
 
-        moviendose = (deltaX != 0 || deltaY != 0);
-        moverConLimites(deltaX, deltaY, mapa);   // heredado de Entidad, ya valida paredes por eje
+        moviendose = hayMovimiento;      
+        actualizarEstamina();            
+        moverConLimites(deltaX, deltaY, mapa);
+    }
+
+    // gasta estamina si esta corriendo y la recupera si no
+    private void actualizarEstamina() {
+        if (corriendo) {
+            nivelEstamina = Math.max(0, nivelEstamina - GASTO_CORRER);
+            if (nivelEstamina == 0) {
+                agotado = true;
+            }
+        } else {
+            nivelEstamina = Math.min(ESTAMINA_MAXIMA, nivelEstamina + RECUPERACION);
+            if (agotado && nivelEstamina >= UMBRAL_RECUPERACION) {
+                agotado = false;
+            }
+        }
     }
 
     @Override
     public boolean estaMoviendose() {
         return moviendose;
+    }
+
+    public boolean estaCorriendo() {
+        return corriendo;
     }
 
     // Punto de entrada genérico para interactuar con CUALQUIER cosa que

@@ -6,12 +6,13 @@ public class Arma {
     private int danio;
     private int alcance;
     private int tiempoDeUtilizacion;
+    private int ticksRestantes = 0;
 
     // -- CONSTRUCTOR --
     public Arma (){
         this.danio = 10;
         this.alcance = 5;
-        this.tiempoDeUtilizacion = 3;
+        this.tiempoDeUtilizacion = 24;
     }
 
     // -- GET --
@@ -34,11 +35,22 @@ public class Arma {
         return this.danio;
     }
 
-    public boolean usarArma () {
-        // TODO (Fase 2): comparar tiempo transcurrido desde el último ataque
-        // contra tiempoDeUtilizacion. Si no pasó suficiente tiempo, devolver false
-        // (el personaje no puede atacar todavía)
-        return true; // por ahora, siempre permite atacar
+    // intenta usar el arma, si todavia se esta enfriando devuelve false
+    // si esta lista, arranca el enfriamiento y devuelve true
+    public boolean usarArma() {
+        if (ticksRestantes > 0) {
+            return false;
+        }
+        ticksRestantes = tiempoDeUtilizacion;
+        return true;
+    }
+
+    // se llama una vez por tick
+    // va descontando el enfriamiento
+    public void actualizar() {
+        if (ticksRestantes > 0) {
+            ticksRestantes--;
+        }
     }
 
 
