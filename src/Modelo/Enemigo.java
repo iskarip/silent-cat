@@ -21,6 +21,10 @@ public class Enemigo extends EntidadCombatible {
     private int ticksEnfriamientoAtaque = 0; // cuenta atrás hasta que pueda volver a atacar
     private static final int ENFRIAMIENTO_ATAQUE = 60; // ticks de espera entre golpe y golpe
 
+    // Control de animación y alcance de ataque
+    private int ticksAnimacionAtaque = 0;
+    private static final int DURACION_ANIM_ATAQUE = 24; // Duración en ticks del golpe visual
+    private static final int DISTANCIA_ATAQUE = 14;     // Pegado cuerpo a cuerpo
 
     private int spawnX;
     private int spawnY;
@@ -71,6 +75,11 @@ public class Enemigo extends EntidadCombatible {
     }
 
     @Override
+    public boolean estaAtacando() {
+        return this.ticksAnimacionAtaque > 0;
+    }
+
+    @Override
     public Rectangle getHitbox() {
         return construirHitbox(getPosicionX(), getPosicionY());
     }
@@ -91,6 +100,7 @@ public class Enemigo extends EntidadCombatible {
             System.out.println("El enemigo " + this.idEnemigo + " ataca y hace" + this.danioBase + " de daño. ");
             objetivo.recibirDanio(this.danioBase);
             ticksEnfriamientoAtaque = ENFRIAMIENTO_ATAQUE;
+            ticksAnimacionAtaque = DURACION_ANIM_ATAQUE;
         }
     }
 
@@ -226,9 +236,40 @@ public class Enemigo extends EntidadCombatible {
         return distancia <= radioEfectivo;
     }
 
+    private void orientarHaciaJugador(Personaje jugador) {
+        int dx = jugador.getPosicionX() - this.getPosicionX();
+        int dy = jugador.getPosicionY() - this.getPosicionY();
+        if (Math.abs(dx) >= Math.abs(dy)) {
+            direccion = (dx > 0) ? Direccion.DERECHA : Direccion.IZQUIERDA;
+        } else {
+            direccion = (dy > 0) ? Direccion.ABAJO : Direccion.ARRIBA;
+        }
+    }
+
     public void actualizarComportamiento(Personaje jugador, boolean linternaEncendida, MapaColision mapa) {
         if (ticksEnfriamientoAtaque > 0) {
             ticksEnfriamientoAtaque--;
+        }
+        if (ticksAnimacionAtaque > 0) {
+            ticksAnimacionAtaque--;
+        }
+
+        double dx = jugador.getPosicionX() - this.getPosicionX();
+        double dy = jugador.getPosicionY() - this.getPosicionY();
+        double distancia = Math.hypot(dx, dy);
+
+        // Si ya está lo suficientemente cerca para golpear, se detiene y ataca
+        if (distancia <= DISTANCIA_ATAQUE) {
+            this.moviendose = false;
+            orientarHaciaJugador(jugador);
+            atacar(jugador);
+            return;
+        }
+
+        // Si está en medio de la animación de golpe, se queda plantado en el lugar
+        if (estaAtacando()) {
+            this.moviendose = false;
+            return;
         }
 
         if (detectaAlJugador(jugador, linternaEncendida)) {
@@ -251,10 +292,6 @@ public class Enemigo extends EntidadCombatible {
         if (tickMovimiento >= FRECUENCIA_PASO) {
             actualizarComportamiento(jugador, jugador.getLinterna().getEncendido(), mapa);
             tickMovimiento = 0;
-        }
-
-        if (jugador.getHitbox().intersects(getHitbox())) {
-            atacar(jugador);
         }
     }
 
