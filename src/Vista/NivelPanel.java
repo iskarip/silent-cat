@@ -38,6 +38,7 @@ public class NivelPanel extends JPanel {
     private int contadorTick = 0;
     private int ticksMuerte = 0;
     private boolean finDelJuegoMostrado = false;
+    private javax.swing.Timer timerDanio;
 
     // --- CÁMARA ---
     private int camaraX = 0;
@@ -72,6 +73,29 @@ public class NivelPanel extends JPanel {
                 requestFocusInWindow();
             }
         });
+    }
+
+    // METODOS PARA CONSULTAR Y DISPARAR EL ESTADO DE DAÑO
+    public boolean estaRecibiendoDanio() {
+        return estadoActual == EstadoPersonaje.RECIBIENDO_DANIO;
+    }
+
+    public void activarDanioRecibido() {
+        if (estadoActual == EstadoPersonaje.MURIENDO) return;
+
+        setEstado(EstadoPersonaje.RECIBIENDO_DANIO);
+
+        if (timerDanio != null && timerDanio.isRunning()) {
+            timerDanio.stop();
+        }
+
+        timerDanio = new javax.swing.Timer(250, e -> {
+            if (estadoActual == EstadoPersonaje.RECIBIENDO_DANIO) {
+                setEstado(EstadoPersonaje.IDLE);
+            }
+        });
+        timerDanio.setRepeats(false);
+        timerDanio.start();
     }
 
     // GESTIÓN DE INTERFAZ Y COMPONENTES SWING
@@ -237,7 +261,8 @@ public class NivelPanel extends JPanel {
                 if (!e.estaVivo()) continue;
 
                     GestorSprites sprites = obtenerSprites(e.getRutaSprites());
-                    EstadoPersonaje estado = e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE;
+                    EstadoPersonaje estado = e.estaAtacando() ? EstadoPersonaje.ATACANDO :
+                        (e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE);
                     int frame = (contadorTick / 6) % obtenerTotalFrames(sprites, estado);
                     double escE = e.getEscalaSprite();
                     int ex = e.getPosicionX();

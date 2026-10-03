@@ -3,6 +3,8 @@ package Controlador;
 import Modelo.Partida;
 import Modelo.Nivel;
 import Modelo.Personaje;
+import Modelo.Linterna;
+import Modelo.ObservadorPersonaje;
 import Modelo.ReproductorSonido;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
@@ -92,6 +94,27 @@ public class ControladorNivel {
             BarraVida barraVida = new BarraVida(personajeActual.getPuntosVida());
             this.vista.agregarCapaVisual(barraVida);
             personajeActual.agregarObservador(barraVida);
+
+            if (personajeActual.getLinterna() != null) {
+                Linterna linterna = personajeActual.getLinterna();
+                linterna.agregarObservador(barraBateria);
+                linterna.agregarObservador(linternaOverlay);
+            }
+
+            // Observador para activar el sprite de recibir danio al perder vida
+            personajeActual.agregarObservador(new ObservadorPersonaje() {
+                @Override
+                public void vidaCambio(int vidaActual, int vidaMaxima) {
+                    if (vidaActual > 0) {
+                        vista.activarDanioRecibido();
+                    }
+                }
+
+                @Override
+                public void personajeMurio() {
+                    // El ciclo de muerte ya lo maneja NivelPanel y FinDelJuego
+                }
+            });
 
             // Botón "Volver al Menú" de FinDelJuego
             this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(e -> {
@@ -254,9 +277,8 @@ public class ControladorNivel {
 
         // 5. Consumo de la bateria de la Linterna
         contadorBateria++;
-
-        if (contadorBateria >= 60) {
-            personaje.getLinterna().gastarBateria();
+        if(contadorBateria >= 60){
+            personaje.getLinterna().gastarBateria(); // Linterna llama a notificar() y la vista se actualiza sola
             contadorBateria = 0;
         }
     }
@@ -270,4 +292,3 @@ public class ControladorNivel {
     }
 
 }
-

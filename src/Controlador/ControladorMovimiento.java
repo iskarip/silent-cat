@@ -34,7 +34,7 @@ public class ControladorMovimiento {
         // le avisamos a la Vista qué animación mostrar
         boolean seEstaMoviendo = personaje.estaMoviendose();
 
-        if (!vista.estaAtacando()) {
+        if (!vista.estaAtacando() && !vista.estaRecibiendoDanio()) {
             if (seEstaMoviendo) {
                 vista.setEstado(EstadoPersonaje.CAMINANDO);
             } else {
