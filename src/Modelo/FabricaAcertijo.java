@@ -1,6 +1,5 @@
 package Modelo;
 
-
 public class FabricaAcertijo {
 
     // --FABRICA DE ACERTIJOS --

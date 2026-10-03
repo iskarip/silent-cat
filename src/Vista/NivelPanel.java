@@ -265,6 +265,8 @@ public class NivelPanel extends JPanel {
         for (InterfazVisual capa : capasVisuales) {
             capa.renderizar(g2d, getWidth(), getHeight(), this);
         }
+
+        Toolkit.getDefaultToolkit().sync();
     }
 
     // --- MANEJO DE ANIMACIONES DE SPRITES --

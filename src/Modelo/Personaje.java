@@ -45,7 +45,7 @@ public class Personaje extends EntidadCombatible {
     private static final int OFFSET_X_HITBOX = (int) (7 * ESCALA);
     private static final int OFFSET_Y_HITBOX = (int) (15 * ESCALA);
     private static final int ALCANCE_ATAQUE = (int) (18 * ESCALA);
-    private  static final int VELOCIDAD_BASE = 3;
+    private static final int VELOCIDAD_BASE = 2;
     private static final double FACTOR_DIAGONAL = 0.7071;
 
 // -- CONSTRUCTOR --

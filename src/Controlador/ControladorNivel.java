@@ -16,6 +16,7 @@ import Vista.BarraVida;
 import Vista.MensajeAmbiental;
 
 import javax.swing.Timer;
+import java.awt.Toolkit;
 
 public class ControladorNivel {
 
@@ -41,7 +42,12 @@ public class ControladorNivel {
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
     private boolean pausado = false;
-    private int contadorBateria = 0; 
+    private int contadorBateria = 0;
+
+    // Control de tiempo para garantizar fluidez identica en todas las computadoras (60 ticks por segundo)
+    private static final double TIEMPO_OPTIMO_NS = 1_000_000_000.0 / 60.0;
+    private long tiempoAnterior = 0;
+    private double acumulador = 0.0;
 
     // -- CONSTRUCTOR CONTROLADOR --
 
@@ -61,7 +67,7 @@ public class ControladorNivel {
         this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this);
 
         //instanciacion del modelo Gato y vista flashbackGato
-    
+
         this.flashbackGato = new FlashbackGato();
         this.mensajeAmbiental = new MensajeAmbiental();
         this.controladorAmbiente = new ControladorAmbiente(flashbackGato, mensajeAmbiental, vista);
@@ -110,7 +116,7 @@ public class ControladorNivel {
         this.vista.addKeyListener(controladorTeclado);
 
         // Configurar el Game Loop a 60 FPS 816 milisegundos)
-        this.bucleDeJuego = new Timer(16, e -> actualizarJuego());
+        this.bucleDeJuego = new Timer(16, e -> cicloPrincipal());
     }
 
     // -- METODOS --
@@ -118,6 +124,8 @@ public class ControladorNivel {
     public void iniciar() {
         reiniciarEstado();
         sincronizarModeloConVista();
+        this.tiempoAnterior = System.nanoTime();
+        this.acumulador = 0.0;
         bucleDeJuego.start();
     }
 
@@ -135,6 +143,8 @@ public class ControladorNivel {
             if (pausado) {
                 bucleDeJuego.stop();
             } else {
+                this.tiempoAnterior = System.nanoTime();
+                this.acumulador = 0.0;
                 bucleDeJuego.start();
             }
         }
@@ -166,6 +176,41 @@ public class ControladorNivel {
         }
     }
 
+    private void cicloPrincipal() {
+        if (pausado || controladorAcertijo.estaActivo()) {
+            tiempoAnterior = System.nanoTime();
+            return;
+        }
+
+        long tiempoActual = System.nanoTime();
+        double transcurrido = (double) (tiempoActual - tiempoAnterior);
+        tiempoAnterior = tiempoActual;
+
+        // Evita saltos bruscos si la ventana se minimiza o se bloquea el hilo
+        if (transcurrido > 100_000_000.0) {
+            transcurrido = 100_000_000.0;
+        }
+
+        acumulador += transcurrido;
+
+        // Ejecuta los pasos acumulados (limitando a un máximo de 2 por cuadro para que no acelere de golpe)
+        int pasos = 0;
+        while (acumulador >= TIEMPO_OPTIMO_NS && pasos < 2) {
+            actualizarJuego();
+            acumulador -= TIEMPO_OPTIMO_NS;
+            pasos++;
+        }
+
+        // Si sobró tiempo de más acumulado, se descarta para no arrastrar velocidad extra
+        if (acumulador > TIEMPO_OPTIMO_NS) {
+            acumulador = 0.0;
+        }
+
+        // 6. Redibujado en pantalla
+        vista.repaint();
+        Toolkit.getDefaultToolkit().sync();
+    }
+
     private void actualizarJuego() {
         if (pausado || controladorAcertijo.estaActivo()) return;
 
@@ -181,7 +226,6 @@ public class ControladorNivel {
                 vista.setEstado(EstadoPersonaje.MURIENDO);
             }
             vista.avanzarAnimacionMuerte();
-            vista.repaint();
             return;
         }
 
@@ -195,7 +239,7 @@ public class ControladorNivel {
 
         // 3. IA y actualización de los enemigos
         controladorEntidades.actualizar(nivelActual, personaje, vista);
-        
+
         // 4. Deteccion de proximidad al acertijo del nivel
         controladorAcertijo.comprobarActivacion(nivelActual, personaje);
 
@@ -210,15 +254,11 @@ public class ControladorNivel {
 
         // 5. Consumo de la bateria de la Linterna
         contadorBateria++;
-        
-        if(contadorBateria >= 60){
+
+        if (contadorBateria >= 60) {
             personaje.getLinterna().gastarBateria();
-            contadorBateria= 0;
+            contadorBateria = 0;
         }
-
-
-        // 6. Redibujado en pantalla
-        vista.repaint();
     }
 
     // -- ACCIONES --
@@ -230,3 +270,4 @@ public class ControladorNivel {
     }
 
 }
+

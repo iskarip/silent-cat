@@ -37,10 +37,13 @@ public class Enemigo extends EntidadCombatible {
     private int dxEsquive = 0;
     private int dyEsquive = 0;
 
+    private int tickMovimiento = 0;
+    private static final int FRECUENCIA_PASO = 2;
+
 //--CONSTRUCTOR--
 
     public Enemigo(int puntosVida, int danioBase, int idEnemigo,
-                int columna, int fila, String rutaSprites) {
+                   int columna, int fila, String rutaSprites) {
         super(puntosVida);
         this.danioBase = danioBase;
         this.idEnemigo = idEnemigo;
@@ -244,7 +247,12 @@ public class Enemigo extends EntidadCombatible {
 
     @Override
     public void actualizar(Personaje jugador, MapaColision mapa) {
-        actualizarComportamiento(jugador, jugador.getLinterna().getEncendido(), mapa);
+        tickMovimiento++;
+        if (tickMovimiento >= FRECUENCIA_PASO) {
+            actualizarComportamiento(jugador, jugador.getLinterna().getEncendido(), mapa);
+            tickMovimiento = 0;
+        }
+
         if (jugador.getHitbox().intersects(getHitbox())) {
             atacar(jugador);
         }
@@ -257,7 +265,3 @@ public class Enemigo extends EntidadCombatible {
         this.spawnY = getPosicionY();
     }
 }
-
-
-
-
