@@ -5,6 +5,7 @@ import javax.swing.*;
 
 public class FinDelJuego extends JPanel {
 
+    private Image imagenGameOver;
     private Image imagenCalavera;
     private BotonJuego botonVolverMenu;
 
@@ -20,15 +21,16 @@ public class FinDelJuego extends JPanel {
     }
 
     private void cargarRecursos() {
-      this.imagenCalavera = GestorSprites.cargarImage("/Recursos/UI/Menu/Fondo/calaveraMuerte.png");
+      this.imagenCalavera = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/calaveraMuerte.png");
+      this.imagenGameOver = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/GameOver.png");
     }
 
     private void crearComponentes() {
         // Botón para volver al menú principal
         botonVolverMenu = new BotonJuego(
-                "/Recursos/UI/Pausa/Botones/MenuPrincipal.png",
-                null,
-                180, 60
+            "/Recursos/UI/GameOver/Botones/VolverMenu.png",
+            "/Recursos/UI/GameOver/Botones/VolverMenuHover.png", 
+            "Recursos/Sonidos/UI/sonido3.wav"
         );
 
         add(botonVolverMenu);
@@ -39,13 +41,13 @@ public class FinDelJuego extends JPanel {
     public void doLayout() {
         super.doLayout();
 
-        int centroX = getWidth() / 2;
-        int centroY = getHeight() / 2;
-
         if (botonVolverMenu != null) {
-            int anchoVolver = 210;
-            int altoVolver = 70;
-            botonVolverMenu.setBounds(centroX - (anchoVolver / 2), centroY + 110, anchoVolver, altoVolver);
+            int centroX = getWidth() / 2;
+            int centroY = getHeight() / 2;
+
+            // usa el tamaño real del PNG del botón (ya que no le pasás ancho y alto)
+            Dimension tam = botonVolverMenu.getPreferredSize();
+            botonVolverMenu.setBounds(centroX - tam.width / 2, centroY + 110, tam.width, tam.height);
         }
     }
 
@@ -54,35 +56,34 @@ public class FinDelJuego extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
-        // Capa oscura sobre el nivel.
+        // Capa oscura sobre el nivel
         g2d.setColor(new Color(0, 0, 0, 215));
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         int centroX = getWidth() / 2;
         int centroY = getHeight() / 2;
 
-        // Texto GAME OVER
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2d.setFont(new Font("Serif", Font.BOLD, 54));
-        FontMetrics fm = g2d.getFontMetrics();
-        String texto = "GAME OVER";
-        int textoX = centroX - (fm.stringWidth(texto) / 2);
-        int textoY = centroY - 100;
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-        // Sombra doble roja oscura
-        g2d.setColor(new Color(100, 0, 0));
-        g2d.drawString(texto, textoX + 3, textoY + 3);
-        g2d.setColor(new Color(180, 20, 20));
-        g2d.drawString(texto, textoX + 1, textoY + 1);
+        // Cartel GAME OVER (imagen), manteniendo proporción
+        if (imagenGameOver != null) {
+            int anchoOrig = imagenGameOver.getWidth(this);
+            int altoOrig = imagenGameOver.getHeight(this);
 
-        // Texto principal
-        g2d.setColor(new Color(240, 235, 230));
-        g2d.drawString(texto, textoX, textoY);
+            int anchoMax = (int) (getWidth() * 0.5);   // hasta el 50% del ancho
+            int altoMax = 200;                         // y hasta 200 px de alto
+            double escala = Math.min((double) anchoMax / anchoOrig, (double) altoMax / altoOrig);
 
-        // Calavera pixel art centrada entre el texto y el botón
+            int ancho = (int) (anchoOrig * escala);
+            int alto = (int) (altoOrig * escala);
+
+            // centrado, con su borde inferior apenas arriba de la calavera
+            g2d.drawImage(imagenGameOver, centroX - (ancho / 2), centroY - 80 - alto, ancho, alto, this);
+        }
+
+        // Calavera pixel art centrada entre el cartel y el botón
         if (imagenCalavera != null) {
-            int tamCalavera = 160 ;
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            int tamCalavera = 160;
             g2d.drawImage(imagenCalavera, centroX - (tamCalavera / 2), centroY - 70, tamCalavera, tamCalavera, this);
         }
     }
