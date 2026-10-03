@@ -9,6 +9,8 @@ public class NivelFactory {
     private static final String SPRITES_NURSE = "/Recursos/Sprites/Enemigos/Nurse/";
     private int nextId = 1;
 
+    // Sirve para crear niveles según su número. Si el número no es válido, lanza una excepción.
+    // Se puede ampliar para crear más niveles en el futuro.
 
     public Nivel crearNivel(int numeroNivel) throws NivelInvalidoException {
         switch (numeroNivel) {
@@ -16,20 +18,21 @@ public class NivelFactory {
             case 1:
                 return crearNivel1(); //la planta baja 
             case 2:
-                //return crearNivel2(); // temporal porque por ahora tenemos ese nivel cargado
+                return crearNivel2(); //el sotano
             default:
                 throw new NivelInvalidoException("No existe el nivel " + numeroNivel);
         }
     }
 
     private Nivel crearNivel1(){
-        Acertijo acertijo = new AcertijoObjeto(1, "La puerta esta atascada por el oxido y no cede. Necesitas lubricar las bisagras.", "Lata de aceite");
+
+        Acertijo acertijo = new AcertijoNumerico(   1, "Ingresar codigo al candado", 1234);
     
         Nivel nivel= new Nivel(1, acertijo, "Recursos/Mapas/Grid/grid_planta_baja.txt" , "/Recursos/Mapas/Imagen/mapa_planta_baja.png" , 16, 14);
         
         agregarVarias(nivel,(columna, fila) -> new Enemigo(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{4, 11}, new int[]{22, 3});
 
-        // nivel.setAcertijoEnTile(22, 9); TODO: hay que ajustar el panel de acertijo y que coincida cuando implementemos el iventario
+        //nivel.setAcertijoEnTile(14, 9); 
 
         agregarVariosItems(nivel, (columna,fila) -> new ItemMedicina (columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
         
@@ -114,7 +117,7 @@ public class NivelFactory {
    //habitacion.agregarItem(palanca);
 
     return habitacion;
-}
+    }
 
     //
 
