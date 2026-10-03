@@ -326,7 +326,7 @@ public class NivelPanel extends JPanel {
 
     public void avanzarAnimacionMuerte() {
         ticksMuerte++;
-        if (ticksMuerte % 6 != 0) return;
+        if (ticksMuerte % 15 != 0) return;
 
         BufferedImage hoja = (gestorSprites == null) ? null : gestorSprites.obtener(EstadoPersonaje.MURIENDO);
         int totalFrames = (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);

@@ -1,10 +1,9 @@
 package Vista;
 
-import Modelo.ObservadorPersonaje;
 import java.awt.*;
 import javax.swing.*;
 
-public class FinDelJuego extends JPanel implements ObservadorPersonaje {
+public class FinDelJuego extends JPanel {
 
     private Image imagenCalavera;
     private BotonJuego botonVolverMenu;
@@ -33,24 +32,6 @@ public class FinDelJuego extends JPanel implements ObservadorPersonaje {
         );
 
         add(botonVolverMenu);
-    }
-
-    // -- GESTION DEL OBSERVER --
-    @Override
-    public void vidaCambio(int vidaActual, int vidaMaxima) {
-        if (vidaActual > 0 && isVisible()) {
-            setVisible(false);
-        }
-    }
-
-    @Override
-    public void personajeMurio() {
-        // el modelo es el que notifica la muerte.
-        if (getParent() != null) {
-            setBounds(0, 0, getParent().getWidth(), getParent().getHeight());
-        }
-        setVisible(true);
-        repaint();
     }
 
     // -- CICLO DE DIBUJADO --

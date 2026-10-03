@@ -3,6 +3,7 @@ package Controlador;
 import Modelo.Partida;
 import Modelo.Nivel;
 import Modelo.Personaje;
+import Modelo.ReproductorSonido;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.EstadoPersonaje;
@@ -86,15 +87,13 @@ public class ControladorNivel {
             this.vista.agregarCapaVisual(barraVida);
             personajeActual.agregarObservador(barraVida);
 
-            // FinDelJuego esta relacionado con las acciones del personaje.
-            personajeActual.agregarObservador(this.vista.getFinDelJuego());
-
             // Botón "Volver al Menú" de FinDelJuego
             this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(e -> {
                 detener(); // Detiene el loop
                 this.vista.getFinDelJuego().setVisible(false); // <--- IMPORTANTE: Ocultar el overlay
                 this.vista.reiniciarEstadoNivel();             // <--- Reiniciar contadores/estado
                 ventanaPrincipal.mostrarPantalla("menu");       // <--- Cambio directo a "menu"
+                ReproductorSonido.reproducirEnLoop(ControladorPrincipal.MUSICA_MENU);
             });
         }
 
@@ -181,6 +180,7 @@ public class ControladorNivel {
                 personajeMuerto = true;
                 vista.setEstado(EstadoPersonaje.MURIENDO);
             }
+            vista.avanzarAnimacionMuerte();
             vista.repaint();
             return;
         }

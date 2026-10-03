@@ -23,12 +23,12 @@ public class ReproductorSonido {
             clip.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) {
                     clip.close();
-                    aplicarVolumen(clip, volumenEfectos);
                     clipsActivos.remove(clip);
                 }
             });
 
             clip.open(audioIn);
+            aplicarVolumen(clip, volumenEfectos);
             clip.start();
         } catch (Exception e) {
             System.out.println("No se pudo reproducir el sonido: " + e.getMessage());
@@ -40,34 +40,32 @@ public class ReproductorSonido {
 }
           
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     public static void reproducirEnLoop(String ruta) {
-        detenerMusica(); // corta la anterior para que no se superpongan
-        try {
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(
-                    ReproductorSonido.class.getClassLoader().getResource(ruta));
-            musicaActual = AudioSystem.getClip();
-            musicaActual.open(audioIn);
-            aplicarVolumen(musicaActual, volumenMusica); 
-            musicaActual.loop(Clip.LOOP_CONTINUOUSLY);
-        } catch (Exception e) {
-            System.out.println("No se pudo reproducir la musica: " + e.getMessage());
-        }
+        Thread hiloMusica = new Thread(() -> {
+            try {
+                // leer el archivo y cargarlo en memoria
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+                        ReproductorSonido.class.getClassLoader().getResource(ruta));
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioIn);
+                aplicarVolumen(clip, volumenMusica);
+
+                // cambiar la música actual, de a un hilo por vez
+                synchronized (ReproductorSonido.class) {
+                    detenerMusica(); // corta la anterior para que no se superpongan
+                    musicaActual = clip;
+                    musicaActual.loop(Clip.LOOP_CONTINUOUSLY);
+                }
+            } catch (Exception e) {
+                System.out.println("No se pudo reproducir la musica: " + e.getMessage());
+            }
+        }, "hilo-musica");
+
+        hiloMusica.setDaemon(true);
+        hiloMusica.start();
     }
 
-    public static void detenerMusica() {
+    public static synchronized void detenerMusica() {
         if (musicaActual != null) {
             musicaActual.stop();
             musicaActual.close();
@@ -83,7 +81,7 @@ public class ReproductorSonido {
         return volumenEfectos;
     }
 
-    public static void setVolumenMusica(float volumen) {
+    public static synchronized void setVolumenMusica(float volumen) {
         volumenMusica = limitar(volumen);
         if (musicaActual != null) {
             aplicarVolumen(musicaActual, volumenMusica);

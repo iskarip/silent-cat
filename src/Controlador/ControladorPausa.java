@@ -1,5 +1,6 @@
 package Controlador;
 
+import Modelo.ReproductorSonido;
 import Vista.FinDelJuego;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
@@ -75,6 +76,7 @@ public class ControladorPausa {
             nivelPanel.getBotonPausa().setVisible(true);
         }
         ventanaPrincipal.mostrarPantallaConFundido("menu");
+        ReproductorSonido.reproducirEnLoop(ControladorPrincipal.MUSICA_MENU);
     }
 
 }
