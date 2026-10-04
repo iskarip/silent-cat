@@ -13,6 +13,8 @@ public class JuegoFrame extends JFrame {
     private NivelPanel nivelPanel;
     private AcertijoPanel acertijoPanel;
     private PanelFundido panelFundido;
+    private AjustesPanel ajustesPanel; 
+
 
     public JuegoFrame() {
         setTitle("Silent Cat");
@@ -32,12 +34,14 @@ public class JuegoFrame extends JFrame {
         seleccionPersonajePanel = new SeleccionPersonajePanel();
         nivelPanel = new NivelPanel();
         acertijoPanel = new AcertijoPanel();
+        ajustesPanel = new AjustesPanel();
 
         //Registro en el CardLayout
         panelContenedor.add(menuPanel, "menu");
         panelContenedor.add(seleccionPersonajePanel, "seleccion");
         panelContenedor.add(nivelPanel, "nivel");
         panelContenedor.add(acertijoPanel, "acertijo");
+        panelContenedor.add(ajustesPanel, "ajustes");
 
         add(panelContenedor);
 
@@ -65,7 +69,7 @@ public class JuegoFrame extends JFrame {
     public SeleccionPersonajePanel getSeleccionPersonajePanel() { return seleccionPersonajePanel; }
     public NivelPanel getNivelPanel() { return nivelPanel; }
     public AcertijoPanel getAcertijoPanel() { return acertijoPanel; }
-
+    public AjustesPanel getAjustesPanel() { return ajustesPanel; }
 
 
 }
