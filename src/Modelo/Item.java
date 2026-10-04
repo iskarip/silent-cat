@@ -13,6 +13,7 @@ public class Item implements Interactuable, Posicionable {
     protected int posicionY;
     protected String rutaImagen;
     protected double escala = ESCALA_DEFECTO;
+    protected String mensajeRecoger;
     
     // Constructor básico sin posición
     public Item(String nombre, String rutaImagen) {
@@ -41,8 +42,11 @@ public class Item implements Interactuable, Posicionable {
     public double getEscala() { return escala; }
     public void setEscala(double escala) { this.escala = Math.max(0.1, escala); }
 
-    public String getRutaImagen() { return rutaImagen; }
+    public String getMensajeRecoger() { return mensajeRecoger; }
+    public void setMensajeRecoger(String mensajeRecoger) { this.mensajeRecoger = mensajeRecoger; }
 
+    public String getRutaImagen() { return rutaImagen; }
+    
     // -- MÉTODOS --
     public void recoger() {
         this.recogido = true;

@@ -3,10 +3,11 @@ package Controlador;
 import Modelo.Acertijo;
 import Modelo.Nivel;
 import Modelo.Personaje;
+import Modelo.ObservadorAcertijo;
 import Vista.AcertijoPanel;
 import Vista.JuegoFrame;
 
-public class ControladorAcertijo {
+public class ControladorAcertijo implements ObservadorAcertijo {
 
     // -- ATRIBUTOS --
     private final AcertijoPanel vista;
@@ -31,12 +32,19 @@ public class ControladorAcertijo {
         if (acertijoActivo || nivelActual == null || personaje == null) return;
 
         if (nivelActual.acertijoAlAlcance(personaje)) {
-            iniciarAcertijo(nivelActual.getAcertijo(), personaje);
+            Acertijo acertijo = nivelActual.getAcertijo();
+            acertijo.setObservador(this);
+            personaje.interactuarCon(acertijo);
         }
     }
 
     public boolean estaActivo() {
         return acertijoActivo;
+    }
+
+    @Override
+    public void acertijoSolicitado(Acertijo acertijo, Personaje personaje) {
+        iniciarAcertijo(acertijo, personaje);
     }
 
     private void iniciarAcertijo(Acertijo acertijo, Personaje personaje) {

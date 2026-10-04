@@ -39,12 +39,13 @@ public class NivelFactory {
         agregarVarias(nivel,(columna, fila) -> new Rata (columna, fila), new int[]{15, 12});
         
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
-        nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Esta roto, no puedo pasar poca acá"));
+        nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Esta roto, no puedo pasar por acá"));
 
         nivel.agregarZona(new PuntoFlashback(25, 8, 2));
 
         Item llave = new Item("Llave", "/Recursos/Sprites/Items/llave.png", 15, 12);
         llave.setEscala(0.5);
+        llave.setMensajeRecoger("Una llave... tal vez abra alguna puerta.");
         nivel.agregarItem(llave); // ESTA LLAVE ES PURAMENTE DE PRUEBA
 
         return nivel;

@@ -14,6 +14,7 @@ public class PanelFundido  extends JPanel {
 
     public void fundirYCorrer(Runnable alMedioDelFundido) {
         setVisible(true);
+        if (timerFundido != null) timerFundido.stop(); // cancela un fundido anterior que siga corriendo
         opacidad = 0f;
 
         timerFundido = new Timer(10, null);

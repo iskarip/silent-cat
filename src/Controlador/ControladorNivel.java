@@ -19,6 +19,7 @@ import Vista.MensajeAmbiental;
 
 import javax.swing.Timer;
 import java.awt.Toolkit;
+import java.awt.event.ActionListener;
 
 public class ControladorNivel {
 
@@ -44,6 +45,7 @@ public class ControladorNivel {
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
     private boolean pausado = false;
+    private ActionListener alVolverDesdeGameOver;
     private int contadorBateria = 0;
 
     // Control de tiempo para garantizar fluidez identica en todas las computadoras (60 ticks por segundo)
@@ -124,6 +126,7 @@ public class ControladorNivel {
                 ventanaPrincipal.mostrarPantalla("menu");       // <--- Cambio directo a "menu"
                 ReproductorSonido.reproducirEnLoop(ControladorPrincipal.MUSICA_MENU);
             });
+            this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(alVolverDesdeGameOver);
         }
 
 
@@ -157,6 +160,10 @@ public class ControladorNivel {
             bucleDeJuego.stop();
         }
         vista.removeKeyListener(controladorTeclado);
+        controladorPausa.desconectar();
+        if (alVolverDesdeGameOver != null) {
+            vista.getFinDelJuego().getBotonVolverMenu().removeActionListener(alVolverDesdeGameOver);
+        }
     }
 
     // --- CONTROL DE PAUSA DESDE EL CONTROLADOR DEDICADO ---
@@ -267,7 +274,7 @@ public class ControladorNivel {
         controladorAcertijo.comprobarActivacion(nivelActual, personaje);
 
         //4.1 Deteccion de proximidad de items del nivel
-        controladorItems.actualizar(nivelActual, personaje);
+        controladorItems.actualizar(nivelActual, personaje, controladorAmbiente);
 
         // 4.2 Zonas de proximidad (flashbacks y mensajes): cada zona decide qué hacer
         controladorAmbiente.comprobarZonas(nivelActual, personaje);

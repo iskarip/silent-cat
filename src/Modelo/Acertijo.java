@@ -11,6 +11,7 @@ public abstract class Acertijo implements Interactuable {
     private static final int INTENTOS_MAXIMOS = 3;
     private static final int DANIO_FALLO = 10;
     private int intentosRestantes = INTENTOS_MAXIMOS;
+    private ObservadorAcertijo observador;
 
 // -- CONSTRUCTOR --
 
@@ -42,12 +43,11 @@ public abstract class Acertijo implements Interactuable {
         return intentosRestantes;
     }
 
-// -- METODOS --
-
-    public void mostrarEnunciado () {
-        System.out.println(this.descripcion);
+    public void setObservador(ObservadorAcertijo observador) {
+        this.observador = observador;
     }
 
+    // -- METODOS --
     public boolean validarRespuesta (String respuesta) {
         if (this.resuelto) {
             return true;
@@ -59,9 +59,9 @@ public abstract class Acertijo implements Interactuable {
             return esCorrecta;
     }
 
-//Para que acertijoObjeto pueda sobreescribir y validar mirando el inventario
-//en lugar del texto sin tocar acertijonumerico ni el controlador
-
+    //Para que acertijoObjeto pueda sobreescribir y validar mirando el inventario
+    //en lugar del texto sin tocar acertijonumerico ni el controlador
+    
     public boolean validarRespuesta (String respuesta, Personaje personaje){
         return validarRespuesta(respuesta);
     }
@@ -92,8 +92,8 @@ public abstract class Acertijo implements Interactuable {
     // -- PARTE INTERACTUABLE --
     @Override
     public void interactuar(Personaje p) {
-        mostrarEnunciado();
-        // TODO: Aca se debe mostrar un cuadro de texto para que el jugador escriba su respuesta
+        if (resuelto || observador == null) return;
+        observador.acertijoSolicitado(this, p);
     }
 
 }
