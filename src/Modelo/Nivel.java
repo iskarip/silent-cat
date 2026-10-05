@@ -13,7 +13,10 @@ public class Nivel extends EspacioBase {
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
     private List<ZonaProximidad> zonas = new ArrayList<>();
 
-    public Nivel(int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String rutaImagenFondo, 
+    private int checkpointX;
+    private int checkpointY;
+
+    public Nivel(int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String rutaImagenFondo,
                  int posicionInicialX, int posicionInicialY) {
         super(rutaGrid, rutaImagenFondo, posicionInicialX, posicionInicialY);
         this.numeroNivel = numeroNivel;
@@ -21,6 +24,10 @@ public class Nivel extends EspacioBase {
         this.nivelSuperado = false;
         this.checkpoint = false;
         this.habitaciones = new ArrayList<>();
+
+        // Checkpoint inicial configurado en el spawn de inicio
+        this.checkpointX = posicionInicialX * MapaColision.TILE;
+        this.checkpointY = posicionInicialY * MapaColision.TILE;
     }
 
     public boolean getNivelSuperado() { return this.nivelSuperado; }
@@ -36,9 +43,11 @@ public class Nivel extends EspacioBase {
     public int getAccesoSiguienteNivelY() { return accesoSiguienteNivelY; }
     public void setAccesoSiguienteNivelY(int accesoSiguienteNivelY) { this.accesoSiguienteNivelY = accesoSiguienteNivelY; }
 
-    public void guardarCheckpoint() {
+    public void guardarCheckpoint(int pixelX, int pixelY) {
         this.checkpoint = true;
-        System.out.println("Checkpoint activado en el nivel " + this.numeroNivel + "!!!");
+        this.checkpointX = pixelX;
+        this.checkpointY = pixelY;
+        System.out.println("Checkpoint activado en: (" + pixelX + ", " + pixelY + ")");
     }
 
     public boolean verificarSiCompleto() {
@@ -64,4 +73,12 @@ public class Nivel extends EspacioBase {
     }
 
     public List<ZonaProximidad> getZonas() { return zonas; }
+
+    public int getCheckpointX() {
+        return checkpointX;
+    }
+
+    public int getCheckpointY() {
+        return checkpointY;
+    }
 }

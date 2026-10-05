@@ -145,6 +145,10 @@ public class ControladorNivel {
 
         }
 
+        this.vista.getFinDelJuego().getBotonReintentar().addActionListener(e -> {
+            reintentarDesdeCheckpoint();
+        });
+
 
         // Conexión de acciones únicas de teclado
         this.controladorTeclado.setAccionAtaque(this::atacar);
@@ -334,5 +338,36 @@ public class ControladorNivel {
         vista.setNivelActual(nivelNuevo);
         controladorTeclado.limpiarTeclas();
     }
+
+    public void reintentarDesdeCheckpoint() {
+        Personaje personaje = partida.getPersonaje();
+        Nivel nivel = partida.getNivelActual();
+
+        if (personaje != null && nivel != null) {
+            // 1. Ocultar la pantalla de fin de juego y limpiar estado
+            this.vista.getFinDelJuego().setVisible(false);
+            this.vista.reiniciarEstadoNivel();
+            this.personajeMuerto = false;
+            this.controladorTeclado.limpiarTeclas();
+
+            // 2. Revivir al personaje en las coordenadas seguras del checkpoint
+            personaje.revivirEn(nivel.getCheckpointX(), nivel.getCheckpointY());
+
+            // 3. Devolver inmediatamente el foco del teclado a la pantalla de juego
+            this.vista.requestFocusInWindow();
+
+            // 4. Sincronizar cámara y redibujar
+            this.vista.actualizarCamara();
+            this.vista.repaint();
+
+            // 5. Reanudar el timer si estaba detenido
+            if (bucleDeJuego != null && !bucleDeJuego.isRunning()) {
+                this.tiempoAnterior = System.nanoTime();
+                this.acumulador = 0.0;
+                bucleDeJuego.start();
+            }
+        }
+    }
+
 
 }

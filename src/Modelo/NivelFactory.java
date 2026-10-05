@@ -24,29 +24,30 @@ public class NivelFactory {
         }
     }
 
-    private Nivel crearNivel1(){
+    private Nivel crearNivel1() {
+        // 1. Se declara e instancia el acertijo
+        Acertijo acertijo = new AcertijoObjeto(
+                1,
+                "La puerta esta atascada por el oxido y no cede. Necesitas lubricar las bisagras.",
+                22,
+                8,
+                "Lata de aceite"
+        );
 
-        Acertijo candadoPlantaBaja = new AcertijoNumerico(1, "Ingresar código al candado", 14, 8, 1234, "/Recursos/Sprites/Acertijos/candado.png");
-       
-        Nivel nivel= new Nivel(1, candadoPlantaBaja , "Recursos/Mapas/Grid/grid_planta_baja.txt" , "/Recursos/Mapas/Imagen/mapa_planta_baja.png" , 16, 14);
-        
-        agregarVarias(nivel,(columna, fila) -> new Enemigo(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{4, 11}, new int[]{22, 3});
+        // 2. Se le pasa 'acertijo' al constructor de Nivel
+        Nivel nivel = new Nivel(1, acertijo, "Recursos/Mapas/Grid/grid_planta_baja.txt", "/Recursos/Mapas/Imagen/mapa_planta_baja.png", 16, 14);
 
-        //nivel.setAcertijoEnTile(14, 9); 
+        agregarVarias(nivel, (columna, fila) -> new Enemigo(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{4, 11}, new int[]{22, 3});
+        agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
+        agregarVarias(nivel, (columna, fila) -> new Rata(columna, fila), new int[]{15, 12});
 
-        agregarVariosItems(nivel, (columna,fila) -> new ItemMedicina (columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
-        
-        agregarVarias(nivel,(columna, fila) -> new Rata (columna, fila), new int[]{15, 12});
-        
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
-        nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Esta roto, no puedo pasar por acá"));
-
+        nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Esta roto, no puedo pasar poca acá"));
         nivel.agregarZona(new PuntoFlashback(25, 8, 2));
 
-        Item llave = new Item("llave", "/Recursos/Sprites/Items/llave.png", 15, 12);
+        Item llave = new Item("Llave", "/Recursos/Sprites/Items/llave.png", 15, 12);
         llave.setEscala(0.5);
-        llave.setMensajeRecoger("Una llave... tal vez abra alguna puerta.");
-        nivel.agregarItem(llave); // ESTA LLAVE ES PURAMENTE DE PRUEBA
+        nivel.agregarItem(llave);
 
         return nivel;
     }

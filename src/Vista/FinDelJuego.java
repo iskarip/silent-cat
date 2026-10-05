@@ -8,46 +8,63 @@ public class FinDelJuego extends JPanel {
     private Image imagenGameOver;
     private Image imagenCalavera;
     private BotonJuego botonVolverMenu;
+    private BotonJuego botonReintentar;
 
     public FinDelJuego() {
-        //fondo oscurecido
+        // Fondo oscurecido
         setOpaque(false);
         setLayout(null);
         setVisible(false);
 
         cargarRecursos();
         crearComponentes();
-
     }
 
     private void cargarRecursos() {
-      this.imagenCalavera = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/calaveraMuerte.png");
-      this.imagenGameOver = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/GameOver.png");
+        this.imagenCalavera = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/calaveraMuerte.png");
+        this.imagenGameOver = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/GameOver.png");
     }
 
     private void crearComponentes() {
         // Botón para volver al menú principal
         botonVolverMenu = new BotonJuego(
-            "/Recursos/UI/GameOver/Botones/VolverMenu.png",
-            "/Recursos/UI/GameOver/Botones/VolverMenuHover.png", 
-            "Recursos/Sonidos/UI/sonido3.wav"
+                "/Recursos/UI/GameOver/Botones/VolverMenu.png",
+                "/Recursos/UI/GameOver/Botones/VolverMenuHover.png",
+                "Recursos/Sonidos/UI/sonido3.wav"
+        );
+
+        botonReintentar = new BotonJuego(
+                "/Recursos/UI/Pausa/Botones/ReanudarPartida.png",
+                "/Recursos/UI/Pausa/Botones/ReanudarPartidaHover.png",
+                180, 60
         );
 
         add(botonVolverMenu);
+        add(botonReintentar);
     }
 
-    // -- CICLO DE DIBUJADO --
+    // -- CICLO DE DIBUJADO Y POSICIONAMIENTO --
     @Override
     public void doLayout() {
         super.doLayout();
 
-        if (botonVolverMenu != null) {
-            int centroX = getWidth() / 2;
-            int centroY = getHeight() / 2;
+        int centroX = getWidth() / 2;
+        int centroY = getHeight() / 2;
 
-            // usa el tamaño real del PNG del botón (ya que no le pasás ancho y alto)
-            Dimension tam = botonVolverMenu.getPreferredSize();
-            botonVolverMenu.setBounds(centroX - tam.width / 2, centroY + 110, tam.width, tam.height);
+        int anchoBoton = 180;
+        int altoBoton = 55;
+
+        // 1. Botón Reanudar / Reintentar: debajo de la calavera
+        if (botonReintentar != null) {
+            botonReintentar.setBounds(centroX - (anchoBoton / 2), centroY + 105, anchoBoton, altoBoton);
+        }
+
+        // 2. Botón Volver al Menú: debajo de Reanudar
+        if (botonVolverMenu != null) {
+            Dimension tamVolver = botonVolverMenu.getPreferredSize();
+            int w = (tamVolver != null && tamVolver.width > 0) ? tamVolver.width : anchoBoton;
+            int h = (tamVolver != null && tamVolver.height > 0) ? tamVolver.height : altoBoton;
+            botonVolverMenu.setBounds(centroX - (w / 2), centroY + 175, w, h);
         }
     }
 
@@ -70,15 +87,17 @@ public class FinDelJuego extends JPanel {
             int anchoOrig = imagenGameOver.getWidth(this);
             int altoOrig = imagenGameOver.getHeight(this);
 
-            int anchoMax = (int) (getWidth() * 0.5);   // hasta el 50% del ancho
-            int altoMax = 200;                         // y hasta 200 px de alto
-            double escala = Math.min((double) anchoMax / anchoOrig, (double) altoMax / altoOrig);
+            if (anchoOrig > 0 && altoOrig > 0) {
+                int anchoMax = (int) (getWidth() * 0.5);
+                int altoMax = 200;
+                double escala = Math.min((double) anchoMax / anchoOrig, (double) altoMax / altoOrig);
 
-            int ancho = (int) (anchoOrig * escala);
-            int alto = (int) (altoOrig * escala);
+                int ancho = (int) (anchoOrig * escala);
+                int alto = (int) (altoOrig * escala);
 
-            // centrado, con su borde inferior apenas arriba de la calavera
-            g2d.drawImage(imagenGameOver, centroX - (ancho / 2), centroY - 80 - alto, ancho, alto, this);
+                // Centrado arriba de la calavera
+                g2d.drawImage(imagenGameOver, centroX - (ancho / 2), centroY - 80 - alto, ancho, alto, this);
+            }
         }
 
         // Calavera pixel art centrada entre el cartel y el botón
@@ -91,11 +110,9 @@ public class FinDelJuego extends JPanel {
     public BotonJuego getBotonVolverMenu() {
         return botonVolverMenu;
     }
+
+    public BotonJuego getBotonReintentar() {
+        return botonReintentar;
+    }
 }
-
-
-
-
-
-
 

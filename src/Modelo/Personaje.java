@@ -296,6 +296,16 @@ public class Personaje extends EntidadCombatible {
     // No usa usarItem() por dentro a propósito: usarItem() dispara
     // interactuar() (el efecto propio del item, como curar), y acá no
     // queremos ningún efecto — solo comparar el nombre del item contra
-    // la respuesta esperada del acertijo.   
+    // la respuesta esperada del acertijo.
+
+    public void revivirEn(int x, int y) {
+        setPuntosVida(100);
+        setPosicionX(x);
+        setPosicionY(y);
+        this.multiplicadorVelocidad = 1.0;
+        this.ticksLentitud = 0;
+        this.moviendose = false;
+        setDireccion(Direccion.ABAJO);
+    }
 
 }
