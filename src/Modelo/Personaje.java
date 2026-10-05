@@ -24,6 +24,7 @@ public class Personaje extends EntidadCombatible {
     private double multiplicadorVelocidad = 1.0;
     private int ticksLentitud = 0;
     private boolean moviendose = false;
+    private boolean invulnerableRespawn = false;
 
     // Para notificar cambios de vida al Controlador (que a su vez los pasa a la Vista)
 
@@ -39,7 +40,7 @@ public class Personaje extends EntidadCombatible {
     // -- LISTA DE OBSERVADORES --
     private final List<ObservadorPersonaje> observadores = new ArrayList<>();
 
-// -- MEDIDAS DEL HITBOX --
+    // -- MEDIDAS DEL HITBOX --
     private static final int ANCHO_HITBOX = (int) (6 * ESCALA);
     private static final int ALTO_HITBOX = (int) (2 * ESCALA);
     private static final int OFFSET_X_HITBOX = (int) (7 * ESCALA);
@@ -59,6 +60,33 @@ public class Personaje extends EntidadCombatible {
         this.arma = arma;
         this.linterna = linterna;
         this.inventario = new Inventario();
+    }
+
+    public boolean isInvulnerableRespawn() {
+        return invulnerableRespawn;
+    }
+
+    public void setInvulnerableRespawn(boolean invulnerableRespawn) {
+        this.invulnerableRespawn = invulnerableRespawn;
+    }
+
+    public void revivirEn(int x, int y) {
+        setPuntosVida(100);
+        setPosicionX(x);
+        setPosicionY(y);
+        this.multiplicadorVelocidad = 1.0;
+        this.ticksLentitud = 0;
+        this.moviendose = false;
+        this.invulnerableRespawn = true;
+        setDireccion(Direccion.ABAJO);
+    }
+
+    @Override
+    public void recibirDanio(int cantidad) {
+        if (invulnerableRespawn) {
+            return;
+        }
+        super.recibirDanio(cantidad);
     }
 
     // -- GESTION DE OBSERVADORES --
@@ -129,7 +157,7 @@ public class Personaje extends EntidadCombatible {
             case ARRIBA:    return new Rectangle(base.x, base.y - ALCANCE_ATAQUE, base.width, ALCANCE_ATAQUE);
             case ABAJO:     return new Rectangle(base.x, base.y + base.height, base.width, ALCANCE_ATAQUE);
             case IZQUIERDA: return new Rectangle(base.x - ALCANCE_ATAQUE, base.y, ALCANCE_ATAQUE, base.height);
-            case DERECHA:   
+            case DERECHA:
             default:        return new Rectangle(base.x + base.width, base.y, ALCANCE_ATAQUE, base.height);
         }
     }
@@ -160,15 +188,15 @@ public class Personaje extends EntidadCombatible {
     }
 
     public void recargarLinterna(int cantidad) {
-       linterna.recargarLinterna(cantidad);
+        linterna.recargarLinterna(cantidad);
     }
 
     public void aplicarLentitud(int ticks) {
-    this.multiplicadorVelocidad = 0.4;
-    this.ticksLentitud = ticks;
+        this.multiplicadorVelocidad = 0.4;
+        this.ticksLentitud = ticks;
     }
 
-    public void actualizarEfectos() {      
+    public void actualizarEfectos() {
         if (ticksLentitud > 0) {
             ticksLentitud--;
             if (ticksLentitud == 0) multiplicadorVelocidad = 1.0;
@@ -181,6 +209,10 @@ public class Personaje extends EntidadCombatible {
 
     // el personaje decide cuantos pixeles avanza
     public void mover(int direccionX, int direccionY, MapaColision mapa) {
+        if (direccionX != 0 || direccionY != 0) {
+            this.invulnerableRespawn = false;
+        }
+
         int velocidad = (int) (VELOCIDAD_BASE * multiplicadorVelocidad);
         int deltaX = direccionX * velocidad;
         int deltaY = direccionY * velocidad;
@@ -250,7 +282,7 @@ public class Personaje extends EntidadCombatible {
     // interactuar() (el efecto propio del item, como curar), y acá no
     // queremos ningún efecto — solo comparar el nombre del item contra
     // la respuesta esperada del acertijo.
-    
+
     public boolean intentarResolverAcertijo(Acertijo acertijo, Item item) {
         if (item == null || !inventario.getItems().contains(item)) {
             System.out.println("No tenés ese item en el inventario.");

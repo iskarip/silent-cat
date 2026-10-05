@@ -16,6 +16,7 @@ import Vista.FlashbackGato;
 import Vista.BarraBateria;
 import Vista.BarraVida;
 import Vista.MensajeAmbiental;
+import Modelo.Entidad;
 
 import javax.swing.Timer;
 import java.awt.Toolkit;
@@ -124,6 +125,11 @@ public class ControladorNivel {
                 ventanaPrincipal.mostrarPantalla("menu");       // <--- Cambio directo a "menu"
                 ReproductorSonido.reproducirEnLoop(ControladorPrincipal.MUSICA_MENU);
             });
+
+            // Botón "Reintentar / Reanudar Partida" de FinDelJuego (Revivir en Checkpoint)
+            this.vista.getFinDelJuego().getBotonReintentar().addActionListener(e -> {
+                reintentarDesdeCheckpoint();
+            });
         }
 
 
@@ -182,6 +188,49 @@ public class ControladorNivel {
         pausado = false;
         controladorTeclado.limpiarTeclas();
         vista.reiniciarEstadoNivel();
+    }
+
+    // -- LOGICA DE CHECKPOINT Y REINTENTO --
+    public void reintentarDesdeCheckpoint() {
+        Personaje personaje = partida.getPersonaje();
+        Nivel nivel = partida.getNivelActual();
+
+        if (personaje != null && nivel != null) {
+            // 1. Ocultar la pantalla de fin de juego y limpiar estado de muerte
+            this.vista.getFinDelJuego().setVisible(false);
+            this.vista.reiniciarEstadoNivel();
+            this.personajeMuerto = false;
+            this.controladorTeclado.limpiarTeclas();
+
+            // 2. Obtener la posición donde murió
+            int xMuerte = personaje.getPosicionX();
+            int yMuerte = personaje.getPosicionY();
+
+            // Verificamos si la hitbox en ese punto quedó incrustada en una pared/bloque
+            java.awt.Rectangle hb = personaje.getHitbox();
+            if (nivel.getMapaColision() != null &&
+                    !nivel.getMapaColision().esRectanguloValido(hb.x, hb.y, hb.width, hb.height)) {
+                // Si pisaba una pared, lo subimos 10 px al área transitable
+                yMuerte -= 10;
+            }
+
+            // 3. Revivir al personaje en esa misma ubicación con vida completa
+            personaje.revivirEn(xMuerte, yMuerte);
+
+            // 4. Devolver de inmediato el foco del teclado al panel
+            this.vista.requestFocusInWindow();
+
+            // 5. Centrar cámara y redibujar
+            this.vista.actualizarCamara();
+            this.vista.repaint();
+
+            // 6. Asegurar que el bucle de juego continúe
+            if (bucleDeJuego != null && !bucleDeJuego.isRunning()) {
+                this.tiempoAnterior = System.nanoTime();
+                this.acumulador = 0.0;
+                bucleDeJuego.start();
+            }
+        }
     }
 
     // -- SINCRONIZACIÓN Y CICLO PRINCIPAL (MVC) --

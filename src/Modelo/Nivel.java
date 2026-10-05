@@ -14,7 +14,10 @@ public class Nivel extends EspacioBase {
     private boolean nivelSuperado;
     private boolean checkpoint; //va a ser una bandera, si es falso no se activa, verdadero activado
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
-    private int acertijoColumna, acertijoFila; // posicion donde se activa el acertijo del nivel
+    private int acertijoColumna, acertijoFila;// posicion donde se activa el acertijo del nivel
+
+    private int checkpointX;
+    private int checkpointY;
 
     private List<ZonaProximidad> zonas = new ArrayList<>();
 
@@ -30,6 +33,8 @@ public class Nivel extends EspacioBase {
         this.nivelSuperado = false;
         this.checkpoint = false; //arranca desactivado por defecto
         this.habitaciones = new ArrayList<>();
+        this.checkpointX = posicionInicialX * MapaColision.TILE;
+        this.checkpointY = posicionInicialY * MapaColision.TILE;
     }
 
     //--SET Y GET--
@@ -53,8 +58,6 @@ public class Nivel extends EspacioBase {
     public Acertijo getAcertijo() {
         return this.acertijoNivel;
     }
-    
-
 
     public List<Habitacion> getHabitaciones() {
         return this.habitaciones;
@@ -74,6 +77,20 @@ public class Nivel extends EspacioBase {
 
     public void setAccesoSiguienteNivelY(int accesoSiguienteNivelY) {
         this.accesoSiguienteNivelY = accesoSiguienteNivelY;
+    }
+
+    public void guardarCheckPoint (int pixelX, int pixelY) {
+        this.checkpoint = true;
+        this.checkpointX = pixelX;
+        this.checkpointY = pixelY;
+    }
+
+    public int getCheckpointX() {
+        return checkpointX;
+    }
+
+    public int getCheckpointY() {
+        return checkpointY;
     }
 
     // LOGICA PARA LOS ACERTIJOS
