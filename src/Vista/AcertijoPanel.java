@@ -16,8 +16,8 @@ public class AcertijoPanel extends JPanel {
     private final JPanel contenedorCasillas;
     private final List<JTextField> casillasDigitos;
     private final JLabel etiquetaMensaje;
-    private final JButton botonIntentar;
-    private final JButton botonSalir;
+    private final BotonJuego botonIntentar;
+    private final BotonJuego botonSalir;
 
     private Runnable alResponder;
     private Runnable alSalir;
@@ -38,12 +38,17 @@ public class AcertijoPanel extends JPanel {
         contenedorCasillas.setOpaque(false);
         add(contenedorCasillas);
 
-        botonIntentar = new JButton("INTENTAR");
+        botonIntentar = new BotonJuego("/Recursos/UI/Acertijos/Candado/Botones/Intentar.png",
+                "/Recursos/UI/Acertijos/Candado/Botones/IntentarHover.png",
+                "Recursos/Sonidos/sonido3.wav", 0, 0);
         botonIntentar.setFocusable(false);
         botonIntentar.addActionListener(e -> { if (alResponder != null) alResponder.run(); });
         add(botonIntentar);
 
-        botonSalir = new JButton("SALIR");
+        botonSalir = new BotonJuego("/Recursos/UI/Acertijos/Candado/Botones/Salir.png",
+                "/Recursos/UI/Acertijos/Candado/Botones/SalirHover.png",
+                "Recursos/Sonidos/sonido3.wav", 0, 0);
+        
         botonSalir.setFocusable(false);
         botonSalir.addActionListener(e -> { if (alSalir != null) alSalir.run(); });
         add(botonSalir);
@@ -55,6 +60,7 @@ public class AcertijoPanel extends JPanel {
     public void mostrarEnunciado(AcertijoNumerico acertijo) {
         imagenFondo = GestorSprites.cargarImagen(acertijo.getRutaImagen());
 
+        etiquetaMensaje.setText(acertijo.getDescripcion());
         contenedorCasillas.removeAll();
         casillasDigitos.clear();
 
@@ -76,7 +82,7 @@ public class AcertijoPanel extends JPanel {
     private JTextField crearCasilla(int indice) {
         JTextField campo = new JTextField("");
         campo.setFont(new Font("Monospaced", Font.BOLD, 28));
-        campo.setForeground(new Color(230, 200, 120));
+        campo.setForeground(Color.WHITE);
         campo.setHorizontalAlignment(JTextField.CENTER);
         campo.setPreferredSize(new Dimension(48, 52));
         campo.setOpaque(false);
