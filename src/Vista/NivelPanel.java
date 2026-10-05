@@ -48,6 +48,7 @@ public class NivelPanel extends JPanel {
     private final FinDelJuego finDelJuego;
     private JButton botonPausa;
     private final PausaPanel pausaPanel;
+    private final AcertijoPanel acertijoPanel;
 
     // CONSTRUCTOR
 
@@ -65,6 +66,10 @@ public class NivelPanel extends JPanel {
 
         this.finDelJuego = new FinDelJuego();
         add(finDelJuego);
+
+        this.acertijoPanel = new AcertijoPanel();
+        acertijoPanel.setVisible(false);
+        add(acertijoPanel);
 
         // Permite recuperar el foco del teclado al hacer clic sobre el canvas de juego
         addMouseListener(new java.awt.event.MouseAdapter() {
@@ -122,6 +127,8 @@ public class NivelPanel extends JPanel {
     @Override
     public void doLayout() {
         super.doLayout();
+
+        acertijoPanel.setBounds(0, 0, getWidth(), getHeight());
 
         if (botonPausa != null) {
             int ancho = 65;
@@ -442,5 +449,18 @@ public class NivelPanel extends JPanel {
 
     public PausaPanel getPausaPanel() {
         return pausaPanel;
+    }
+
+    public AcertijoPanel getAcertijoPanel() { return acertijoPanel; }
+
+    public void mostrarAcertijo() {
+        acertijoPanel.setVisible(true);
+        if (botonPausa != null) botonPausa.setVisible(false);
+    }
+
+    public void ocultarAcertijo() {
+        acertijoPanel.setVisible(false);
+        if (botonPausa != null) botonPausa.setVisible(true);
+        requestFocusInWindow();
     }
 }

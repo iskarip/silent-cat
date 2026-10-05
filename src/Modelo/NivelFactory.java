@@ -26,9 +26,9 @@ public class NivelFactory {
 
     private Nivel crearNivel1(){
 
-        Acertijo acertijo = new AcertijoNumerico(   1, "Ingresar codigo al candado", 1234);
-    
-        Nivel nivel= new Nivel(1, acertijo, "Recursos/Mapas/Grid/grid_planta_baja.txt" , "/Recursos/Mapas/Imagen/mapa_planta_baja.png" , 16, 14);
+        Acertijo candadoPlantaBaja = new AcertijoNumerico(1, "Ingresar código al candado", 14, 8, 1234, "/Recursos/Sprites/Acertijos/candado.png");
+       
+        Nivel nivel= new Nivel(1, candadoPlantaBaja , "Recursos/Mapas/Grid/grid_planta_baja.txt" , "/Recursos/Mapas/Imagen/mapa_planta_baja.png" , 16, 14);
         
         agregarVarias(nivel,(columna, fila) -> new Enemigo(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{4, 11}, new int[]{22, 3});
 
@@ -43,7 +43,7 @@ public class NivelFactory {
 
         nivel.agregarZona(new PuntoFlashback(25, 8, 2));
 
-        Item llave = new Item("Llave", "/Recursos/Sprites/Items/llave.png", 15, 12);
+        Item llave = new Item("llave", "/Recursos/Sprites/Items/llave.png", 15, 12);
         llave.setEscala(0.5);
         llave.setMensajeRecoger("Una llave... tal vez abra alguna puerta.");
         nivel.agregarItem(llave); // ESTA LLAVE ES PURAMENTE DE PRUEBA
@@ -52,9 +52,9 @@ public class NivelFactory {
     }
 
     private Nivel crearNivel2() {
-        Acertijo acertijo = new AcertijoObjeto (2, "¿Cuál es el animal más rápido del mundo?", "palanca");
+        Acertijo palancaAscensor = new AcertijoObjeto (2, "La puerta esta trabada",20, 10, "palanca");
         
-        Nivel nivel = new Nivel(2, acertijo, "Recursos/Mapas/Grid/grid_sotano.txt","/Recursos/Mapas/Imagen/mapa_sotano.png", 12, 6);
+        Nivel nivel = new Nivel(2, palancaAscensor, "Recursos/Mapas/Grid/grid_sotano.txt","/Recursos/Mapas/Imagen/mapa_sotano.png", 12, 6);
 
 
         ItemMedicina medicina1 = new ItemMedicina(20,9,7);
@@ -77,7 +77,7 @@ public class NivelFactory {
 
         agregarVarias(nivel,(columna, fila) -> new Enemigo(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{15, 9}, new int[]{2, 8});
 
-        nivel.agregarHabitacion(crearHabitacionPalanca());
+      //  nivel.agregarHabitacion(crearHabitacionPalanca());
 
         //el flashback automatico del gato al acercarse a tal punto del sotano
         //queda ajustar la x, y y el radio con las coordenadas exactas
@@ -101,26 +101,23 @@ public class NivelFactory {
  //       return nivel;
  //   }
 
-    private Habitacion crearHabitacionPalanca() {
-    Acertijo acertijoPuerta = new AcertijoNumerico(3, "La puerta tiene una cerradura numerada. ¿Cuál es el código?", 1234);
+  /*    private Habitacion crearHabitacionSecreta() {
+    Acertijo acertijoPuerta = new AcertijoObjeto(3,"Necesita una llave",22,8 ,"llave");
 
-    Habitacion habitacion = new Habitacion(
-            "Cuarto de la palanca",
+  Habitacion habitacion = new Habitacion(
+            "Habitación Secreta",
             acertijoPuerta,
             "Recursos/Mapas/Grid/grid_habitacion_sotano.txt",
             "/Recursos/Mapas/Imagen/habitacion_sotano.png",
-            0, 0,       // posicionInicialX/Y heredado de EspacioBase — ver nota abajo
+            6, 7,       // posicionInicialX/Y heredado de EspacioBase — ver nota abajo
             300, 200,   // TODO: puertaX/puertaY reales, la posición de la puerta en el mapa del sótano
-            5, 5        // TODO: puntoAccesoX/puntoAccesoY reales, dónde aparece el personaje dentro del cuarto
+            6, 7        // TODO: puntoAccesoX/puntoAccesoY reales, dónde aparece el personaje dentro del cuarto
     );
-
-    //Item palanca = new Item("Palanca", "/Recursos/Sprites/Items/palanca.png", 3, 3);
-   //habitacion.agregarItem(palanca);
 
     return habitacion;
     }
-
-    //
+ */
+    
 
     private void agregarVarias(Nivel nivel, BiFunction<Integer, Integer, Entidad> creador, int[]... posiciones) {
         for (int[] pos : posiciones) {

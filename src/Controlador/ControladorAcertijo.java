@@ -1,39 +1,51 @@
 package Controlador;
 
 import Modelo.Acertijo;
-import Modelo.Nivel;
-import Modelo.Personaje;
+import Modelo.AcertijoNumerico;
+import Modelo.EspacioBase;
 import Modelo.ObservadorAcertijo;
+import Modelo.ObservadorAmbiente;
+import Modelo.Personaje;
 import Vista.AcertijoPanel;
-import Vista.JuegoFrame;
+import Vista.NivelPanel;
 
 public class ControladorAcertijo implements ObservadorAcertijo {
 
-    // -- ATRIBUTOS --
     private final AcertijoPanel vista;
-    private final JuegoFrame ventanaPrincipal;
+    private final NivelPanel nivelPanel;
+    private final ObservadorAmbiente ambiente;
 
     private boolean acertijoActivo = false;
-    private Acertijo acertijoActual;
+    private boolean avisoMostrado = false;
+    private AcertijoNumerico acertijoActual;
     private Personaje personajeActual;
 
-    // -- CONSTRUCTOR --
-    public ControladorAcertijo(AcertijoPanel vista, JuegoFrame ventanaPrincipal) {
-        this.vista = vista;
-        this.ventanaPrincipal = ventanaPrincipal;
+    public ControladorAcertijo(NivelPanel nivelPanel, ObservadorAmbiente ambiente) {
+        this.nivelPanel = nivelPanel;
+        this.vista = nivelPanel.getAcertijoPanel();
+        this.ambiente = ambiente;
 
-        // el controlador decide que pasa al responder, la vista solo avisa que se apreto el boton
-        this.vista.getBotonResponder().addActionListener(e -> manejarRespuesta());
-        this.vista.getCampoRespuesta().addActionListener(e -> manejarRespuesta());
+        this.vista.setAlResponder(this::manejarRespuesta);
+        this.vista.setAlSalir(this::volverAlNivel);
     }
 
-    // -- METODOS --
-    public void comprobarActivacion(Nivel nivelActual, Personaje personaje) {
-        if (acertijoActivo || nivelActual == null || personaje == null) return;
+    public void comprobarProximidad(EspacioBase espacioActual, Personaje personaje) {
+        if (acertijoActivo || espacioActual == null || personaje == null) return;
 
-        if (nivelActual.acertijoAlAlcance(personaje)) {
-            Acertijo acertijo = nivelActual.getAcertijo();
+        boolean alAlcance = espacioActual.acertijoAlAlcance(personaje);
+        if (alAlcance && !avisoMostrado) {
+            ambiente.mostrarMensaje("Presiona E para interactuar");
+        }
+        avisoMostrado = alAlcance;
+    }
+
+    public void intentarInteraccion(EspacioBase espacioActual, Personaje personaje, ControladorTeclado teclado) {
+        if (acertijoActivo || espacioActual == null || personaje == null) return;
+
+        if (espacioActual.acertijoAlAlcance(personaje)) {
+            Acertijo acertijo = espacioActual.getAcertijo();
             acertijo.setObservador(this);
+            if (teclado != null) teclado.limpiarTeclas();
             personaje.interactuarCon(acertijo);
         }
     }
@@ -43,42 +55,48 @@ public class ControladorAcertijo implements ObservadorAcertijo {
     }
 
     @Override
-    public void acertijoSolicitado(Acertijo acertijo, Personaje personaje) {
-        iniciarAcertijo(acertijo, personaje);
-    }
-
-    private void iniciarAcertijo(Acertijo acertijo, Personaje personaje) {
+    public void acertijoSolicitado(AcertijoNumerico acertijo, Personaje personaje) {
         this.acertijoActivo = true;
         this.acertijoActual = acertijo;
         this.personajeActual = personaje;
-        acertijo.reiniciarIntentos();
 
         vista.mostrarEnunciado(acertijo);
-        ventanaPrincipal.mostrarPantalla("acertijo");
+        nivelPanel.mostrarAcertijo();
     }
 
     private void manejarRespuesta() {
         if (acertijoActual == null) return;
 
-        // El acertijo decide cómo validarse y que pasa con los intentos
-        // el controlador solo traduce el resultado a lo que ve el jugador
-        boolean acerto = acertijoActual.responder(vista.getRespuestaIngresada(), personajeActual);
+        AcertijoNumerico acertijo = acertijoActual; // volverAlNivel() deja el atributo en null
+        boolean acerto = acertijo.responder(vista.getRespuestaIngresada(), personajeActual);
 
         if (acerto) {
             volverAlNivel();
-        } else if (acertijoActual.getIntentosRestantes() <= 0) {
-            vista.mostrarFeedback("Sin intentos restantes :(. " + acertijoActual.getDescripcion());
-            volverAlNivel();
-        } else {
-            vista.mostrarFeedback("Respuesta incorrecta. Te quedan : "
-                    + acertijoActual.getIntentosRestantes() + " intentos.");
+        } else if (acertijoActivo) { // si se agotaron los intentos, el callback ya cerró la pantalla
+            vista.mostrarFeedback("Incorrecto. Intentos restantes: " + acertijo.getIntentosRestantes());
         }
     }
 
-    private void volverAlNivel() {
+    @Override
+    public void acertijoSinIntentos(AcertijoNumerico acertijo) {
+        ambiente.mostrarMensaje("Sin intentos restantes. Recibiste daño.");
+        volverAlNivel();
+    }
+
+    public void volverAlNivel() {
         acertijoActivo = false;
         acertijoActual = null;
         personajeActual = null;
-        ventanaPrincipal.mostrarPantalla("nivel");
+        nivelPanel.ocultarAcertijo();
+    }
+
+    @Override
+    public void acertijoResuelto(Acertijo acertijo) {
+        ambiente.mostrarMensaje("Funcionó.");
+    }
+
+    @Override
+    public void acertijoBloqueado(Acertijo acertijo) {
+        ambiente.mostrarMensaje("Me falta algo para esto...");
     }
 }

@@ -3,13 +3,13 @@ package Controlador;
 import Modelo.Partida;
 import Modelo.Nivel;
 import Modelo.Personaje;
+import Modelo.EspacioBase;
 import Modelo.Linterna;
 import Modelo.ObservadorPersonaje;
 import Modelo.ReproductorSonido;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.EstadoPersonaje;
-import Vista.GestorSprites;
 import Vista.InventarioVisual;
 import Vista.AuraVisual;
 import Vista.FlashbackGato;
@@ -28,7 +28,6 @@ public class ControladorNivel {
     private final Partida partida;
     private final NivelPanel vista;
     private final JuegoFrame ventanaPrincipal;
-
     private final ControladorTeclado controladorTeclado;
     private final ControladorMovimiento controladorMovimiento;
     private final ControladorCombate controladorCombate;
@@ -65,7 +64,6 @@ public class ControladorNivel {
         this.controladorMovimiento = new ControladorMovimiento();
         this.controladorCombate = new ControladorCombate();
         this.controladorEntidades = new ControladorEntidades();
-        this.controladorAcertijo = new ControladorAcertijo(ventanaPrincipal.getAcertijoPanel(), ventanaPrincipal);
         this.controladorItems = new ControladorItems();
 
         this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this);
@@ -76,6 +74,23 @@ public class ControladorNivel {
         this.mensajeAmbiental = new MensajeAmbiental();
         this.controladorAmbiente = new ControladorAmbiente(flashbackGato, mensajeAmbiental, vista);
 
+        this.controladorAcertijo = new ControladorAcertijo(vista, controladorAmbiente);
+
+        // Asignación de la interacción con la tecla 'E'
+        this.controladorTeclado.setAccionInteraccionar(() -> {
+            EspacioBase espacioActivo = partida.getNivelActual(); 
+            controladorAcertijo.intentarInteraccion(espacioActivo, partida.getPersonaje(), controladorTeclado);
+        });
+
+        // Asignación de linterna, ataque e inventario
+        this.controladorTeclado.setAccionLinterna(() -> {
+            if (!pausado && !personajeMuerto) {
+                partida.getPersonaje().usarLinterna();
+            }
+        });
+
+        this.controladorTeclado.setAccionAtaque(this::atacar);
+        
         this.vista.limpiarCapasVisuales();
 
         //Instanciacion de interfaces y registro en la lista de capasVisuales de NivelPanel
@@ -127,6 +142,7 @@ public class ControladorNivel {
                 ReproductorSonido.reproducirEnLoop(ControladorPrincipal.MUSICA_MENU);
             });
             this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(alVolverDesdeGameOver);
+
         }
 
 
@@ -259,6 +275,12 @@ public class ControladorNivel {
             return;
         }
 
+        // Si el acertijo del nivel se resolvió, pasamos al siguiente
+        if (nivelActual.verificarSiCompleto() && !nivelActual.getNivelSuperado()) {
+            cambiarDeNivel();
+            return; // cortamos el tick: las variables locales de este tick quedaron del nivel viejo
+        }
+
         // 2. Delegación del movimiento al controlador especializado
         controladorMovimiento.procesarMovimientoJugador(
                 personaje,
@@ -271,7 +293,7 @@ public class ControladorNivel {
         controladorEntidades.actualizar(nivelActual, personaje, vista);
 
         // 4. Deteccion de proximidad al acertijo del nivel
-        controladorAcertijo.comprobarActivacion(nivelActual, personaje);
+        controladorAcertijo.comprobarProximidad(nivelActual, personaje);
 
         //4.1 Deteccion de proximidad de items del nivel
         controladorItems.actualizar(nivelActual, personaje, controladorAmbiente);
@@ -296,6 +318,21 @@ public class ControladorNivel {
         if (!pausado && !personajeMuerto) {
             controladorCombate.ejecutarAtaque(partida.getPersonaje(), partida.getNivelActual(), vista);
         }
+    }
+
+    private void cambiarDeNivel() {
+        partida.getNivelActual().setNivelSuperado(true);
+
+        if (!partida.avanzarSiguienteNivel()) {
+            return; // no hay más niveles
+        }
+
+        Nivel nivelNuevo = partida.getNivelActual();
+
+        partida.getPersonaje().colocarEnTile(nivelNuevo.getPosicionInicialX(),
+                                            nivelNuevo.getPosicionInicialY());
+        vista.setNivelActual(nivelNuevo);
+        controladorTeclado.limpiarTeclas();
     }
 
 }

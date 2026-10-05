@@ -296,18 +296,6 @@ public class Personaje extends EntidadCombatible {
     // No usa usarItem() por dentro a propósito: usarItem() dispara
     // interactuar() (el efecto propio del item, como curar), y acá no
     // queremos ningún efecto — solo comparar el nombre del item contra
-    // la respuesta esperada del acertijo.
-    
-    public boolean intentarResolverAcertijo(Acertijo acertijo, Item item) {
-        if (item == null || !inventario.getItems().contains(item)) {
-            System.out.println("No tenés ese item en el inventario.");
-            return false;
-        }
-        boolean resuelto = acertijo.validarRespuesta(item.getNombre());
-        if (resuelto) {
-            inventario.quitarItem(item); // se "entrega" el objeto al resolver
-        }
-        return resuelto;
-    }
+    // la respuesta esperada del acertijo.   
 
 }
