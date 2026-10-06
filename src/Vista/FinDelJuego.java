@@ -26,21 +26,20 @@ public class FinDelJuego extends JPanel {
     }
 
     private void crearComponentes() {
-        // Botón para volver al menú principal
+        botonReintentar = new BotonJuego(
+                "/Recursos/UI/Pausa/Botones/ReanudarPartida.png",
+                "/Recursos/UI/Pausa/Botones/ReanudarPartidaHover.png",
+                180, 55
+        );
+
         botonVolverMenu = new BotonJuego(
                 "/Recursos/UI/GameOver/Botones/VolverMenu.png",
                 "/Recursos/UI/GameOver/Botones/VolverMenuHover.png",
                 "Recursos/Sonidos/UI/sonido3.wav"
         );
 
-        botonReintentar = new BotonJuego(
-                "/Recursos/UI/Pausa/Botones/ReanudarPartida.png",
-                "/Recursos/UI/Pausa/Botones/ReanudarPartidaHover.png",
-                180, 60
-        );
-
-        add(botonVolverMenu);
         add(botonReintentar);
+        add(botonVolverMenu);
     }
 
     // -- CICLO DE DIBUJADO Y POSICIONAMIENTO --
@@ -50,7 +49,6 @@ public class FinDelJuego extends JPanel {
 
         int centroX = getWidth() / 2;
         int centroY = getHeight() / 2;
-
         int anchoBoton = 180;
         int altoBoton = 55;
 
@@ -115,4 +113,3 @@ public class FinDelJuego extends JPanel {
         return botonReintentar;
     }
 }
-

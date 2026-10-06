@@ -1,3 +1,7 @@
+Aquí tienes las 5 clases completas, con todos los conflictos de merge resueltos, integrando limpiamente el sistema de habitaciones y corrida de main con tu sistema de checkpoint, invulnerabilidad al reaparecer y todos los comentarios originales preservados:
+
+1. Controlador/ControladorNivel.java
+Java
 package Controlador;
 
 import Modelo.Partida;
@@ -6,6 +10,9 @@ import Modelo.Personaje;
 import Modelo.Linterna;
 import Modelo.ObservadorPersonaje;
 import Modelo.ReproductorSonido;
+import Modelo.Entidad;
+import Modelo.EspacioBase;
+import Modelo.Habitacion;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.EstadoPersonaje;
@@ -15,8 +22,6 @@ import Vista.FlashbackGato;
 import Vista.BarraBateria;
 import Vista.BarraVida;
 import Vista.MensajeAmbiental;
-import Modelo.EspacioBase;
-import Modelo.Habitacion;
 
 import javax.swing.Timer;
 import java.awt.Toolkit;
@@ -84,13 +89,13 @@ public class ControladorNivel {
             Nivel nivel = partida.getNivelActual();
             if (espacioActivo != nivel) return;   // dentro de una habitación, por ahora la E no hace nada
 
-                Habitacion habitacion = nivel.getHabitacionAlAlcance(personaje);
-                    if (habitacion != null) {
-                        entrarAHabitacion(habitacion);
-                    } else {
-                        controladorAcertijo.intentarInteraccion(nivel, personaje, controladorTeclado);
-                    }
-                });
+            Habitacion habitacion = nivel.getHabitacionAlAlcance(personaje);
+            if (habitacion != null) {
+                entrarAHabitacion(habitacion);
+            } else {
+                controladorAcertijo.intentarInteraccion(nivel, personaje, controladorTeclado);
+            }
+        });
 
         // Asignación de linterna, ataque e inventario
         this.controladorTeclado.setAccionLinterna(() -> {
@@ -144,34 +149,25 @@ public class ControladorNivel {
             });
 
             // Botón "Volver al Menú" de FinDelJuego
-            this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(e -> {
+            this.alVolverDesdeGameOver = e -> {
                 detener(); // Detiene el loop
                 this.vista.getFinDelJuego().setVisible(false); // <--- IMPORTANTE: Ocultar el overlay
                 this.vista.reiniciarEstadoNivel();             // <--- Reiniciar contadores/estado
                 ventanaPrincipal.mostrarPantalla("menu");       // <--- Cambio directo a "menu"
                 ReproductorSonido.reproducirEnLoop(ControladorPrincipal.MUSICA_MENU);
+            };
+            this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(this.alVolverDesdeGameOver);
+
+            // Botón "Reintentar / Reanudar Partida" de FinDelJuego (Revivir en Checkpoint)
+            this.vista.getFinDelJuego().getBotonReintentar().addActionListener(e -> {
+                reintentarDesdeCheckpoint();
             });
-            this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(alVolverDesdeGameOver);
-
         }
-
-        this.vista.getFinDelJuego().getBotonReintentar().addActionListener(e -> {
-            reintentarDesdeCheckpoint();
-        });
-
-
-        // Conexión de acciones únicas de teclado
-        this.controladorTeclado.setAccionAtaque(this::atacar);
-        this.controladorTeclado.setAccionLinterna(() -> {
-            if (!pausado && !personajeMuerto) {
-                partida.getPersonaje().usarLinterna();
-            }
-        });
 
         // Registrar el listener de teclado en la vista
         this.vista.addKeyListener(controladorTeclado);
 
-        // Configurar el Game Loop a 60 FPS 816 milisegundos)
+        // Configurar el Game Loop a 60 FPS (16 milisegundos)
         this.bucleDeJuego = new Timer(16, e -> cicloPrincipal());
     }
 
@@ -219,6 +215,49 @@ public class ControladorNivel {
         pausado = false;
         controladorTeclado.limpiarTeclas();
         vista.reiniciarEstadoNivel();
+    }
+
+    // -- LOGICA DE CHECKPOINT Y REINTENTO --
+    public void reintentarDesdeCheckpoint() {
+        Personaje personaje = partida.getPersonaje();
+        Nivel nivel = partida.getNivelActual();
+
+        if (personaje != null && nivel != null) {
+            // 1. Ocultar la pantalla de fin de juego y limpiar estado de muerte
+            this.vista.getFinDelJuego().setVisible(false);
+            this.vista.reiniciarEstadoNivel();
+            this.personajeMuerto = false;
+            this.controladorTeclado.limpiarTeclas();
+
+            // 2. Obtener la posición donde murió
+            int xMuerte = personaje.getPosicionX();
+            int yMuerte = personaje.getPosicionY();
+
+            // Verificamos si la hitbox en ese punto quedó incrustada en una pared/bloque
+            java.awt.Rectangle hb = personaje.getHitbox();
+            if (nivel.getMapaColision() != null &&
+                    !nivel.getMapaColision().esRectanguloValido(hb.x, hb.y, hb.width, hb.height)) {
+                // Si pisaba una pared, lo subimos 10 px al área transitable
+                yMuerte -= 10;
+            }
+
+            // 3. Revivir al personaje en esa misma ubicación con vida completa
+            personaje.revivirEn(xMuerte, yMuerte);
+
+            // 4. Devolver de inmediato el foco del teclado al panel
+            this.vista.requestFocusInWindow();
+
+            // 5. Centrar cámara y redibujar
+            this.vista.actualizarCamara();
+            this.vista.repaint();
+
+            // 6. Asegurar que el bucle de juego continúe
+            if (bucleDeJuego != null && !bucleDeJuego.isRunning()) {
+                this.tiempoAnterior = System.nanoTime();
+                this.acumulador = 0.0;
+                bucleDeJuego.start();
+            }
+        }
     }
 
     // -- SINCRONIZACIÓN Y CICLO PRINCIPAL (MVC) --
@@ -360,36 +399,5 @@ public class ControladorNivel {
         vista.setNivelActual(nivelNuevo);
         controladorTeclado.limpiarTeclas();
     }
-
-    public void reintentarDesdeCheckpoint() {
-        Personaje personaje = partida.getPersonaje();
-        Nivel nivel = partida.getNivelActual();
-
-        if (personaje != null && nivel != null) {
-            // 1. Ocultar la pantalla de fin de juego y limpiar estado
-            this.vista.getFinDelJuego().setVisible(false);
-            this.vista.reiniciarEstadoNivel();
-            this.personajeMuerto = false;
-            this.controladorTeclado.limpiarTeclas();
-
-            // 2. Revivir al personaje en las coordenadas seguras del checkpoint
-            personaje.revivirEn(nivel.getCheckpointX(), nivel.getCheckpointY());
-
-            // 3. Devolver inmediatamente el foco del teclado a la pantalla de juego
-            this.vista.requestFocusInWindow();
-
-            // 4. Sincronizar cámara y redibujar
-            this.vista.actualizarCamara();
-            this.vista.repaint();
-
-            // 5. Reanudar el timer si estaba detenido
-            if (bucleDeJuego != null && !bucleDeJuego.isRunning()) {
-                this.tiempoAnterior = System.nanoTime();
-                this.acumulador = 0.0;
-                bucleDeJuego.start();
-            }
-        }
-    }
-
 
 }

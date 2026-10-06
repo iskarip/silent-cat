@@ -11,6 +11,7 @@ public class Nivel extends EspacioBase {
     private boolean nivelSuperado;
     private boolean checkpoint;
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
+    private int acertijoColumna, acertijoFila; // posicion donde se activa el acertijo del nivel
     private List<ZonaProximidad> zonas = new ArrayList<>();
 
     private int checkpointX;
@@ -29,10 +30,16 @@ public class Nivel extends EspacioBase {
         this.checkpointY = posicionInicialY * MapaColision.TILE;
     }
 
+    //--SET Y GET--
+
     public boolean getNivelSuperado() { return this.nivelSuperado; }
     public void setNivelSuperado(boolean nivelSuperado) { this.nivelSuperado = nivelSuperado; }
     public boolean getCheckpoint() { return this.checkpoint; }
     public int getNumeroNivel() { return this.numeroNivel; }
+
+    public Acertijo getAcertijo() {
+        return this.acertijoNivel;
+    }
 
     public List<Habitacion> getHabitaciones() { return this.habitaciones; }
 
@@ -79,6 +86,38 @@ public class Nivel extends EspacioBase {
 
     public int getCheckpointY() {
         return checkpointY;
+    }
+
+    // LOGICA PARA LOS ACERTIJOS
+
+    public void setAcertijoEnTile(int columna, int fila) {
+        this.acertijoColumna = columna;
+        this.acertijoFila = fila;
+    }
+
+    public int getAcertijoColumna() {
+        return acertijoColumna;
+    }
+
+    public int getAcertijoFila() {
+        return acertijoFila;
+    }
+
+    public int getAcertijoX() {
+        return acertijoColumna * MapaColision.TILE + MapaColision.TILE / 2;
+    }
+
+    public int getAcertijoY() {
+        return acertijoFila * MapaColision.TILE + MapaColision.TILE / 2;
+    }
+
+    public boolean acertijoAlAlcance(Personaje personaje) {
+        if (acertijoNivel == null || acertijoNivel.getResuelto()) {
+            return false;
+        }
+        double distancia = Math.hypot(personaje.getPosicionX() - getAcertijoX(),
+                                      personaje.getPosicionY() - getAcertijoY());
+        return distancia <= 50;
     }
 
     public Acertijo getAcertijoAlAlcance(Personaje personaje) {

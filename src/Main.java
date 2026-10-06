@@ -16,6 +16,8 @@ public class Main {
             new ControladorPrincipal(ventana);
         });
     }
+
+    //crea el objeto JuegoFrame y como su constructor ya hace setVisible(true),
+    //la ventana del juego se abre automatico.
+
 }
-        //crea el objeto JuegoFrame y como su constructor ya hace setVisible(true),
-        //la ventana del juego se abre automatico.
