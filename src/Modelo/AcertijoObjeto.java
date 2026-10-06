@@ -4,39 +4,24 @@ public class AcertijoObjeto extends Acertijo {
 
     // -- ATRIBUTOS --
 
-    private String respuesta;
+     private final String objetoRequerido;
 
     // -- CONSTRUCTOR --
-    public AcertijoObjeto (int id, String descripcion, String respuesta){
-        super (id, descripcion);
-        this.respuesta = respuesta;
+    public AcertijoObjeto (int id, String descripcion, int columna, int fila, String objetoRequerido){
+        super(id, descripcion, columna, fila);
+        this.objetoRequerido = objetoRequerido;
     }
 
-    // -- GET's y SET's--
-
-    public String getRespuesta(){
-        return this.respuesta;
-    }
-
-    // -- METODOS HEREDADOS --
     @Override
-    protected boolean verificarRespuesta(String respuesta) {
-        return this.respuesta.equalsIgnoreCase(respuesta);
-    }
+    public void interactuar(Personaje p) {
+        ObservadorAcertijo obs = getObservador();
+        if (getResuelto() || obs == null) return;
 
-//este sobreescribe la validadcion, en lugar de comparar lo que el jugador
-//escriba, revisa si tiene el objeto necesario en el inventario. El texto que haya escrito
-//en el cuadro de respuesta se va a ignorar, por lo que solo va a hacer falta tener el item no es necesario escribir.
-
-   @Override
-    public boolean validarRespuesta(String respuesta, Personaje personaje) {
-        if (this.getResuelto()) {
-            return true;
+        if (p.getInventario().contieneItem(objetoRequerido)) {
+            setResuelto(true);
+            obs.acertijoResuelto(this);
+        } else {
+            obs.acertijoBloqueado(this);
         }
-        boolean tieneElObjeto = personaje.getInventario().contieneItem(this.respuesta);
-        if (tieneElObjeto) {
-            this.setResuelto(true);
-        }
-        return tieneElObjeto;
     }
 }

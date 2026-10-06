@@ -1,3 +1,7 @@
+Aquí tienes las 5 clases completas, con todos los conflictos de merge resueltos, integrando limpiamente el sistema de habitaciones y corrida de main con tu sistema de checkpoint, invulnerabilidad al reaparecer y todos los comentarios originales preservados:
+
+1. Controlador/ControladorNivel.java
+Java
 package Controlador;
 
 import Modelo.Partida;
@@ -6,20 +10,22 @@ import Modelo.Personaje;
 import Modelo.Linterna;
 import Modelo.ObservadorPersonaje;
 import Modelo.ReproductorSonido;
+import Modelo.Entidad;
+import Modelo.EspacioBase;
+import Modelo.Habitacion;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.EstadoPersonaje;
-import Vista.GestorSprites;
 import Vista.InventarioVisual;
 import Vista.AuraVisual;
 import Vista.FlashbackGato;
 import Vista.BarraBateria;
 import Vista.BarraVida;
 import Vista.MensajeAmbiental;
-import Modelo.Entidad;
 
 import javax.swing.Timer;
 import java.awt.Toolkit;
+import java.awt.event.ActionListener;
 
 public class ControladorNivel {
 
@@ -28,7 +34,6 @@ public class ControladorNivel {
     private final Partida partida;
     private final NivelPanel vista;
     private final JuegoFrame ventanaPrincipal;
-
     private final ControladorTeclado controladorTeclado;
     private final ControladorMovimiento controladorMovimiento;
     private final ControladorCombate controladorCombate;
@@ -37,6 +42,7 @@ public class ControladorNivel {
     private final ControladorItems controladorItems;
     private final ControladorPausa controladorPausa;
     private final ControladorAmbiente controladorAmbiente;
+    private EspacioBase espacioActivo;
 
     //instancias del gato(el sonido, lentitud y lo visual)
     private final FlashbackGato flashbackGato;
@@ -45,6 +51,7 @@ public class ControladorNivel {
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
     private boolean pausado = false;
+    private ActionListener alVolverDesdeGameOver;
     private int contadorBateria = 0;
 
     // Control de tiempo para garantizar fluidez identica en todas las computadoras (60 ticks por segundo)
@@ -64,7 +71,6 @@ public class ControladorNivel {
         this.controladorMovimiento = new ControladorMovimiento();
         this.controladorCombate = new ControladorCombate();
         this.controladorEntidades = new ControladorEntidades();
-        this.controladorAcertijo = new ControladorAcertijo(ventanaPrincipal.getAcertijoPanel(), ventanaPrincipal);
         this.controladorItems = new ControladorItems();
 
         this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this);
@@ -75,6 +81,31 @@ public class ControladorNivel {
         this.mensajeAmbiental = new MensajeAmbiental();
         this.controladorAmbiente = new ControladorAmbiente(flashbackGato, mensajeAmbiental, vista);
 
+        this.controladorAcertijo = new ControladorAcertijo(vista, controladorAmbiente);
+
+        // Asignación de la interacción con la tecla 'E'
+        this.controladorTeclado.setAccionInteraccionar(() -> {
+            Personaje personaje = partida.getPersonaje();
+            Nivel nivel = partida.getNivelActual();
+            if (espacioActivo != nivel) return;   // dentro de una habitación, por ahora la E no hace nada
+
+            Habitacion habitacion = nivel.getHabitacionAlAlcance(personaje);
+            if (habitacion != null) {
+                entrarAHabitacion(habitacion);
+            } else {
+                controladorAcertijo.intentarInteraccion(nivel, personaje, controladorTeclado);
+            }
+        });
+
+        // Asignación de linterna, ataque e inventario
+        this.controladorTeclado.setAccionLinterna(() -> {
+            if (!pausado && !personajeMuerto) {
+                partida.getPersonaje().usarLinterna();
+            }
+        });
+
+        this.controladorTeclado.setAccionAtaque(this::atacar);
+        
         this.vista.limpiarCapasVisuales();
 
         //Instanciacion de interfaces y registro en la lista de capasVisuales de NivelPanel
@@ -118,13 +149,14 @@ public class ControladorNivel {
             });
 
             // Botón "Volver al Menú" de FinDelJuego
-            this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(e -> {
+            this.alVolverDesdeGameOver = e -> {
                 detener(); // Detiene el loop
                 this.vista.getFinDelJuego().setVisible(false); // <--- IMPORTANTE: Ocultar el overlay
                 this.vista.reiniciarEstadoNivel();             // <--- Reiniciar contadores/estado
                 ventanaPrincipal.mostrarPantalla("menu");       // <--- Cambio directo a "menu"
                 ReproductorSonido.reproducirEnLoop(ControladorPrincipal.MUSICA_MENU);
-            });
+            };
+            this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(this.alVolverDesdeGameOver);
 
             // Botón "Reintentar / Reanudar Partida" de FinDelJuego (Revivir en Checkpoint)
             this.vista.getFinDelJuego().getBotonReintentar().addActionListener(e -> {
@@ -132,19 +164,10 @@ public class ControladorNivel {
             });
         }
 
-
-        // Conexión de acciones únicas de teclado
-        this.controladorTeclado.setAccionAtaque(this::atacar);
-        this.controladorTeclado.setAccionLinterna(() -> {
-            if (!pausado && !personajeMuerto) {
-                partida.getPersonaje().usarLinterna();
-            }
-        });
-
         // Registrar el listener de teclado en la vista
         this.vista.addKeyListener(controladorTeclado);
 
-        // Configurar el Game Loop a 60 FPS 816 milisegundos)
+        // Configurar el Game Loop a 60 FPS (16 milisegundos)
         this.bucleDeJuego = new Timer(16, e -> cicloPrincipal());
     }
 
@@ -163,6 +186,10 @@ public class ControladorNivel {
             bucleDeJuego.stop();
         }
         vista.removeKeyListener(controladorTeclado);
+        controladorPausa.desconectar();
+        if (alVolverDesdeGameOver != null) {
+            vista.getFinDelJuego().getBotonVolverMenu().removeActionListener(alVolverDesdeGameOver);
+        }
     }
 
     // --- CONTROL DE PAUSA DESDE EL CONTROLADOR DEDICADO ---
@@ -240,6 +267,7 @@ public class ControladorNivel {
         Personaje personaje = partida.getPersonaje();
 
         if (nivelActual != null) {
+            espacioActivo = nivelActual;
             vista.setNivelActual(nivelActual);
         }
 
@@ -301,10 +329,16 @@ public class ControladorNivel {
             return;
         }
 
+        // Si el acertijo del nivel se resolvió, pasamos al siguiente
+        if (nivelActual.verificarSiCompleto() && !nivelActual.getNivelSuperado()) {
+            cambiarDeNivel();
+            return;
+        }
+
         // 2. Delegación del movimiento al controlador especializado
         controladorMovimiento.procesarMovimientoJugador(
                 personaje,
-                nivelActual.getMapaColision(),
+                espacioActivo.getMapaColision(),   // PASO 3: mapa del espacio donde está parado
                 controladorTeclado,
                 vista
         );
@@ -313,10 +347,12 @@ public class ControladorNivel {
         controladorEntidades.actualizar(nivelActual, personaje, vista);
 
         // 4. Deteccion de proximidad al acertijo del nivel
-        controladorAcertijo.comprobarActivacion(nivelActual, personaje);
+        if (espacioActivo == nivelActual) {        // PASO 3: adentro de una habitación no aplica
+            controladorAcertijo.comprobarProximidad(nivelActual, personaje);
+        }
 
-        //4.1 Deteccion de proximidad de items del nivel
-        controladorItems.actualizar(nivelActual, personaje);
+        // 4.1 Deteccion de proximidad de items del nivel
+        controladorItems.actualizar(nivelActual, personaje, controladorAmbiente);
 
         // 4.2 Zonas de proximidad (flashbacks y mensajes): cada zona decide qué hacer
         controladorAmbiente.comprobarZonas(nivelActual, personaje);
@@ -326,8 +362,8 @@ public class ControladorNivel {
 
         // 5. Consumo de la bateria de la Linterna
         contadorBateria++;
-        if(contadorBateria >= 60){
-            personaje.getLinterna().gastarBateria(); // Linterna llama a notificar() y la vista se actualiza sola
+        if (contadorBateria >= 60) {
+            personaje.getLinterna().gastarBateria();
             contadorBateria = 0;
         }
     }
@@ -338,6 +374,30 @@ public class ControladorNivel {
         if (!pausado && !personajeMuerto) {
             controladorCombate.ejecutarAtaque(partida.getPersonaje(), partida.getNivelActual(), vista);
         }
+    }
+
+    private void entrarAHabitacion(Habitacion habitacion) {
+        espacioActivo = habitacion;
+        partida.getPersonaje().colocarEnTile(habitacion.getPosicionInicialX(),
+                                            habitacion.getPosicionInicialY());
+        vista.setEspacioActual(habitacion);
+        controladorTeclado.limpiarTeclas();
+    }
+
+    private void cambiarDeNivel() {
+        partida.getNivelActual().setNivelSuperado(true);
+
+        if (!partida.avanzarSiguienteNivel()) {
+            return; // no hay más niveles
+        }
+
+        Nivel nivelNuevo = partida.getNivelActual();
+        espacioActivo = nivelNuevo;   // <-- ESTA es la que falta
+
+        partida.getPersonaje().colocarEnTile(nivelNuevo.getPosicionInicialX(),
+                                            nivelNuevo.getPosicionInicialY());
+        vista.setNivelActual(nivelNuevo);
+        controladorTeclado.limpiarTeclas();
     }
 
 }

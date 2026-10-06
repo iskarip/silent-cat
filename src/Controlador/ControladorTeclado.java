@@ -15,6 +15,7 @@ public class ControladorTeclado extends KeyAdapter {
     private Runnable accionDebugFlashback;
     private Runnable accionLinterna; 
     private Runnable accionInventario;
+    private Runnable accionInteraccionar; 
 
 
     public void setAccionAtaque(Runnable accionAtaque) {
@@ -31,6 +32,10 @@ public class ControladorTeclado extends KeyAdapter {
 
     public void setAccionInventario(Runnable accionInventario) {
         this.accionInventario = accionInventario;
+    }
+
+    public void setAccionInteraccionar(Runnable accionInteraccionar) {
+        this.accionInteraccionar = accionInteraccionar;
     }
 
 
@@ -55,6 +60,10 @@ public class ControladorTeclado extends KeyAdapter {
 
         if (e.getKeyCode() == KeyEvent.VK_TAB && accionInventario != null) {
             accionInventario.run();
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_E && accionInteraccionar != null) {
+            accionInteraccionar.run();
         }
     
     }

@@ -21,4 +21,3 @@ public class Main {
     //la ventana del juego se abre automatico.
 
 }
-

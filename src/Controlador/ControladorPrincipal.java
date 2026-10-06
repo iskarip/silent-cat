@@ -22,6 +22,7 @@ public class ControladorPrincipal {
         this.ventana = ventana;
         configurarEventosMenu();
         configurarEventosSeleccion();
+        new ControladorAjustes(ventana.getAjustesPanel(), ventana); //este controlador cargaria la configuracion guardada
     }
 
     private void configurarEventosMenu() {
@@ -33,7 +34,7 @@ public class ControladorPrincipal {
         });
 
         menu.getBotonAjustes().addActionListener(e -> {
-            JOptionPane.showMessageDialog(ventana, "Ajustes no implementados aún.");
+            ventana.mostrarPantalla("ajustes");
         });
 
         menu.getBotonSalir().addActionListener(e -> {

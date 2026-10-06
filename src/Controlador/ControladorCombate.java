@@ -14,17 +14,19 @@ public class ControladorCombate {
     public void ejecutarAtaque(Personaje personaje, Nivel nivelActual, NivelPanel vista) {
         if (personaje == null || nivelActual == null) return;
 
-        if (temporizadorAtaque != null && temporizadorAtaque.isRunning()) {
-            return;
-        }
+        // el Modelo decide si puede atacar (enfriamiento del arma)
+        if (!personaje.intentarAtacar()) return;
 
         vista.setEstado(EstadoPersonaje.ATACANDO);
-        iniciarTimerVueltaAIdle(vista); // primero el timer, así nunca queda trabado
+        iniciarTimerVueltaAIdle(vista);
 
         nivelActual.resolverAtaque(personaje);
     }
 
     private void iniciarTimerVueltaAIdle(NivelPanel vista) {
+        if (temporizadorAtaque != null) {
+            temporizadorAtaque.stop();
+        }
         temporizadorAtaque = new Timer(350, e -> vista.setEstado(EstadoPersonaje.IDLE));
         temporizadorAtaque.setRepeats(false);
         temporizadorAtaque.start();

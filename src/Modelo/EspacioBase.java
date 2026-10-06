@@ -7,20 +7,30 @@ public abstract class EspacioBase implements EspacioJugable {
 
     private int posicionInicialX;
     private int posicionInicialY;
+    private Acertijo acertijo;
     protected MapaColision mapaColision;
     protected String rutaImagenFondo;
     protected List<Item> listaItems;
     protected List<Entidad> listaEntidades;
 
-    public EspacioBase(String rutaGrid, String rutaImagenFondo, int posicionInicialX, int posicionInicialY) {
+    public EspacioBase(String rutaGrid, String rutaImagenFondo,
+                       int posicionInicialX, int posicionInicialY, Acertijo acertijo) {
         this.rutaImagenFondo = rutaImagenFondo;
         this.listaItems = new ArrayList<>();
         this.listaEntidades = new ArrayList<>();
         this.posicionInicialX = posicionInicialX;
         this.posicionInicialY = posicionInicialY;
+        this.acertijo = acertijo;
 
         this.mapaColision = new MapaColision();
         this.mapaColision.cargar(rutaGrid);
+    }
+
+    public Acertijo getAcertijo() { return acertijo; }
+    public void setAcertijo(Acertijo acertijo) { this.acertijo = acertijo; }
+
+    public boolean acertijoAlAlcance(Personaje personaje) {
+        return acertijo != null && acertijo.estaAlAlcance(personaje);
     }
 
     public int getPosicionInicialX() { return posicionInicialX; }
@@ -29,26 +39,15 @@ public abstract class EspacioBase implements EspacioJugable {
     public void setPosicionInicialY(int posicionInicialY) { this.posicionInicialY = posicionInicialY; }
 
     public void agregarItem(Item i) {
-        if (i != null) {
-            this.listaItems.add(i);
-        }
+        if (i != null) this.listaItems.add(i);
     }
 
     public void agregarEntidad(Entidad e) {
-        if (e != null) {
-            this.listaEntidades.add(e);
-        }
+        if (e != null) this.listaEntidades.add(e);
     }
 
-    @Override
-    public String getRutaImagenFondo() { return rutaImagenFondo; }
-
-    @Override
-    public MapaColision getMapaColision() { return mapaColision; }
-
-    @Override
-    public List<Item> getListaItems() { return listaItems; }
-
-    @Override
-    public List<Entidad> getListaEntidades() { return listaEntidades; }
+    @Override public String getRutaImagenFondo() { return rutaImagenFondo; }
+    @Override public MapaColision getMapaColision() { return mapaColision; }
+    @Override public List<Item> getListaItems() { return listaItems; }
+    @Override public List<Entidad> getListaEntidades() { return listaEntidades; }
 }

@@ -5,11 +5,13 @@ import javax.swing.*;
 
 public class FinDelJuego extends JPanel {
 
+    private Image imagenGameOver;
     private Image imagenCalavera;
     private BotonJuego botonVolverMenu;
     private BotonJuego botonReintentar;
 
     public FinDelJuego() {
+        // Fondo oscurecido
         setOpaque(false);
         setLayout(null);
         setVisible(false);
@@ -19,7 +21,8 @@ public class FinDelJuego extends JPanel {
     }
 
     private void cargarRecursos() {
-        this.imagenCalavera = GestorSprites.cargarImage("/Recursos/UI/Menu/Fondo/calaveraMuerte.png");
+        this.imagenCalavera = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/calaveraMuerte.png");
+        this.imagenGameOver = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/GameOver.png");
     }
 
     private void crearComponentes() {
@@ -30,15 +33,16 @@ public class FinDelJuego extends JPanel {
         );
 
         botonVolverMenu = new BotonJuego(
-                "/Recursos/UI/Pausa/Botones/MenuPrincipal.png",
-                "/Recursos/UI/Pausa/Botones/MenuPrincipalHover.png",
-                180, 55
+                "/Recursos/UI/GameOver/Botones/VolverMenu.png",
+                "/Recursos/UI/GameOver/Botones/VolverMenuHover.png",
+                "Recursos/Sonidos/UI/sonido3.wav"
         );
 
         add(botonReintentar);
         add(botonVolverMenu);
     }
 
+    // -- CICLO DE DIBUJADO Y POSICIONAMIENTO --
     @Override
     public void doLayout() {
         super.doLayout();
@@ -48,14 +52,17 @@ public class FinDelJuego extends JPanel {
         int anchoBoton = 180;
         int altoBoton = 55;
 
-        // Botón Reintentar debajo de la calavera
+        // 1. Botón Reanudar / Reintentar: debajo de la calavera
         if (botonReintentar != null) {
-            botonReintentar.setBounds(centroX - (anchoBoton / 2), centroY + 95, anchoBoton, altoBoton);
+            botonReintentar.setBounds(centroX - (anchoBoton / 2), centroY + 105, anchoBoton, altoBoton);
         }
 
-        // Botón Volver al menú debajo de Reintentar
+        // 2. Botón Volver al Menú: debajo de Reanudar
         if (botonVolverMenu != null) {
-            botonVolverMenu.setBounds(centroX - (anchoBoton / 2), centroY + 160, anchoBoton, altoBoton);
+            Dimension tamVolver = botonVolverMenu.getPreferredSize();
+            int w = (tamVolver != null && tamVolver.width > 0) ? tamVolver.width : anchoBoton;
+            int h = (tamVolver != null && tamVolver.height > 0) ? tamVolver.height : altoBoton;
+            botonVolverMenu.setBounds(centroX - (w / 2), centroY + 175, w, h);
         }
     }
 
@@ -64,31 +71,37 @@ public class FinDelJuego extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
+        // Capa oscura sobre el nivel
         g2d.setColor(new Color(0, 0, 0, 215));
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         int centroX = getWidth() / 2;
         int centroY = getHeight() / 2;
 
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2d.setFont(new Font("Serif", Font.BOLD, 54));
-        FontMetrics fm = g2d.getFontMetrics();
-        String texto = "GAME OVER";
-        int textoX = centroX - (fm.stringWidth(texto) / 2);
-        int textoY = centroY - 90;
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-        g2d.setColor(new Color(100, 0, 0));
-        g2d.drawString(texto, textoX + 3, textoY + 3);
-        g2d.setColor(new Color(180, 20, 20));
-        g2d.drawString(texto, textoX + 1, textoY + 1);
+        // Cartel GAME OVER (imagen), manteniendo proporción
+        if (imagenGameOver != null) {
+            int anchoOrig = imagenGameOver.getWidth(this);
+            int altoOrig = imagenGameOver.getHeight(this);
 
-        g2d.setColor(new Color(240, 235, 230));
-        g2d.drawString(texto, textoX, textoY);
+            if (anchoOrig > 0 && altoOrig > 0) {
+                int anchoMax = (int) (getWidth() * 0.5);
+                int altoMax = 200;
+                double escala = Math.min((double) anchoMax / anchoOrig, (double) altoMax / altoOrig);
 
+                int ancho = (int) (anchoOrig * escala);
+                int alto = (int) (altoOrig * escala);
+
+                // Centrado arriba de la calavera
+                g2d.drawImage(imagenGameOver, centroX - (ancho / 2), centroY - 80 - alto, ancho, alto, this);
+            }
+        }
+
+        // Calavera pixel art centrada entre el cartel y el botón
         if (imagenCalavera != null) {
-            int tamCalavera = 150;
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            g2d.drawImage(imagenCalavera, centroX - (tamCalavera / 2), centroY - 65, tamCalavera, tamCalavera, this);
+            int tamCalavera = 160;
+            g2d.drawImage(imagenCalavera, centroX - (tamCalavera / 2), centroY - 70, tamCalavera, tamCalavera, this);
         }
     }
 

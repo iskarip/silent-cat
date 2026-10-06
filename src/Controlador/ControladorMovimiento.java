@@ -28,18 +28,26 @@ public class ControladorMovimiento {
             direccionX += 1;
         }
 
+        boolean quiereCorrer = teclado.estaPresionada(KeyEvent.VK_SHIFT);
+
         // pedimos al modelo que se mueva, ahi decide velocidad, diagonal y paredes
-        personaje.mover(direccionX, direccionY, mapa);
+        personaje.mover(direccionX, direccionY, quiereCorrer, mapa);
 
         // le avisamos a la Vista qué animación mostrar
         boolean seEstaMoviendo = personaje.estaMoviendose();
 
         if (!vista.estaAtacando() && !vista.estaRecibiendoDanio()) {
-            if (seEstaMoviendo) {
-                vista.setEstado(EstadoPersonaje.CAMINANDO);
+            EstadoPersonaje nuevoEstado;
+
+            if (!seEstaMoviendo) {
+                nuevoEstado = EstadoPersonaje.IDLE;
+            } else if (personaje.estaCorriendo()) {
+                nuevoEstado = EstadoPersonaje.CORRIENDO;
             } else {
-                vista.setEstado(EstadoPersonaje.IDLE);
+                nuevoEstado = EstadoPersonaje.CAMINANDO;
             }
+
+            vista.setEstado(nuevoEstado);
         }
 
         vista.actualizarAnimacion(seEstaMoviendo);

@@ -1,58 +1,35 @@
 package Modelo;
 
-public class Habitacion extends EspacioBase{
+public class Habitacion extends EspacioBase {
 
-    //-- ATRIBUTOS --
-    private String nombreHabitacion;
-    private Boolean desbloqueada;
-    private Acertijo acertijoAcceso; // cada habitacion puede tener un acertijo asociado, que se resuelve para desbloquear la habitacion
-    private int puertaX, puertaY;    // dónde está la puerta EN EL NIVEL (afuera)
-    private int puntoAccesoX, puntoAccesoY; // dónde aparece el personaje DENTRO del cuarto (sirve para entrar Y salir)
+    private final String nombreHabitacion;
+    private static final int RADIO_PUERTA = 40;
+    private final int puertaX, puertaY;
 
-    //-- CONSTRUCTOR --
-    public Habitacion(String nombreHabitacion,  Acertijo acertijo, String rutaGrid, String rutaImagenFondo, int posicionInicialX, int posicionInicialY, int puertaX, int puertaY, int puntoAccesoX, int puntoAccesoY) {
-        super(rutaGrid , rutaImagenFondo, posicionInicialX, posicionInicialY);
+    public Habitacion(String nombreHabitacion, Acertijo acertijo, String rutaGrid, String rutaImagenFondo,
+                      int posicionInicialX, int posicionInicialY, int puertaX, int puertaY) {
+        super(rutaGrid, rutaImagenFondo, posicionInicialX, posicionInicialY, acertijo);
         this.nombreHabitacion = nombreHabitacion;
         this.puertaX = puertaX;
         this.puertaY = puertaY;
-        this.acertijoAcceso = acertijo;
-        this.puntoAccesoX = puntoAccesoX;
-        this.puntoAccesoY = puntoAccesoY;
-        this.desbloqueada = false;
     }
 
-    //-- GET y SET --
+    public String getNombreHabitacion() { return nombreHabitacion; }
+    public int getPuertaX() { return puertaX; }
+    public int getPuertaY() { return puertaY; }
 
-    public String getNombreHabitacion() {
-        return nombreHabitacion;
+    // Se calcula, no se guarda: así no puede quedar desincronizada con el acertijo.
+    public boolean isDesbloqueada() {
+        return getAcertijo() == null || getAcertijo().getResuelto();
     }
 
-    public Boolean isDesbloqueada() {
-        return desbloqueada;
-    }
+    public boolean puertaAlAlcance(Personaje personaje) {
+        if (personaje == null || !isDesbloqueada()) return false;
 
-    public void setDesbloqueada(Boolean desbloqueada) {
-        this.desbloqueada = desbloqueada;
-    }
+        int centroX = puertaX * MapaColision.TILE + MapaColision.TILE / 2;
+        int centroY = puertaY * MapaColision.TILE + MapaColision.TILE / 2;
 
-    public int getPuertaX() {
-        return puertaX;
+        return Math.hypot(personaje.getPosicionX() - centroX,
+                        personaje.getPosicionY() - centroY) <= RADIO_PUERTA;
     }
-
-    public int getPuertaY() {
-        return puertaY;
-    }
-
-    public Acertijo getAcertijoAcceso() {
-        return acertijoAcceso;
-    }
-
-    public int getPuntoAccesoX() {
-        return puntoAccesoX;
-    }
-
-    public int getPuntoAccesoY() {
-        return puntoAccesoY;
-    }
-
 }
