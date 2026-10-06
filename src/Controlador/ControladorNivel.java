@@ -183,6 +183,7 @@ public class ControladorNivel {
         }
         vista.removeKeyListener(controladorTeclado);
         controladorPausa.desconectar();
+        controladorAcertijo.desconectar();
         if (alVolverDesdeGameOver != null) {
             vista.getFinDelJuego().getBotonVolverMenu().removeActionListener(alVolverDesdeGameOver);
         }
