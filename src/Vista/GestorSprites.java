@@ -1,6 +1,5 @@
 package Vista;
 
-import Modelo.Direccion;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -82,13 +81,13 @@ public class GestorSprites {
     }
 
     // --- DIBUJADO DE SPRITESHEET (Absorbe el corte de NivelPanel) ---
-    public void dibujarCuadro(Graphics2D g2d, EstadoPersonaje estado, Direccion direccion,
+    public void dibujarCuadro(Graphics2D g2d, EstadoPersonaje estado, int fila,
                               int frame, int x, int y, int anchoCuadro, int altoCuadro, double escala) {
         BufferedImage hoja = obtener(estado);
         if (hoja == null) return;
 
         int srcX1 = frame * anchoCuadro;
-        int srcY1 = (direccion != null ? direccion.getFila() : 0) * altoCuadro;
+        int srcY1 = Math.max(0, fila) * altoCuadro;
         int srcX2 = srcX1 + anchoCuadro;
         int srcY2 = srcY1 + altoCuadro;
 
@@ -128,5 +127,3 @@ public class GestorSprites {
     }
 
 }
-
-

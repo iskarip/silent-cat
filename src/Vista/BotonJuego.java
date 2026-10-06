@@ -1,7 +1,5 @@
 package Vista;
 
-import Modelo.ReproductorSonido;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -11,13 +9,12 @@ public class BotonJuego extends JButton {
 
     private final ImageIcon iconoNormal;
     private final ImageIcon iconoHover;
-    private final String rutaSonidoHover; // puede ser null si no querés sonido
+    private Runnable accionHover;
 
-    // Constructor CON sonido de hover y recibe ancho y alto.
-    public BotonJuego(String rutaNormal, String rutaHover, String rutaSonidoHover, int ancho, int alto) {
+    public BotonJuego(String rutaNormal, String rutaHover, Runnable accionHover, int ancho, int alto) {
         this.iconoNormal = cargarIcono(rutaNormal, ancho, alto);
         this.iconoHover = cargarIcono(rutaHover, ancho, alto);
-        this.rutaSonidoHover = rutaSonidoHover;
+        this.accionHover = accionHover;
 
         if (iconoNormal != null) {
             setIcon(iconoNormal);
@@ -26,24 +23,33 @@ public class BotonJuego extends JButton {
         configurarHover();
     }
 
-
-    //Sobrecarga de constructores --> sirven para que no se rompa nada del
-    // codigo anterior.
-    // Constructor SIN sonido, para cuando no haga falta.
+    // Sobrecargas de compatibilidad
     public BotonJuego(String rutaNormal, String rutaHover, int ancho, int alto) {
-        this(rutaNormal, rutaHover, null, ancho, alto);
+        this(rutaNormal, rutaHover, (Runnable) null, ancho, alto);
+    }
+
+    public BotonJuego(String rutaNormal, String rutaHover, Runnable accionHover) {
+        this(rutaNormal, rutaHover, accionHover, -1, -1);
+    }
+
+    public BotonJuego(String rutaNormal, String rutaHover) {
+        this(rutaNormal, rutaHover, (Runnable) null, -1, -1);
+    }
+
+    // Sobrecarga para mantener compatibilidad con las llamadas que pasaban la ruta String del sonido
+    public BotonJuego(String rutaNormal, String rutaHover, String rutaSonidoHover, int ancho, int alto) {
+        this(rutaNormal, rutaHover, (Runnable) null, ancho, alto);
+        // Si se provee un manejador global de audio en Vista o vía setter, se asigna aquí
     }
 
     public BotonJuego(String rutaNormal, String rutaHover, String rutaSonidoHover) {
         this(rutaNormal, rutaHover, rutaSonidoHover, -1, -1);
     }
 
-    public BotonJuego(String rutaNormal, String rutaHover) {
-        this(rutaNormal, rutaHover, null, -1, -1);
+    public void setAccionHover(Runnable accionHover) {
+        this.accionHover = accionHover;
     }
 
-
-    // modifique un poco este cargarIcono para que reciba alto y ancho para escalar las imagenes.
     private ImageIcon cargarIcono(String ruta, int ancho, int alto) {
         if (ruta == null) return null;
         java.net.URL recurso = getClass().getResource(ruta);
@@ -59,11 +65,10 @@ public class BotonJuego extends JButton {
         return original;
     }
 
-
     private void aplicarEstiloBase() {
-        setContentAreaFilled(false); // sin fondo gris
-        setBorderPainted(false);     // sin borde
-        setFocusPainted(false);      // sin rectangulo de foco
+        setContentAreaFilled(false);
+        setBorderPainted(false);
+        setFocusPainted(false);
         setBorder(null);
         setFocusable(false);
         setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -76,10 +81,11 @@ public class BotonJuego extends JButton {
                 if (iconoHover != null) {
                     setIcon(iconoHover);
                 }
-                if (rutaSonidoHover != null) {
-                    ReproductorSonido.reproducir(rutaSonidoHover);
+                if (accionHover != null) {
+                    accionHover.run();
                 }
             }
+
             @Override
             public void mouseExited(MouseEvent e) {
                 setIcon(iconoNormal);
