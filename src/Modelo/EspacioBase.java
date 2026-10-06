@@ -7,31 +7,27 @@ public abstract class EspacioBase implements EspacioJugable {
 
     private int posicionInicialX;
     private int posicionInicialY;
+    private Acertijo acertijo;
     protected MapaColision mapaColision;
     protected String rutaImagenFondo;
     protected List<Item> listaItems;
     protected List<Entidad> listaEntidades;
 
-    protected Acertijo acertijo;
-
-    public EspacioBase(String rutaGrid, String rutaImagenFondo, int posicionInicialX, int posicionInicialY) {
+    public EspacioBase(String rutaGrid, String rutaImagenFondo,
+                       int posicionInicialX, int posicionInicialY, Acertijo acertijo) {
         this.rutaImagenFondo = rutaImagenFondo;
         this.listaItems = new ArrayList<>();
         this.listaEntidades = new ArrayList<>();
         this.posicionInicialX = posicionInicialX;
         this.posicionInicialY = posicionInicialY;
+        this.acertijo = acertijo;
 
         this.mapaColision = new MapaColision();
         this.mapaColision.cargar(rutaGrid);
     }
 
-    public Acertijo getAcertijo() {
-        return acertijo;
-    }
-
-    public void setAcertijo(Acertijo acertijo) {
-        this.acertijo = acertijo;
-    }
+    public Acertijo getAcertijo() { return acertijo; }
+    public void setAcertijo(Acertijo acertijo) { this.acertijo = acertijo; }
 
     public boolean acertijoAlAlcance(Personaje personaje) {
         return acertijo != null && acertijo.estaAlAlcance(personaje);

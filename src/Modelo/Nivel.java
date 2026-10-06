@@ -18,9 +18,8 @@ public class Nivel extends EspacioBase {
 
     public Nivel(int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String rutaImagenFondo,
                  int posicionInicialX, int posicionInicialY) {
-        super(rutaGrid, rutaImagenFondo, posicionInicialX, posicionInicialY);
+        super(rutaGrid, rutaImagenFondo, posicionInicialX, posicionInicialY, acertijoNivel);
         this.numeroNivel = numeroNivel;
-        this.acertijo = acertijoNivel; // Asigna al atributo heredado de EspacioBase
         this.nivelSuperado = false;
         this.checkpoint = false;
         this.habitaciones = new ArrayList<>();
@@ -51,7 +50,7 @@ public class Nivel extends EspacioBase {
     }
 
     public boolean verificarSiCompleto() {
-        return acertijo != null && acertijo.getResuelto();
+        return getAcertijo() != null && getAcertijo().getResuelto();
     }
 
     public void agregarHabitacion(Habitacion h) {
@@ -80,5 +79,20 @@ public class Nivel extends EspacioBase {
 
     public int getCheckpointY() {
         return checkpointY;
+    }
+
+    public Acertijo getAcertijoAlAlcance(Personaje personaje) {
+        if (acertijoAlAlcance(personaje)) return getAcertijo();
+        for (Habitacion h : habitaciones) {
+            if (h.acertijoAlAlcance(personaje)) return h.getAcertijo();
+        }
+        return null;
+    }
+
+    public Habitacion getHabitacionAlAlcance(Personaje personaje) {
+        for (Habitacion h : habitaciones) {
+            if (h.puertaAlAlcance(personaje)) return h;
+        }
+        return null;
     }
 }

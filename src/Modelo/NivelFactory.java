@@ -72,7 +72,7 @@ public class NivelFactory {
 
         agregarVarias(nivel,(columna, fila) -> new Enemigo(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{15, 9}, new int[]{2, 8});
 
-      //  nivel.agregarHabitacion(crearHabitacionPalanca());
+        nivel.agregarHabitacion(crearHabitacionPalanca());
 
         //el flashback automatico del gato al acercarse a tal punto del sotano
         //queda ajustar la x, y y el radio con las coordenadas exactas
@@ -113,6 +113,20 @@ public class NivelFactory {
     }
  */
     
+        private Habitacion crearHabitacionPalanca() {
+            Acertijo acertijoPuerta = new AcertijoNumerico(3,
+                    "La puerta tiene una cerradura numerada",
+                    18, 2,
+                    1234,
+                    "/Recursos/UI/Acertijos/candado.png");
+
+            return new Habitacion("Cuarto de la palanca",
+                    acertijoPuerta,
+                    "Recursos/Mapas/Grid/grid_habitacion_sotano.txt",
+                    "/Recursos/Mapas/Imagen/habitacion_sotano.png",
+                    7, 6,        // posicionInicial: tile donde aparece el personaje adentro
+                    18, 2);     // puerta
+        }
 
     private void agregarVarias(Nivel nivel, BiFunction<Integer, Integer, Entidad> creador, int[]... posiciones) {
         for (int[] pos : posiciones) {

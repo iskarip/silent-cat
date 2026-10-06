@@ -2,12 +2,12 @@ package Controlador;
 
 import Modelo.Acertijo;
 import Modelo.AcertijoNumerico;
-import Modelo.EspacioBase;
 import Modelo.ObservadorAcertijo;
 import Modelo.ObservadorAmbiente;
 import Modelo.Personaje;
 import Vista.AcertijoPanel;
 import Vista.NivelPanel;
+import Modelo.Nivel;
 
 public class ControladorAcertijo implements ObservadorAcertijo {
 
@@ -29,21 +29,21 @@ public class ControladorAcertijo implements ObservadorAcertijo {
         this.vista.setAlSalir(this::volverAlNivel);
     }
 
-    public void comprobarProximidad(EspacioBase espacioActual, Personaje personaje) {
-        if (acertijoActivo || espacioActual == null || personaje == null) return;
+    public void comprobarProximidad(Nivel nivel, Personaje personaje) {
+        if (acertijoActivo || nivel == null || personaje == null) return;
 
-        boolean alAlcance = espacioActual.acertijoAlAlcance(personaje);
+        boolean alAlcance = nivel.getAcertijoAlAlcance(personaje) != null;
         if (alAlcance && !avisoMostrado) {
             ambiente.mostrarMensaje("Presiona E para interactuar");
         }
         avisoMostrado = alAlcance;
     }
 
-    public void intentarInteraccion(EspacioBase espacioActual, Personaje personaje, ControladorTeclado teclado) {
-        if (acertijoActivo || espacioActual == null || personaje == null) return;
+    public void intentarInteraccion(Nivel nivel, Personaje personaje, ControladorTeclado teclado) {
+        if (acertijoActivo || nivel == null || personaje == null) return;
 
-        if (espacioActual.acertijoAlAlcance(personaje)) {
-            Acertijo acertijo = espacioActual.getAcertijo();
+        Acertijo acertijo = nivel.getAcertijoAlAlcance(personaje);
+        if (acertijo != null) {
             acertijo.setObservador(this);
             if (teclado != null) teclado.limpiarTeclas();
             personaje.interactuarCon(acertijo);

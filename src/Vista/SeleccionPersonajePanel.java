@@ -139,18 +139,19 @@ public class SeleccionPersonajePanel extends JPanel {
     @Override
     public void doLayout() {
         super.doLayout();
+
         int centroX = getWidth() / 2;
         int centroY = getHeight() / 2;
         int altoPanel = getHeight();
 
-        // 1. Botón Volver (esquina inferior izquierda)
+        // 1. BOTÓN VOLVER
         int anchoVolver = 210;
         int altoVolver = 75;
         if (botonVolverMenu != null) {
             botonVolverMenu.setBounds(35, altoPanel - altoVolver - 30, anchoVolver, altoVolver);
         }
 
-        // 2. Flechas laterales
+        // 2. FLECHAS LATERALES
         int anchoFlecha = 85;
         int altoFlecha = 70;
         int desfasajeX = 220;
@@ -163,13 +164,12 @@ public class SeleccionPersonajePanel extends JPanel {
             botonFlechaDerecha.setBounds(centroX + desfasajeX - (anchoFlecha / 2), (centroY + desfasajeY) - (altoFlecha / 2), anchoFlecha, altoFlecha);
         }
 
-        // 3. Botón Iniciar Partida (centrado horizontalmente y anclado respecto al borde inferior)
+        // 3. BOTÓN INICIAR PARTIDA
         if (botonIniciarPartida != null) {
             int anchoIniciar = 330;
             int altoIniciar = 115;
-            // Se descuentan la altura del botón y 20 px de margen inferior para garantizar visibilidad
-            int posBotonY = altoPanel - altoIniciar - 20;
-            botonIniciarPartida.setBounds(centroX - (anchoIniciar / 2), posBotonY, anchoIniciar, altoIniciar);
+
+            botonIniciarPartida.setBounds(centroX - (anchoIniciar / 2), centroY + 350, anchoIniciar, altoIniciar);
         }
     }
 

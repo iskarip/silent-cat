@@ -3,7 +3,6 @@ package Controlador;
 import Modelo.Partida;
 import Modelo.Nivel;
 import Modelo.Personaje;
-import Modelo.EspacioBase;
 import Modelo.Linterna;
 import Modelo.ObservadorPersonaje;
 import Modelo.ReproductorSonido;
@@ -16,6 +15,8 @@ import Vista.FlashbackGato;
 import Vista.BarraBateria;
 import Vista.BarraVida;
 import Vista.MensajeAmbiental;
+import Modelo.EspacioBase;
+import Modelo.Habitacion;
 
 import javax.swing.Timer;
 import java.awt.Toolkit;
@@ -36,6 +37,7 @@ public class ControladorNivel {
     private final ControladorItems controladorItems;
     private final ControladorPausa controladorPausa;
     private final ControladorAmbiente controladorAmbiente;
+    private EspacioBase espacioActivo;
 
     //instancias del gato(el sonido, lentitud y lo visual)
     private final FlashbackGato flashbackGato;
@@ -78,9 +80,17 @@ public class ControladorNivel {
 
         // Asignación de la interacción con la tecla 'E'
         this.controladorTeclado.setAccionInteraccionar(() -> {
-            EspacioBase espacioActivo = partida.getNivelActual(); 
-            controladorAcertijo.intentarInteraccion(espacioActivo, partida.getPersonaje(), controladorTeclado);
-        });
+            Personaje personaje = partida.getPersonaje();
+            Nivel nivel = partida.getNivelActual();
+            if (espacioActivo != nivel) return;   // dentro de una habitación, por ahora la E no hace nada
+
+                Habitacion habitacion = nivel.getHabitacionAlAlcance(personaje);
+                    if (habitacion != null) {
+                        entrarAHabitacion(habitacion);
+                    } else {
+                        controladorAcertijo.intentarInteraccion(nivel, personaje, controladorTeclado);
+                    }
+                });
 
         // Asignación de linterna, ataque e inventario
         this.controladorTeclado.setAccionLinterna(() -> {
@@ -218,6 +228,7 @@ public class ControladorNivel {
         Personaje personaje = partida.getPersonaje();
 
         if (nivelActual != null) {
+            espacioActivo = nivelActual;
             vista.setNivelActual(nivelActual);
         }
 
@@ -282,13 +293,13 @@ public class ControladorNivel {
         // Si el acertijo del nivel se resolvió, pasamos al siguiente
         if (nivelActual.verificarSiCompleto() && !nivelActual.getNivelSuperado()) {
             cambiarDeNivel();
-            return; // cortamos el tick: las variables locales de este tick quedaron del nivel viejo
+            return;
         }
 
         // 2. Delegación del movimiento al controlador especializado
         controladorMovimiento.procesarMovimientoJugador(
                 personaje,
-                nivelActual.getMapaColision(),
+                espacioActivo.getMapaColision(),   // PASO 3: mapa del espacio donde está parado
                 controladorTeclado,
                 vista
         );
@@ -297,9 +308,11 @@ public class ControladorNivel {
         controladorEntidades.actualizar(nivelActual, personaje, vista);
 
         // 4. Deteccion de proximidad al acertijo del nivel
-        controladorAcertijo.comprobarProximidad(nivelActual, personaje);
+        if (espacioActivo == nivelActual) {        // PASO 3: adentro de una habitación no aplica
+            controladorAcertijo.comprobarProximidad(nivelActual, personaje);
+        }
 
-        //4.1 Deteccion de proximidad de items del nivel
+        // 4.1 Deteccion de proximidad de items del nivel
         controladorItems.actualizar(nivelActual, personaje, controladorAmbiente);
 
         // 4.2 Zonas de proximidad (flashbacks y mensajes): cada zona decide qué hacer
@@ -310,8 +323,8 @@ public class ControladorNivel {
 
         // 5. Consumo de la bateria de la Linterna
         contadorBateria++;
-        if(contadorBateria >= 60){
-            personaje.getLinterna().gastarBateria(); // Linterna llama a notificar() y la vista se actualiza sola
+        if (contadorBateria >= 60) {
+            personaje.getLinterna().gastarBateria();
             contadorBateria = 0;
         }
     }
@@ -324,6 +337,14 @@ public class ControladorNivel {
         }
     }
 
+    private void entrarAHabitacion(Habitacion habitacion) {
+        espacioActivo = habitacion;
+        partida.getPersonaje().colocarEnTile(habitacion.getPosicionInicialX(),
+                                            habitacion.getPosicionInicialY());
+        vista.setEspacioActual(habitacion);
+        controladorTeclado.limpiarTeclas();
+    }
+
     private void cambiarDeNivel() {
         partida.getNivelActual().setNivelSuperado(true);
 
@@ -332,6 +353,7 @@ public class ControladorNivel {
         }
 
         Nivel nivelNuevo = partida.getNivelActual();
+        espacioActivo = nivelNuevo;   // <-- ESTA es la que falta
 
         partida.getPersonaje().colocarEnTile(nivelNuevo.getPosicionInicialX(),
                                             nivelNuevo.getPosicionInicialY());
