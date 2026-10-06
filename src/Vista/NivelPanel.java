@@ -251,7 +251,8 @@ public class NivelPanel extends JPanel {
         if (hoja != null) {
             int frame = cuadroAnimacion % 6;
             // Se delega el recorte exacto a GestorSprites
-            gestorSprites.dibujarCuadro(g2d, estadoActual, personaje.getDireccion(), frame,
+            int fila = (personaje.getDireccion() != null) ? personaje.getDireccion().getFila() : 0;
+            gestorSprites.dibujarCuadro(g2d, estadoActual, fila, frame,
                     posX, posY, ANCHO_CUADRO, ALTO_CUADRO, ESCALA);
 
             Rectangle hb = personaje.getHitbox();
@@ -335,28 +336,27 @@ public class NivelPanel extends JPanel {
         return cacheSprites.computeIfAbsent(ruta, GestorSprites::new);
     }
 
-        private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
-                                Direccion direccion, int frame, int x, int y, double escalaSprite) {
-            if (sprites == null) return;
-            BufferedImage hoja = sprites.obtener(estado);
-            if (hoja == null) return;
+    private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
+                               Direccion direccion, int frame, int x, int y, double escalaSprite) {
+        if (sprites == null) return;
+        BufferedImage hoja = sprites.obtener(estado);
+        if (hoja == null) return;
 
-            int srcX1 = frame * ANCHO_CUADRO;
-            int srcY1 = direccion.getFila() * ALTO_CUADRO;
-            int srcX2 = srcX1 + ANCHO_CUADRO;
-            int srcY2 = srcY1 + ALTO_CUADRO;
+        int srcX1 = frame * ANCHO_CUADRO;
+        int srcY1 = direccion.getFila() * ALTO_CUADRO;
+        int srcX2 = srcX1 + ANCHO_CUADRO;
+        int srcY2 = srcY1 + ALTO_CUADRO;
 
-            int anchoBase = (int) (ANCHO_CUADRO * ESCALA);
-            int altoBase  = (int) (ALTO_CUADRO * ESCALA);
-            int ancho = (int) (anchoBase * escalaSprite);
-            int alto  = (int) (altoBase * escalaSprite);
+        int anchoBase = (int) (ANCHO_CUADRO * ESCALA);
+        int altoBase  = (int) (ALTO_CUADRO * ESCALA);
+        int ancho = (int) (anchoBase * escalaSprite);
+        int alto  = (int) (altoBase * escalaSprite);
 
-            // ancla en los pies: centrado en X, pegado abajo en Y
-            int dx = x + (anchoBase - ancho) / 2;
-            int dy = y + (altoBase - alto);
+        int dx = x + (anchoBase - ancho) / 2;
+        int dy = y + (altoBase - alto);
 
-            g2d.drawImage(hoja, dx, dy, dx + ancho, dy + alto, srcX1, srcY1, srcX2, srcY2, this);
-        }
+        g2d.drawImage(hoja, dx, dy, dx + ancho, dy + alto, srcX1, srcY1, srcX2, srcY2, this);
+    }
 
     public void avanzarAnimacionMuerte() {
         ticksMuerte++;

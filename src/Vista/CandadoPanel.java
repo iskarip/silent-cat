@@ -1,6 +1,5 @@
 package Vista;
 
-import Modelo.Acertijo;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -17,8 +16,7 @@ public class CandadoPanel extends JPanel implements VistaAcertijo {
     private Runnable alResponder;
     private Runnable alSalir;
 
-    // Coordenadas fijas donde caen las ruedas en la imagen candado.png
-    private static final int[] POS_X_CASILLAS = {220, 280, 340, 400}; 
+    private static final int[] POS_X_CASILLAS = {220, 280, 340, 400};
     private static final int POS_Y_CASILLAS = 220;
     private static final int ANCHO_CASILLA = 45;
     private static final int ALTO_CASILLA = 50;
@@ -45,7 +43,7 @@ public class CandadoPanel extends JPanel implements VistaAcertijo {
             campo.setFont(new Font("Monospaced", Font.BOLD, 28));
             campo.setHorizontalAlignment(JTextField.CENTER);
             campo.setBounds(POS_X_CASILLAS[i], POS_Y_CASILLAS, ANCHO_CASILLA, ALTO_CASILLA);
-            
+
             campo.addKeyListener(new java.awt.event.KeyAdapter() {
                 @Override
                 public void keyTyped(java.awt.event.KeyEvent e) {
@@ -90,9 +88,9 @@ public class CandadoPanel extends JPanel implements VistaAcertijo {
         return codigo.toString();
     }
 
-    @Override
-    public void mostrarEnunciado(Acertijo acertijo) {
-        etiquetaMensaje.setText(acertijo.getDescripcion());
+    // Desacoplado: recibe String en vez de Acertijo
+    public void mostrarEnunciado(String descripcion) {
+        etiquetaMensaje.setText(descripcion);
         etiquetaMensaje.setForeground(Color.WHITE);
         reiniciar();
     }
