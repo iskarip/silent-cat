@@ -5,16 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa al jugador. Hereda de Entidad (vida, daño base, posición y el
+ * Representa al jugador. Hereda de EntidadCombatible (vida, daño base, posición y el
  * método mover()), y le suma todo lo que es propio del personaje: arma,
  * linterna, inventario y la lógica de interactuar con el mundo (items, acertijos).
  *
- * IMPORTANTE para quien la lea: Personaje NO implementa Interactuable.
+ * IMPORTANTE: Personaje NO implementa Interactuable.
  * La relación con esa interfaz es de DEPENDENCIA (la usa como tipo de
- * parámetro en interactuarCon), no de REALIZACIÓN. Quien "es" un
- * Interactuable son Item y Acertijo, no Personaje.
+ * parámetro en interactuarCon), no de REALIZACIÓN.
  */
-
 public class Personaje extends EntidadCombatible {
 
     // -- ATRIBUTOS --
@@ -29,11 +27,6 @@ public class Personaje extends EntidadCombatible {
     private boolean agotado = false;
     private double restoX = 0;
     private double restoY = 0;
-
-    // Para notificar cambios de vida al Controlador (que a su vez los pasa a la Vista)
-
-    //public static final String PROP_VIDA = "puntosVida";
-    //private final PropertyChangeSupport soporteCambios = new PropertyChangeSupport(this);
 
     private double nivelEstamina;
 
@@ -54,16 +47,14 @@ public class Personaje extends EntidadCombatible {
     private static final double FACTOR_DIAGONAL = 0.7071;
     private static final double FACTOR_CORRER = 1.6;          // corriendo va 60% más rápido
     private static final double ESTAMINA_MAXIMA = 100;
-    private static final double GASTO_CORRER = 0.5;           
-    private static final double RECUPERACION = 0.2;           
+    private static final double GASTO_CORRER = 0.5;
+    private static final double RECUPERACION = 0.2;
     private static final double UMBRAL_RECUPERACION = 25;     // agotada, necesita 25 para volver a correr
 
     // -- CONSTRUCTOR --
 
-    // Recibe arma y linterna ya construidas (no las crea el personaje),
-    // así queda desacoplado de cómo se arman esos objetos.
-    public Personaje (String nombrePersonaje, Arma arma, Linterna linterna){
-        super(100); // Asignación de Vida y daño base (heredado de Entidad)
+    public Personaje(String nombrePersonaje, Arma arma, Linterna linterna) {
+        super(100);
         this.nombrePersonaje = nombrePersonaje;
         this.nivelEstamina = ESTAMINA_MAXIMA;
         this.arma = arma;
@@ -120,37 +111,35 @@ public class Personaje extends EntidadCombatible {
     }
 
     @Override
-    public void setPuntosVida (int puntosVida) {
+    public void setPuntosVida(int puntosVida) {
         super.setPuntosVida(puntosVida);
         this.notificarCambioVida();
     }
 
     // -- GETTERS Y SETTERS --
 
-    public String getNombrePersonaje(){
+    public String getNombrePersonaje() {
         return nombrePersonaje;
     }
 
-    public int getNivelEstamina(){
+    public int getNivelEstamina() {
         return (int) nivelEstamina;
     }
 
-    public Arma getArma(){
+    public Arma getArma() {
         return arma;
     }
 
-    public Linterna getLinterna(){
+    public Linterna getLinterna() {
         return linterna;
     }
 
-    public Inventario getInventario(){
+    public Inventario getInventario() {
         return inventario;
     }
 
-    // -- METODOS --
+    // -- METODOS DE COMBATE Y HITBOX --
 
-    // Implementación concreta del método abstracto atacar() de Entidad.
-    // Cada subclase de Entidad decide CÓMO ataca; Personaje usa su Arma.
     @Override
     public Rectangle getHitbox() {
         return construirHitbox(getPosicionX(), getPosicionY());
@@ -171,21 +160,27 @@ public class Personaje extends EntidadCombatible {
         }
     }
 
-    // pregunta al arma si esta lista, se llama UNA vez por golpe
     public boolean intentarAtacar() {
         return arma.usarArma();
     }
 
+    @Override
     public void atacar(EntidadCombatible objetivo) {
-        objetivo.recibirDanio(arma.calcularDanio());
+        if (objetivo != null) {
+            objetivo.recibirDanio(arma.calcularDanio());
+        }
     }
 
     public void atacar(Entidad objetivo) {
-        objetivo.recibirDanio(arma.calcularDanio());
+        if (objetivo != null) {
+            objetivo.recibirDanio(arma.calcularDanio());
+        }
     }
 
-    public void usarLinterna(){
-        if (linterna.getEncendido()){
+    // -- ACCIONES DE LINTERNA Y EFECTOS --
+
+    public void usarLinterna() {
+        if (linterna.getEncendido()) {
             linterna.apagarLinterna();
         } else {
             linterna.encenderLinterna();
@@ -213,11 +208,12 @@ public class Personaje extends EntidadCombatible {
         arma.actualizar();
     }
 
-    public double getMultiplicadorVelocidad(){
+    public double getMultiplicadorVelocidad() {
         return multiplicadorVelocidad;
     }
 
-    // el personaje decide cuantos pixeles avanza
+    // -- MOVIMIENTO Y ESTAMINA --
+
     public void mover(int direccionX, int direccionY, boolean quiereCorrer, MapaColision mapa) {
         boolean hayMovimiento = (direccionX != 0 || direccionY != 0);
 
@@ -225,11 +221,11 @@ public class Personaje extends EntidadCombatible {
             this.invulnerableRespawn = false;
         }
 
-        corriendo = quiereCorrer && hayMovimiento && !agotado && ticksLentitud == 0;                 
+        corriendo = quiereCorrer && hayMovimiento && !agotado && ticksLentitud == 0;
 
         double velocidad = VELOCIDAD_BASE * multiplicadorVelocidad;
-        if (corriendo) {                                                                                                                
-            velocidad *= FACTOR_CORRER;                                                                                                  
+        if (corriendo) {
+            velocidad *= FACTOR_CORRER;
         }
         double pasoX = direccionX * velocidad;
         double pasoY = direccionY * velocidad;
@@ -257,8 +253,8 @@ public class Personaje extends EntidadCombatible {
             setDireccion(direccionY > 0 ? Direccion.ABAJO : Direccion.ARRIBA);
         }
 
-        moviendose = hayMovimiento;      
-        actualizarEstamina();            
+        moviendose = hayMovimiento;
+        actualizarEstamina();
         moverConLimites(deltaX, deltaY, mapa);
     }
 
@@ -266,7 +262,6 @@ public class Personaje extends EntidadCombatible {
         mover(direccionX, direccionY, false, mapa);
     }
 
-    // gasta estamina si esta corriendo y la recupera si no
     private void actualizarEstamina() {
         if (corriendo) {
             nivelEstamina = Math.max(0, nivelEstamina - GASTO_CORRER);
@@ -290,62 +285,23 @@ public class Personaje extends EntidadCombatible {
         return corriendo;
     }
 
-    // Punto de entrada genérico para interactuar con CUALQUIER cosa que
-    // implemente Interactuable (Item, Acertijo, etc). Personaje no pregunta
-    // "¿qué sos?" con instanceof: delega en el objeto y que cada uno decida
-    // su propio comportamiento (polimorfismo).
+    // -- INTERACCIONES E INVENTARIO --
 
     public void interactuarCon(Interactuable objeto) {
         objeto.interactuar(this);
     }
-
-    // Usa un item que YA está en el inventario (no uno que está tirado en
-    // el mapa: eso lo maneja el Controlador con agregarAlInventario más abajo).
-    // item.interactuar(this) dispara el efecto propio de cada item
-    // (curar, cargar la linterna, etc) sin que Personaje sepa de qué tipo es.
 
     public void usarItem(Item item) {
         if (item == null || !inventario.getItems().contains(item)) {
             System.out.println("No tenés ese item en el inventario.");
             return;
         }
-        item.interactuar(this);   // polimorfismo: cada item decide qué hacer al usarse
+        item.interactuar(this);
         inventario.quitarItem(item);
     }
 
-    // Se llama desde el código de colisión/recolección (Controlador) cuando
-    // el personaje toca un item en el mapa. Solo lo guarda: NO dispara
-    // interactuar(), así el item queda disponible para usarse después
-    // con usarItem() o para resolver un acertijo con intentarResolverAcertijo().
-
-    public void agregarAlInventario(Item item){
+    public void agregarAlInventario(Item item) {
         inventario.agregarItem(item);
     }
 
-    // Puente entre el inventario y Acertijo.validarRespuesta(String).
-    // Acertijo no conoce el Inventario, e Item no conoce a Acertijo:
-    // Personaje es quien tiene acceso a los dos, así que arma la conexión acá.
-    //
-    // Solo saca el item del inventario si la respuesta es CORRECTA. Si el
-    // jugador prueba con el objeto equivocado, lo conserva y puede intentar
-    // con otro (no lo "pierde" por errar).
-    //
-    // No usa usarItem() por dentro a propósito: usarItem() dispara
-    // interactuar() (el efecto propio del item, como curar), y acá no
-    // queremos ningún efecto — solo comparar el nombre del item contra
-    // la respuesta esperada del acertijo.
-
-    public boolean intentarResolverAcertijo(Acertijo acertijo, Item item) {
-        if (item == null || !inventario.getItems().contains(item)) {
-            System.out.println("No tenés ese item en el inventario.");
-            return false;
-        }
-        boolean resuelto = acertijo.validarRespuesta(item.getNombre());
-        if (resuelto) {
-            inventario.quitarItem(item); // se "entrega" el objeto al resolver
-        }
-        return resuelto;
-    }
-
 }
-5.

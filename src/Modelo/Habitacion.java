@@ -14,11 +14,19 @@ public class Habitacion extends EspacioBase {
         this.puertaY = puertaY;
     }
 
-    public String getNombreHabitacion() { return nombreHabitacion; }
-    public int getPuertaX() { return puertaX; }
-    public int getPuertaY() { return puertaY; }
+    public String getNombreHabitacion() {
+        return nombreHabitacion;
+    }
 
-    // Se calcula, no se guarda: así no puede quedar desincronizada con el acertijo.
+    public int getPuertaX() {
+        return puertaX;
+    }
+
+    public int getPuertaY() {
+        return puertaY;
+    }
+
+    // Se calcula con el acertijo heredado de EspacioBase
     public boolean isDesbloqueada() {
         return getAcertijo() == null || getAcertijo().getResuelto();
     }
@@ -30,6 +38,6 @@ public class Habitacion extends EspacioBase {
         int centroY = puertaY * MapaColision.TILE + MapaColision.TILE / 2;
 
         return Math.hypot(personaje.getPosicionX() - centroX,
-                        personaje.getPosicionY() - centroY) <= RADIO_PUERTA;
+                personaje.getPosicionY() - centroY) <= RADIO_PUERTA;
     }
 }

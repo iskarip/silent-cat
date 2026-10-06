@@ -11,7 +11,7 @@ public class Nivel extends EspacioBase {
     private boolean nivelSuperado;
     private boolean checkpoint;
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
-    private int acertijoColumna, acertijoFila; // posicion donde se activa el acertijo del nivel
+    private int acertijoColumna, acertijoFila;
     private List<ZonaProximidad> zonas = new ArrayList<>();
 
     private int checkpointX;
@@ -19,27 +19,24 @@ public class Nivel extends EspacioBase {
 
     public Nivel(int numeroNivel, Acertijo acertijoNivel, String rutaGrid, String rutaImagenFondo,
                  int posicionInicialX, int posicionInicialY) {
+        // Se pasan exactamente los 5 parámetros requeridos por EspacioBase
         super(rutaGrid, rutaImagenFondo, posicionInicialX, posicionInicialY, acertijoNivel);
         this.numeroNivel = numeroNivel;
         this.nivelSuperado = false;
         this.checkpoint = false;
         this.habitaciones = new ArrayList<>();
 
-        // Checkpoint inicial configurado en el spawn de inicio
+        // Checkpoint inicial configurado en el spawn
         this.checkpointX = posicionInicialX * MapaColision.TILE;
         this.checkpointY = posicionInicialY * MapaColision.TILE;
     }
 
-    //--SET Y GET--
+    // -- GETTERS Y SETTERS --
 
     public boolean getNivelSuperado() { return this.nivelSuperado; }
     public void setNivelSuperado(boolean nivelSuperado) { this.nivelSuperado = nivelSuperado; }
     public boolean getCheckpoint() { return this.checkpoint; }
     public int getNumeroNivel() { return this.numeroNivel; }
-
-    public Acertijo getAcertijo() {
-        return this.acertijoNivel;
-    }
 
     public List<Habitacion> getHabitaciones() { return this.habitaciones; }
 
@@ -54,6 +51,11 @@ public class Nivel extends EspacioBase {
         this.checkpointX = pixelX;
         this.checkpointY = pixelY;
         System.out.println("Checkpoint activado en: (" + pixelX + ", " + pixelY + ")");
+    }
+
+    public void guardarCheckpoint() {
+        this.checkpoint = true;
+        System.out.println("Checkpoint activado en el nivel " + this.numeroNivel + "!!!");
     }
 
     public boolean verificarSiCompleto() {
@@ -88,7 +90,7 @@ public class Nivel extends EspacioBase {
         return checkpointY;
     }
 
-    // LOGICA PARA LOS ACERTIJOS
+    // -- LOGICA DE UBICACION DEL ACERTIJO --
 
     public void setAcertijoEnTile(int columna, int fila) {
         this.acertijoColumna = columna;
@@ -111,19 +113,12 @@ public class Nivel extends EspacioBase {
         return acertijoFila * MapaColision.TILE + MapaColision.TILE / 2;
     }
 
-    public boolean acertijoAlAlcance(Personaje personaje) {
-        if (acertijoNivel == null || acertijoNivel.getResuelto()) {
-            return false;
-        }
-        double distancia = Math.hypot(personaje.getPosicionX() - getAcertijoX(),
-                                      personaje.getPosicionY() - getAcertijoY());
-        return distancia <= 50;
-    }
-
     public Acertijo getAcertijoAlAlcance(Personaje personaje) {
         if (acertijoAlAlcance(personaje)) return getAcertijo();
         for (Habitacion h : habitaciones) {
-            if (h.acertijoAlAlcance(personaje)) return h.getAcertijo();
+            if (h.acertijoAlAlcance(personaje)) {
+                return h.getAcertijo();
+            }
         }
         return null;
     }

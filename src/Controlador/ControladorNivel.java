@@ -1,7 +1,3 @@
-Aquí tienes las 5 clases completas, con todos los conflictos de merge resueltos, integrando limpiamente el sistema de habitaciones y corrida de main con tu sistema de checkpoint, invulnerabilidad al reaparecer y todos los comentarios originales preservados:
-
-1. Controlador/ControladorNivel.java
-Java
 package Controlador;
 
 import Modelo.Partida;
