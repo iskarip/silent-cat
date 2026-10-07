@@ -18,7 +18,7 @@ public class AcertijoPanel extends JPanel {
 
     // -- ATRIBUTOS --
 
-    private double distanciaCasilla = 0.32; // proporción vertical del panel donde se dibujan las casillas
+    private double distanciaCasilla; // proporción vertical del panel donde se dibujan las casillas
     private Image imagenFondo;                    // imagen (centrada, sin deformarse)
     private final JPanel contenedorCasillas;      // agrupa las casillas de los dígitos
     private final List<JTextField> casillasDigitos; // una casilla por dígito de la respuesta
@@ -70,7 +70,7 @@ public class AcertijoPanel extends JPanel {
 
     // Arma la pantalla para un acertijo: pone el enunciado y crea una casilla por dígito.
     // Se recrean las casillas cada vez, así siempre están vacías al abrir el acertijo.
-    public void mostrarEnunciado(String descripcion, int cantidadDigitos, String rutaImagen) {
+    public void mostrarEnunciado(String descripcion, int cantidadDigitos, String rutaImagen, double distanciaCasilla) {
         
         imagenFondo = GestorSprites.cargarImagen(rutaImagen);
 
@@ -93,6 +93,8 @@ public class AcertijoPanel extends JPanel {
             // invokeLater: este método se llama antes de que la pantalla sea visible
             SwingUtilities.invokeLater(() -> casillasDigitos.get(0).requestFocusInWindow());
         }
+
+        this.distanciaCasilla = distanciaCasilla;
     }
 
     // Muestra un mensaje de error en rojo (por ejemplo "Incorrecto. Intentos restantes: 2")
@@ -119,7 +121,7 @@ public class AcertijoPanel extends JPanel {
     private JTextField crearCasilla(int indice) {
         JTextField campo = new JTextField("");
         campo.setFont(new Font("Monospaced", Font.BOLD, 28));
-        campo.setForeground(Color.WHITE);
+        campo.setForeground(Color.BLACK);
         campo.setHorizontalAlignment(JTextField.CENTER);
         campo.setPreferredSize(new Dimension(48, 52));
         campo.setOpaque(false);

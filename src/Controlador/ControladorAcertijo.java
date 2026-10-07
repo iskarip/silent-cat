@@ -90,7 +90,7 @@ public class ControladorAcertijo implements ObservadorAcertijo {
         this.acertijoActual = acertijo;
         this.personajeActual = personaje;
         vista.mostrarEnunciado(acertijo.getDescripcion(), acertijo.getLargoRespuesta(),
-                       acertijo.getRutaImagen());
+                       acertijo.getRutaImagen(), acertijo.getDistanciaCasilla());
         nivelPanel.mostrarAcertijo();
     }
 

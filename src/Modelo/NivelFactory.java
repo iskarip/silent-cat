@@ -26,7 +26,7 @@ public class NivelFactory {
 
     private Nivel crearNivel1() {
         // 1. Se declara e instancia el acertijo
-        Acertijo candadoPlantaBaja = new AcertijoNumerico(1, "", 14, 8, 1234, "/Recursos/UI/Acertijos/Candado/Fondo/candado.png");
+        Acertijo candadoPlantaBaja = new AcertijoNumerico(1, "", 14, 8, 1234, "/Recursos/UI/Acertijos/Candado/Fondo/candado.png", 0.48);
        
         // 2. Se le pasa 'acertijo' al constructor de Nivel
         Nivel nivel = new Nivel(1, candadoPlantaBaja, "Recursos/Mapas/Grid/grid_planta_baja.txt", "/Recursos/Mapas/Imagen/mapa_planta_baja.png", 16, 14);
