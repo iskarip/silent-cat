@@ -4,13 +4,20 @@ import java.sql.*;
 
 public class ConfiguracionDAOSQLite implements ConfiguracionDAO{
 
+private Connection conexion;
+
+    public ConfiguracionDAOSQLite() {
+        this.conexion = GestorConexionBd.getInstancia().getConexion();
+    }
+
+
+
 @Override
     public void guardar(Configuracion configuracion) {
         String sql = "INSERT INTO configuracion (id, volumen_musica, volumen_efectos) VALUES (1, ?, ?) " +
                      "ON CONFLICT(id) DO UPDATE SET volumen_musica = excluded.volumen_musica, " +
                      "volumen_efectos = excluded.volumen_efectos";
 
-        Connection conexion = GestorConexionBd.getInstancia().getConexion();
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setFloat(1, configuracion.getVolumenMusica());
             ps.setFloat(2, configuracion.getVolumenEfectos());
@@ -24,7 +31,6 @@ public class ConfiguracionDAOSQLite implements ConfiguracionDAO{
     public Configuracion cargar() {
         String sql = "SELECT volumen_musica, volumen_efectos FROM configuracion WHERE id = 1";
 
-        Connection conexion = GestorConexionBd.getInstancia().getConexion();
         try (Statement st = conexion.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
