@@ -3,7 +3,7 @@ package Modelo;
 import java.util.Random;
 import java.awt.Rectangle;
 
-public class Enemigo extends EntidadCombatible {
+public abstract class Enemigo extends EntidadCombatible {
 
     private static final int ANCHO_HITBOX = (int) (10 * ESCALA);
     private static final int ALTO_HITBOX = (int) (6 * ESCALA);
@@ -181,27 +181,29 @@ public class Enemigo extends EntidadCombatible {
 
         this.moviendose = (dxPatrulla != 0 || dyPatrulla != 0);
     }
+//cada tipo de enemigo tiene su propia forma de detectar al jugador y de decidir si puede atacarlo, por eso son metodos abstractos
 
-    public boolean detectaAlJugador(Personaje jugador, boolean linternaEncendida) {
-        if (jugador.isInvulnerableRespawn()) {
-            return false;
-        }
+    public abstract boolean detectaAlJugador(Personaje jugador);
 
+    protected abstract boolean puedeAtacar (Personaje jugador);
+
+    protected int getRadioDeteccion(){
+        return radioDeteccion;
+    }
+    protected boolean jugadorDentroDeRadio(Personaje jugador, int radio) {
         double dx = jugador.getPosicionX() - this.getPosicionX();
         double dy = jugador.getPosicionY() - this.getPosicionY();
-        double distancia = Math.hypot(dx, dy);
-
-        int radioEfectivo = linternaEncendida ? radioDeteccion + 40 : radioDeteccion;
-
-        return distancia <= radioEfectivo;
+        return Math.hypot(dx, dy) <= radio;
     }
 
-    public void actualizarComportamiento(Personaje jugador, boolean linternaEncendida, MapaColision mapa) {
+    //los pasos variables son abstractos, metodoo
+
+    public void actualizarComportamiento(Personaje jugador, MapaColision mapa) {
         if (ticksEnfriamientoAtaque > 0) {
             ticksEnfriamientoAtaque--;
         }
 
-        if (detectaAlJugador(jugador, linternaEncendida)) {
+        if (detectaAlJugador(jugador)) {
             alertado = true;
             moverHaciaJugador(jugador, mapa);
         } else if (alertado) {
@@ -217,12 +219,12 @@ public class Enemigo extends EntidadCombatible {
 
     @Override
     public void actualizar(Personaje jugador, MapaColision mapa) {
-        actualizarComportamiento(jugador, jugador.getLinterna().getEncendido(), mapa);
-        if (!jugador.isInvulnerableRespawn() && jugador.getHitbox().intersects(getHitbox())) {
+        actualizarComportamiento(jugador, mapa);
+        if (puedeAtacar(jugador) && jugador.getHitbox().intersects(getHitbox())) {
             atacar(jugador);
         }
     }
-
+    
     @Override
     public void colocarEnTile(int columna, int fila) {
         super.colocarEnTile(columna, fila);
