@@ -3,7 +3,7 @@ package Controlador;
 import Modelo.Configuracion;
 import Modelo.ConfiguracionDAO;
 import Modelo.ConfiguracionDAOSQLite;
-import Modelo.ReproductorSonido;
+import Vista.ReproductorSonido;
 import Vista.AjustesPanel;
 import Vista.JuegoFrame;
 

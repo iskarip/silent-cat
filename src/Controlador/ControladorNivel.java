@@ -5,7 +5,8 @@ import Modelo.Nivel;
 import Modelo.Personaje;
 import Modelo.Linterna;
 import Modelo.ObservadorPersonaje;
-import Modelo.ReproductorSonido;
+import Modelo.ObservadorLinterna;
+import Vista.ReproductorSonido;
 import Modelo.EspacioBase;
 import Modelo.Habitacion;
 import Vista.JuegoFrame;
@@ -125,6 +126,14 @@ public class ControladorNivel {
             Linterna linterna = personajeActual.getLinterna();
             if (linterna != null) {
                 barraBateria.actualizarBateria(linterna.getBateria());
+
+                linterna.agregarObservador(new ObservadorLinterna() {
+                    @Override 
+                    public void linternaCambio(int bateriaActual, boolean encendida) {
+                        linternaOverlay.setEncendida(encendida);
+                        barraBateria.actualizarBateria(bateriaActual);
+                    }
+                });
             }
 
             // Configurar botones de FinDelJuego (con hover desacoplado vía Runnable)

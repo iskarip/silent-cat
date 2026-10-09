@@ -1,8 +1,6 @@
 package Modelo;
 
 import java.awt.Rectangle;
-import java.util.List;
-import java.util.Random;
 
 public class Gato extends EntidadPasiva implements Interactuable {
 
@@ -13,13 +11,7 @@ public class Gato extends EntidadPasiva implements Interactuable {
 
     private boolean encontrado = false;
 
-    private final List<String> sonidosEncuentro = List.of(
-        "Recursos/Sonidos/sonidos_gato/encuentro1.wav",
-        "Recursos/Sonidos/sonidos_gato/encuentro2.wav",
-        "Recursos/Sonidos/sonidos_gato/encuentro3.wav",
-        "Recursos/Sonidos/sonidos_gato/encuentro4.wav"
-    );
-    private final Random random = new Random();
+    private ObservadorGato observador;
 
     public Gato(int columna, int fila) {
         colocarEnTile(columna, fila);
@@ -40,9 +32,10 @@ public class Gato extends EntidadPasiva implements Interactuable {
         return new Rectangle (x + OFFSET_X_HITBOX, y + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
     }
 
-    public void reproducirSonidoEncuentro() {
-        ReproductorSonido.reproducir(sonidosEncuentro.get(random.nextInt(sonidosEncuentro.size())));
+    public void setObservador(ObservadorGato observador) {
+        this.observador = observador;
     }
+
 //implementacion del metodo abstracto de EntidadPasiva, nuestro gato caminaria
 //hacia donde esta el personaje, sin atravesar paredes. Antes de ser encontardo se queda quieto?
 
@@ -76,8 +69,10 @@ public class Gato extends EntidadPasiva implements Interactuable {
     @Override
     public void interactuar(Personaje p) {
         if (!encontrado) {
-            reproducirSonidoEncuentro();
             setEncontrado(true);
+            if (observador != null) {
+                observador.gatoEncontrado();
+            }
         }
     }
 }

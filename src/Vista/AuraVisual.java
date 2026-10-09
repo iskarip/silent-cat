@@ -1,6 +1,5 @@
 package Vista;
 
-import Modelo.ObservadorLinterna;
 import Modelo.Personaje;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -10,7 +9,7 @@ import java.awt.image.BufferedImage;
 
 // Esta clase se encarga de la atmosfera de iluminacion y oscuridad de nuestros niveles.
 // Escucha a la Linterna para saber si dibujar el aura de luz o no (Observer).
-public class AuraVisual implements InterfazVisual, ObservadorLinterna {
+public class AuraVisual implements InterfazVisual {
 
     // -- ATRIBUTOS --
     private BufferedImage texturaVinieta;
@@ -22,8 +21,9 @@ public class AuraVisual implements InterfazVisual, ObservadorLinterna {
     private boolean linternaEncendida = true;
 
     // --- METODO DEL OBSERVADOR ---
-    @Override
-    public void linternaCambio(int bateriaActual, boolean encendida) {
+
+    // Lo llama el controlador cuando la linterna se prende o se apaga
+    public void setEncendida(boolean encendida) {
         this.linternaEncendida = encendida;
     }
 

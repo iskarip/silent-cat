@@ -13,6 +13,14 @@ import java.io.InputStream;
 public class FlashbackGato implements InterfazVisual {
 
     // --- VARIABLES Y ATRIBUTOS ---
+
+    private static final String[] SONIDOS = {
+        "Recursos/Sonidos/sonidos_gato/flashback1.wav",
+        "Recursos/Sonidos/sonidos_gato/flashback2.wav",
+        "Recursos/Sonidos/sonidos_gato/flashback3.wav",
+        "Recursos/Sonidos/sonidos_gato/flashback4.wav"
+    };
+
     private boolean mostrandoFlashback = false;
     private int poseActual = 0;
 
@@ -59,6 +67,7 @@ public void activar(NivelPanel panel) {
     // 1. Elige una postura aleatoria entre las 5 imágenes (0, 1, 2, 3 o 4)
     this.poseActual = (int) (Math.random() * 5);
     this.mostrandoFlashback = true;
+        ReproductorSonido.reproducir(SONIDOS[(int) (Math.random() * SONIDOS.length)]);
 
     // 2. Muestra la imagen durante 1.5 segundos (1500 ms) y luego la oculta
     javax.swing.Timer timer = new javax.swing.Timer(1500, e -> {
