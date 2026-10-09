@@ -1,5 +1,7 @@
 package Modelo;
 
+import java.awt.Rectangle;
+
 public class Habitacion extends EspacioBase {
 
     private final String nombreHabitacion;
@@ -37,7 +39,14 @@ public class Habitacion extends EspacioBase {
         int centroX = puertaX * MapaColision.TILE + MapaColision.TILE / 2;
         int centroY = puertaY * MapaColision.TILE + MapaColision.TILE / 2;
 
-        return Math.hypot(personaje.getPosicionX() - centroX,
-                personaje.getPosicionY() - centroY) <= RADIO_PUERTA;
+        Rectangle hb = personaje.getHitbox();
+
+        return Math.hypot(hb.getCenterX() - centroX,
+                hb.getCenterY() - centroY) <= RADIO_PUERTA;
     }
+
+    // Tile del nivel donde reaparece el personaje al salir
+    public int getRetornoX() { return puertaX; }
+    public int getRetornoY() { return puertaY + 1; }
+    
 }

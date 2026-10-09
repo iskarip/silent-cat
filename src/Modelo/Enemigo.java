@@ -155,32 +155,14 @@ public class Enemigo extends EntidadCombatible {
     public void patrullar(MapaColision mapa) {
         ticksHastaCambiarDireccion--;
         if (ticksHastaCambiarDireccion <= 0) {
-            int opcion = random.nextInt(5);
+            dxPatrulla = 0;
+            dyPatrulla = 0;
 
-            switch (opcion) {
-                case 1:
-                    dxPatrulla = 1;
-                    dyPatrulla = 0;
-                    direccion = Direccion.DERECHA;
-                    break;
-                case 2:
-                    dxPatrulla = -1;
-                    dyPatrulla = 0;
-                    direccion = Direccion.IZQUIERDA;
-                    break;
-                case 3:
-                    dxPatrulla = 0;
-                    dyPatrulla = 1;
-                    direccion = Direccion.ABAJO;
-                    break;
-                case 4:
-                    dxPatrulla = 0;
-                    dyPatrulla = -1;
-                    direccion = Direccion.ARRIBA;
-                    break;
-                default:
-                    dxPatrulla = 0;
-                    dyPatrulla = 0;
+            if (random.nextInt(5) != 0) { // 1 de cada 5 veces se queda quieto
+                Direccion nueva = Direccion.aleatoria(random);
+                direccion = nueva;
+                dxPatrulla = nueva.getDx();
+                dyPatrulla = nueva.getDy();
             }
 
             ticksHastaCambiarDireccion = 40 + random.nextInt(60);
