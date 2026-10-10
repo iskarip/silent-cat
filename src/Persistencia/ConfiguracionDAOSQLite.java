@@ -3,16 +3,28 @@ package Persistencia;
 import java.sql.*;
 
 import Modelo.Configuracion;
+import Modelo.ConfiguracionDAO;
 
 public class ConfiguracionDAOSQLite implements ConfiguracionDAO{
 
-private Connection conexion;
+private final Connection conexion;
 
-    public ConfiguracionDAOSQLite() {
-        this.conexion = GestorConexionBd.getInstancia().getConexion();
+    public ConfiguracionDAOSQLite(Connection conexion) {
+        this.conexion = conexion;
+        crearTablaSiNoExiste();
     }
 
-
+    private void crearTablaSiNoExiste() {
+    String sql = "CREATE TABLE IF NOT EXISTS configuracion (" +
+                 "id INTEGER PRIMARY KEY CHECK (id = 1)," +
+                 "volumen_musica REAL NOT NULL," +
+                 "volumen_efectos REAL NOT NULL)";
+    try (Statement st = conexion.createStatement()) {
+        st.execute(sql);
+    } catch (SQLException e) {
+        System.out.println("No se pudo crear la tabla configuracion: " + e.getMessage());
+    }
+}
 
 @Override
     public void guardar(Configuracion configuracion) {

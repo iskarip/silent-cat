@@ -63,7 +63,7 @@ public class ControladorNivel {
 
     // -- CONSTRUCTOR CONTROLADOR --
 
-    public ControladorNivel(Partida partida, NivelPanel vista, JuegoFrame ventanaPrincipal) {
+    public ControladorNivel(Partida partida, NivelPanel vista, JuegoFrame ventanaPrincipal, ControladorProgreso controladorProgreso) {
         this.partida = partida;
         this.vista = vista;
         this.ventanaPrincipal = ventanaPrincipal;
@@ -75,7 +75,7 @@ public class ControladorNivel {
         this.controladorEntidades = new ControladorEntidades();
         this.controladorItems = new ControladorItems();
 
-        this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this);
+        this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this, controladorProgreso);
 
         this.flashbackGato = new FlashbackGato();
         this.mensajeAmbiental = new MensajeAmbiental();

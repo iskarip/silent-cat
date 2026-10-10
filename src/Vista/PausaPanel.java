@@ -2,6 +2,9 @@ package Vista;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import java.awt.Font;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -13,6 +16,9 @@ public class PausaPanel extends JPanel {
 
     private BotonJuego botonReanudar;
     private BotonJuego botonMenuPrincipal;
+    private BotonJuego botonGuardarPartida;
+
+    private JLabel etiquetaMensaje; // sirve para avisar al jugador si se pudo guardar el progreso
 
     public PausaPanel() {
         setLayout(new GridBagLayout());
@@ -30,6 +36,17 @@ public class PausaPanel extends JPanel {
             "Recursos/Sonidos/UI/sonido3.wav"
         );
         
+        botonGuardarPartida = new BotonJuego(
+        "/Recursos/UI/Pausa/Botones/Guardar.png",
+        "/Recursos/UI/Pausa/Botones/GuardarHover.png",
+        "Recursos/Sonidos/UI/sonido3.wav"
+        );
+
+        etiquetaMensaje = new JLabel(" ");
+        etiquetaMensaje.setForeground(Color.WHITE);
+        etiquetaMensaje.setFont(new Font("Serif", Font.BOLD, 22));
+        etiquetaMensaje.setHorizontalAlignment(SwingConstants.CENTER);
+
         botonMenuPrincipal = new BotonJuego(
             "/Recursos/UI/Pausa/Botones/MenuPrincipal.png",
             "/Recursos/UI/Pausa/Botones/MenuPrincipalHover.png", 
@@ -43,7 +60,15 @@ public class PausaPanel extends JPanel {
 
         gbc.gridy = 1;
         gbc.insets = new Insets(10, 0, 10, 0);
+        add(botonGuardarPartida, gbc);
+
+        gbc.gridy = 2;
+        gbc.insets = new Insets(10, 0, 10, 0);
         add(botonMenuPrincipal, gbc);
+
+        gbc.gridy = 3;
+        gbc.insets = new Insets(20, 0, 0, 0);
+        add(etiquetaMensaje, gbc);
 
         setVisible(false);
     }
@@ -72,4 +97,11 @@ public class PausaPanel extends JPanel {
     public JButton getBotonMenuPrincipal() {
         return botonMenuPrincipal;
     }
+
+    public JButton getBotonGuardarPartida() { return botonGuardarPartida; }
+
+    public void mostrarMensaje(String texto) { etiquetaMensaje.setText(texto); }
+
+    public void limpiarMensaje() { etiquetaMensaje.setText(" "); }
+
 }

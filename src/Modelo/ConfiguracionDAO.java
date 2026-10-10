@@ -1,6 +1,4 @@
-package Persistencia;
-
-import Modelo.Configuracion;
+package Modelo;
 
 //Sin este patron de diseño (data access object)
 //mezclaria codigo del juego con codigo de sql, lo cual es mala practica
