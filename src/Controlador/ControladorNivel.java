@@ -5,12 +5,13 @@ import Modelo.Nivel;
 import Modelo.Personaje;
 import Modelo.Linterna;
 import Modelo.ObservadorPersonaje;
-import Modelo.ReproductorSonido;
+import Modelo.ObservadorLinterna;
+import Vista.ReproductorSonido;
 import Modelo.EspacioBase;
 import Modelo.Habitacion;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
-import Vista.EstadoPersonaje;
+import Vista.EstadoAnimacion;
 import Vista.InventarioVisual;
 import Vista.AuraVisual;
 import Vista.FlashbackGato;
@@ -135,6 +136,14 @@ public class ControladorNivel {
             Linterna linterna = personajeActual.getLinterna();
             if (linterna != null) {
                 barraBateria.actualizarBateria(linterna.getBateria());
+
+                linterna.agregarObservador(new ObservadorLinterna() {
+                    @Override 
+                    public void linternaCambio(int bateriaActual, boolean encendida) {
+                        linternaOverlay.setEncendida(encendida);
+                        barraBateria.actualizarBateria(bateriaActual);
+                    }
+                });
             }
 
             // Configurar botones de FinDelJuego (con hover desacoplado vía Runnable)
@@ -345,7 +354,7 @@ public class ControladorNivel {
         if (!personaje.estaVivo()) {
             if (!personajeMuerto) {
                 personajeMuerto = true;
-                vista.setEstado(EstadoPersonaje.MURIENDO);
+                vista.setEstado(EstadoAnimacion.MURIENDO);
             }
             vista.avanzarAnimacionMuerte();
             return;

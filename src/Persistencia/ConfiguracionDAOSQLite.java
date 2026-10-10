@@ -1,6 +1,8 @@
-package Modelo;
+package Persistencia;
 
 import java.sql.*;
+
+import Modelo.Configuracion;
 
 public class ConfiguracionDAOSQLite implements ConfiguracionDAO{
 
@@ -14,6 +16,7 @@ private Connection conexion;
 
 @Override
     public void guardar(Configuracion configuracion) {
+        if (conexion == null) return; // sin base de datos no se puede guardar
         String sql = "INSERT INTO configuracion (id, volumen_musica, volumen_efectos) VALUES (1, ?, ?) " +
                      "ON CONFLICT(id) DO UPDATE SET volumen_musica = excluded.volumen_musica, " +
                      "volumen_efectos = excluded.volumen_efectos";
@@ -29,6 +32,7 @@ private Connection conexion;
 
     @Override
     public Configuracion cargar() {
+        if (conexion == null) return new Configuracion(0.5f, 1.0f); // sonido default
         String sql = "SELECT volumen_musica, volumen_efectos FROM configuracion WHERE id = 1";
 
         try (Statement st = conexion.createStatement();

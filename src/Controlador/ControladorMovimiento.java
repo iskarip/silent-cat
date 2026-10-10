@@ -2,7 +2,7 @@ package Controlador;
 
 import Modelo.MapaColision;
 import Modelo.Personaje;
-import Vista.EstadoPersonaje;
+import Vista.EstadoAnimacion;
 import Vista.NivelPanel;
 import java.awt.event.KeyEvent;
 
@@ -37,14 +37,14 @@ public class ControladorMovimiento {
         boolean seEstaMoviendo = personaje.estaMoviendose();
 
         if (!vista.estaAtacando() && !vista.estaRecibiendoDanio()) {
-            EstadoPersonaje nuevoEstado;
+            EstadoAnimacion nuevoEstado;
 
             if (!seEstaMoviendo) {
-                nuevoEstado = EstadoPersonaje.IDLE;
+                nuevoEstado = EstadoAnimacion.IDLE;
             } else if (personaje.estaCorriendo()) {
-                nuevoEstado = EstadoPersonaje.CORRIENDO;
+                nuevoEstado = EstadoAnimacion.CORRIENDO;
             } else {
-                nuevoEstado = EstadoPersonaje.CAMINANDO;
+                nuevoEstado = EstadoAnimacion.CAMINANDO;
             }
 
             vista.setEstado(nuevoEstado);

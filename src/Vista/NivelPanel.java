@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,12 @@ public class NivelPanel extends JPanel {
     public static final int ANCHO_CUADRO = 48;
     public static final int ALTO_CUADRO = 48;
 
+    // Traduce la postura que informa el modelo a la hoja de sprites que corresponde
+private static final Map<PoseEntidadCombatible, EstadoAnimacion> ANIMACION_POR_POSTURA = new EnumMap<>(PoseEntidadCombatible.class);
+static {
+    ANIMACION_POR_POSTURA.put(PoseEntidadCombatible.SENTADO, EstadoAnimacion.SENTADO);
+    ANIMACION_POR_POSTURA.put(PoseEntidadCombatible.LEVANTANDOSE, EstadoAnimacion.LEVANTANDOSE);
+}
     // --- MODELO Y ESTADO DEL NIVEL ---
     private Nivel nivelActual;
     private EspacioJugable espacioActual;
@@ -33,7 +40,7 @@ public class NivelPanel extends JPanel {
     private final Map<String, GestorSprites> cacheSprites = new HashMap<>();
 
     // --- ESTADO VISUAL Y ANIMACIÓN ---
-    private EstadoPersonaje estadoActual = EstadoPersonaje.IDLE;
+    private EstadoAnimacion estadoActual = EstadoAnimacion.IDLE;
     private int cuadroAnimacion = 0;
     private int contadorTick = 0;
     private int ticksMuerte = 0;
@@ -82,21 +89,21 @@ public class NivelPanel extends JPanel {
 
     // METODOS PARA CONSULTAR Y DISPARAR EL ESTADO DE DAÑO
     public boolean estaRecibiendoDanio() {
-        return estadoActual == EstadoPersonaje.RECIBIENDO_DANIO;
+        return estadoActual == EstadoAnimacion.RECIBIENDO_DANIO;
     }
 
     public void activarDanioRecibido() {
-        if (estadoActual == EstadoPersonaje.MURIENDO) return;
+        if (estadoActual == EstadoAnimacion.MURIENDO) return;
 
-        setEstado(EstadoPersonaje.RECIBIENDO_DANIO);
+        setEstado(EstadoAnimacion.RECIBIENDO_DANIO);
 
         if (timerDanio != null && timerDanio.isRunning()) {
             timerDanio.stop();
         }
 
         timerDanio = new javax.swing.Timer(250, e -> {
-            if (estadoActual == EstadoPersonaje.RECIBIENDO_DANIO) {
-                setEstado(EstadoPersonaje.IDLE);
+            if (estadoActual == EstadoAnimacion.RECIBIENDO_DANIO) {
+                setEstado(EstadoAnimacion.IDLE);
             }
         });
         timerDanio.setRepeats(false);
@@ -269,9 +276,11 @@ public class NivelPanel extends JPanel {
                 if (!e.estaVivo()) continue;
 
                     GestorSprites sprites = obtenerSprites(e.getRutaSprites());
-                    EstadoPersonaje estado = e.estaAtacando() ? EstadoPersonaje.ATACANDO :
-                        (e.estaMoviendose() ? EstadoPersonaje.CAMINANDO : EstadoPersonaje.IDLE);
-                    int frame = (contadorTick / 6) % obtenerTotalFrames(sprites, estado);
+                    EstadoAnimacion estado = estadoDe(e);
+                    int total = obtenerTotalFrames(sprites, estado);
+                    int frame = e.getPostura().esTransicion()
+                     ? Math.min(total - 1, (int) (e.getProgresoPostura() * total))
+                    : (contadorTick / 6) % total;
                     double escE = e.getEscalaSprite();
                     int ex = e.getPosicionX();
                     int ey = e.getPosicionY();
@@ -284,6 +293,7 @@ public class NivelPanel extends JPanel {
                         int anchoBarra = (int) (20 * ESCALA);
                         g2d.setColor(Color.BLACK);
                         g2d.fillRect(ex + (int) (14 * ESCALA), ey + ajusteY - 6, anchoBarra, 4);
+                        
                         g2d.setColor(Color.RED);
                         int anchoVida = (int) (anchoBarra * (e.getPorcentajeVida() / 100.0));
                         g2d.fillRect(ex + (int) (14 * ESCALA), ey + ajusteY - 6, Math.max(0, anchoVida), 4);
@@ -317,7 +327,7 @@ public class NivelPanel extends JPanel {
         }
     }
 
-    private int obtenerTotalFrames(GestorSprites sprites, EstadoPersonaje estado) {
+    private int obtenerTotalFrames(GestorSprites sprites, EstadoAnimacion estado) {
         if (sprites == null) return 1;
         BufferedImage hoja = sprites.obtener(estado);
         return (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
@@ -327,16 +337,24 @@ public class NivelPanel extends JPanel {
         ticksMuerte = 0;
         finDelJuegoMostrado = false;
         cuadroAnimacion = 0;
-        estadoActual = EstadoPersonaje.IDLE;
+        estadoActual = EstadoAnimacion.IDLE;
         ocultarFindelJuego();
     }
+
+    private EstadoAnimacion estadoDe(Entidad e) {
+        EstadoAnimacion porPostura = ANIMACION_POR_POSTURA.get(e.getPostura());
+        if (porPostura != null) return porPostura;
+        if (e.estaAtacando()) return EstadoAnimacion.ATACANDO;
+        return e.estaMoviendose() ? EstadoAnimacion.CAMINANDO : EstadoAnimacion.IDLE;
+    }
+
 
     private GestorSprites obtenerSprites(String ruta) {
         if (ruta == null) return null;
         return cacheSprites.computeIfAbsent(ruta, GestorSprites::new);
     }
 
-    private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoPersonaje estado,
+    private void dibujarSprite(Graphics2D g2d, GestorSprites sprites, EstadoAnimacion estado,
                                Direccion direccion, int frame, int x, int y, double escalaSprite) {
         if (sprites == null) return;
         BufferedImage hoja = sprites.obtener(estado);
@@ -362,7 +380,7 @@ public class NivelPanel extends JPanel {
         ticksMuerte++;
         if (ticksMuerte % 15 != 0) return;
 
-        BufferedImage hoja = (gestorSprites == null) ? null : gestorSprites.obtener(EstadoPersonaje.MURIENDO);
+        BufferedImage hoja = (gestorSprites == null) ? null : gestorSprites.obtener(EstadoAnimacion.MURIENDO);
         int totalFrames = (hoja == null) ? 1 : Math.max(1, hoja.getWidth() / ANCHO_CUADRO);
 
         if (cuadroAnimacion < totalFrames - 1) {
@@ -408,7 +426,7 @@ public class NivelPanel extends JPanel {
         repaint();
     }
 
-    public void setEstado(EstadoPersonaje nuevoEstado) {
+    public void setEstado(EstadoAnimacion nuevoEstado) {
         // Solo si el estado cambia, reiniciamos los contadores de animación para evitar saltos o parpadeos
         if (this.estadoActual != nuevoEstado) {
             this.estadoActual = nuevoEstado;
@@ -419,7 +437,7 @@ public class NivelPanel extends JPanel {
     }
 
     public boolean estaAtacando() {
-        return estadoActual == EstadoPersonaje.ATACANDO;
+        return estadoActual == EstadoAnimacion.ATACANDO;
     }
 
     public Nivel getNivelActual() { return nivelActual; }

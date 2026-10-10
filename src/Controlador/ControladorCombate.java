@@ -2,7 +2,7 @@ package Controlador;
 
 import Modelo.Nivel;
 import Modelo.Personaje;
-import Vista.EstadoPersonaje;
+import Vista.EstadoAnimacion;
 import Vista.NivelPanel;
 
 import javax.swing.Timer;
@@ -17,7 +17,7 @@ public class ControladorCombate {
         // el Modelo decide si puede atacar (enfriamiento del arma)
         if (!personaje.intentarAtacar()) return;
 
-        vista.setEstado(EstadoPersonaje.ATACANDO);
+        vista.setEstado(EstadoAnimacion.ATACANDO);
         iniciarTimerVueltaAIdle(vista);
 
         nivelActual.resolverAtaque(personaje);
@@ -27,7 +27,7 @@ public class ControladorCombate {
         if (temporizadorAtaque != null) {
             temporizadorAtaque.stop();
         }
-        temporizadorAtaque = new Timer(350, e -> vista.setEstado(EstadoPersonaje.IDLE));
+        temporizadorAtaque = new Timer(350, e -> vista.setEstado(EstadoAnimacion.IDLE));
         temporizadorAtaque.setRepeats(false);
         temporizadorAtaque.start();
     }

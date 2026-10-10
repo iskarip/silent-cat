@@ -55,6 +55,9 @@ public abstract class Entidad implements Posicionable { // Entidad es abstracta 
     public boolean estaVivo() { return true; }
     public boolean estaMoviendose() { return false; }
     public boolean estaAtacando() { return false; }
+    public PoseEntidadCombatible getPostura() { return PoseEntidadCombatible.NORMAL; }   // pose especial (sentado, levantandose...) para que la Vista elija la animacion
+    public double getProgresoPostura() { return 0; }   // avance 0.0 a 1.0 si la pose es una transicion
+    
     public boolean mostrarBarraVida() { return false; }
     public int getPorcentajeVida() { return 100; }
     public void recibirDanio(int cantidad) { }                        // una entidad pasiva no recibe daño

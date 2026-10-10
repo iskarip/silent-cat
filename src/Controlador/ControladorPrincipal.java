@@ -5,7 +5,7 @@ import Modelo.Linterna;
 import Modelo.Nivel;
 import Modelo.Partida;
 import Modelo.Personaje;
-import Modelo.ReproductorSonido;
+import Vista.ReproductorSonido;
 import Vista.GestorSprites;
 import Vista.JuegoFrame;
 import Vista.MenuPanel;

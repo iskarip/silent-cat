@@ -13,21 +13,23 @@ import java.io.InputStream;
 public class FlashbackGato implements InterfazVisual {
 
     // --- VARIABLES Y ATRIBUTOS ---
+
+    private static final String[] SONIDOS = {
+        "Recursos/Sonidos/sonidos_gato/flashback1.wav",
+        "Recursos/Sonidos/sonidos_gato/flashback2.wav",
+        "Recursos/Sonidos/sonidos_gato/flashback3.wav",
+        "Recursos/Sonidos/sonidos_gato/flashback4.wav"
+    };
+
     private boolean mostrandoFlashback = false;
     private int poseActual = 0;
 
-    private Image imagenFlashback1;
-    private Image imagenFlashback2;
-    private Image imagenFlashback3;
-    private Image imagenFlashback4;
-    private Image imagenFlashback5;
+    private final Image[] imagenesFlashback = new Image[5];
 
     public FlashbackGato() {
-        imagenFlashback1 = cargarImagenFlashback("/Recursos/imagenes_gato/gato_flashback_1.png");
-        imagenFlashback2 = cargarImagenFlashback("/Recursos/imagenes_gato/gato_flashback_2.png");
-        imagenFlashback3 = cargarImagenFlashback("/Recursos/imagenes_gato/gato_flashback_3.png");
-        imagenFlashback4 = cargarImagenFlashback("/Recursos/imagenes_gato/gato_flashback_4.png");
-        imagenFlashback5 = cargarImagenFlashback("/Recursos/imagenes_gato/gato_flashback_5.png");
+        for (int i = 0; i < imagenesFlashback.length; i++) {
+            imagenesFlashback[i] = cargarImagenFlashback("/Recursos/imagenes_gato/gato_flashback_" + (i + 1) + ".png");
+        }
     }
 
     private static Image cargarImagenFlashback(String ruta) {
@@ -57,8 +59,9 @@ public class FlashbackGato implements InterfazVisual {
 //metodo apra activar flashback
 public void activar(NivelPanel panel) {
     // 1. Elige una postura aleatoria entre las 5 imágenes (0, 1, 2, 3 o 4)
-    this.poseActual = (int) (Math.random() * 5);
+    this.poseActual = (int) (Math.random() * imagenesFlashback.length);
     this.mostrandoFlashback = true;
+        ReproductorSonido.reproducir(SONIDOS[(int) (Math.random() * SONIDOS.length)]);
 
     // 2. Muestra la imagen durante 1.5 segundos (1500 ms) y luego la oculta
     javax.swing.Timer timer = new javax.swing.Timer(1500, e -> {
@@ -81,14 +84,7 @@ public void activar(NivelPanel panel) {
     public void renderizar(Graphics2D g2d, int ancho, int alto, NivelPanel panel) {
         if (!mostrandoFlashback) return;
 
-        Image imagenAMostrar;
-        switch (poseActual) {
-            case 0: imagenAMostrar = imagenFlashback1; break;
-            case 1: imagenAMostrar = imagenFlashback2; break;
-            case 2: imagenAMostrar = imagenFlashback3; break;
-            case 3: imagenAMostrar = imagenFlashback4; break;
-            default: imagenAMostrar = imagenFlashback5; break;
-        }
+        Image imagenAMostrar = imagenesFlashback[poseActual];
 
         if (imagenAMostrar != null) {
             Composite composicionOriginal = g2d.getComposite();

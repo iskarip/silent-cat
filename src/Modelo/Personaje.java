@@ -134,6 +134,11 @@ public class Personaje extends EntidadCombatible {
         return linterna;
     }
 
+    public boolean linternaEncendida() {
+        return linterna.getEncendido();
+    }
+
+
     public Inventario getInventario() {
         return inventario;
     }

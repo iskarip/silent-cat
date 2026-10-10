@@ -3,14 +3,14 @@ package Vista;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SeleccionPersonajePanel extends JPanel {
-
-    // -- ATRIBUTOS --
 
     public record OpcionPersonaje(String genero, String carpetaSprites) {}
 
@@ -20,9 +20,11 @@ public class SeleccionPersonajePanel extends JPanel {
     );
 
     private final List<GestorSprites> listaGestores = new ArrayList<>();
-
     private int indiceActual = 0;
     private Image imagenFondo;
+
+    // Partículas de ambiente
+    private ParticulasAmbiente particulasAmbiente;
 
     // Componentes de interfaz
     private JButton botonFlechaIzquierda;
@@ -30,27 +32,41 @@ public class SeleccionPersonajePanel extends JPanel {
     private JButton botonIniciarPartida;
     private JButton botonVolverMenu;
 
-    // Animación idle del personaje
-    private Timer timerAnimacion;
+    // Animación y loop visual
+    private Timer timerLoop;
     private int cuadroIdleActual = 0;
+    private int contadorTicks = 0;
 
     // Constantes de dimensiones
     private static final int ANCHO_FRAME = NivelPanel.ANCHO_CUADRO;
     private static final int ALTO_FRAME = NivelPanel.ALTO_CUADRO;
     private static final int TOTAL_FRAMES_IDLE = 4;
 
-    // Escala del personaje principal y del de fondo
-    private static final double ESCALA_ACTIVO = 6.8;
-    private static final double ESCALA_FONDO  = 4.0;
+    private static final double ESCALA_ACTIVO = 7.5;
+    private static final int ANCHO_FLECHA = 140;
+    private static final int ALTO_FLECHA  = 95;
 
     public SeleccionPersonajePanel() {
         setLayout(null);
         setBackground(Color.BLACK);
 
+        // Inicializamos las partículas con una cantidad acorde (ej: 45 partículas)
+        particulasAmbiente = new ParticulasAmbiente(45, 1280, 720);
+
+        // Actualizar dimensiones si la ventana cambia de tamaño
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (getWidth() > 0 && getHeight() > 0) {
+                    particulasAmbiente.setTamanio(getWidth(), getHeight());
+                }
+            }
+        });
+
         cargarFondo();
         precargarGestores();
         crearComponentesUI();
-        iniciarAnimacion();
+        iniciarLoop();
     }
 
     private void cargarFondo() {
@@ -70,7 +86,6 @@ public class SeleccionPersonajePanel extends JPanel {
             listaGestores.add(new GestorSprites(opcion.carpetaSprites()));
         }
     }
-
 
     private JButton crearBotonPNG(String rutaRecurso, String textoAlternativo, int ancho, int alto) {
         JButton boton = new JButton();
@@ -105,12 +120,9 @@ public class SeleccionPersonajePanel extends JPanel {
     }
 
     private void crearComponentesUI() {
-
-        botonFlechaIzquierda = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaIzquierda.png", "<", 85, 70);
-        botonFlechaDerecha   = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaDerecha.png", ">", 85, 70);
+        botonFlechaIzquierda = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaIzquierda.png", "<", ANCHO_FLECHA, ALTO_FLECHA);
+        botonFlechaDerecha   = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaDerecha.png", ">", ANCHO_FLECHA, ALTO_FLECHA);
         botonIniciarPartida  = crearBotonPNG("/Recursos/UI/Menu/Botones/botonIniciarPartida.png", "INICIAR PARTIDA", 330, 115);
-        botonVolverMenu      = crearBotonPNG("/Recursos/UI/Menu/Botones/botonVolver.png", "VOLVER", 170, 60);
-
         botonVolverMenu      = crearBotonPNG("/Recursos/UI/Menu/Botones/botonVolver.png", "VOLVER", 210, 75);
 
         botonFlechaIzquierda.addActionListener(e -> alternarSeleccion(-1));
@@ -128,12 +140,23 @@ public class SeleccionPersonajePanel extends JPanel {
         repaint();
     }
 
-    private void iniciarAnimacion() {
-        timerAnimacion = new Timer(140, e -> {
-            cuadroIdleActual = (cuadroIdleActual + 1) % TOTAL_FRAMES_IDLE;
+    private void iniciarLoop() {
+        // Corre a ~60 FPS (16 ms) para que el polvo flote suavemente
+        timerLoop = new Timer(16, e -> {
+            if (particulasAmbiente != null) {
+                particulasAmbiente.actualizar();
+            }
+
+            // Cada ~144 ms (9 ticks de 16 ms) avanza el frame del sprite del personaje
+            contadorTicks++;
+            if (contadorTicks >= 9) {
+                cuadroIdleActual = (cuadroIdleActual + 1) % TOTAL_FRAMES_IDLE;
+                contadorTicks = 0;
+            }
+
             repaint();
         });
-        timerAnimacion.start();
+        timerLoop.start();
     }
 
     @Override
@@ -152,24 +175,31 @@ public class SeleccionPersonajePanel extends JPanel {
         }
 
         // 2. FLECHAS LATERALES
-        int anchoFlecha = 85;
-        int altoFlecha = 70;
-        int desfasajeX = 220;
-        int desfasajeY = 75;
+        int desfasajeX = 265;
+        int desfasajeY = 30;
 
         if (botonFlechaIzquierda != null) {
-            botonFlechaIzquierda.setBounds(centroX - desfasajeX - (anchoFlecha / 2), (centroY + desfasajeY) - (altoFlecha / 2), anchoFlecha, altoFlecha);
+            botonFlechaIzquierda.setBounds(
+                    centroX - desfasajeX - (ANCHO_FLECHA / 2),
+                    (centroY + desfasajeY) - (ALTO_FLECHA / 2),
+                    ANCHO_FLECHA,
+                    ALTO_FLECHA
+            );
         }
         if (botonFlechaDerecha != null) {
-            botonFlechaDerecha.setBounds(centroX + desfasajeX - (anchoFlecha / 2), (centroY + desfasajeY) - (altoFlecha / 2), anchoFlecha, altoFlecha);
+            botonFlechaDerecha.setBounds(
+                    centroX + desfasajeX - (ANCHO_FLECHA / 2),
+                    (centroY + desfasajeY) - (ALTO_FLECHA / 2),
+                    ANCHO_FLECHA,
+                    ALTO_FLECHA
+            );
         }
 
         // 3. BOTÓN INICIAR PARTIDA
         if (botonIniciarPartida != null) {
             int anchoIniciar = 330;
             int altoIniciar = 115;
-
-            botonIniciarPartida.setBounds(centroX - (anchoIniciar / 2), centroY + 350, anchoIniciar, altoIniciar);
+            botonIniciarPartida.setBounds(centroX - (anchoIniciar / 2), centroY + 330, anchoIniciar, altoIniciar);
         }
     }
 
@@ -178,54 +208,31 @@ public class SeleccionPersonajePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-
         // 1. DIBUJAR FONDO COMPLETO
         if (imagenFondo != null) {
             g2.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
         }
 
+        // 2. DIBUJAR PARTÍCULAS DE AMBIENTE (Polvo flotando en el escenario)
+        if (particulasAmbiente != null) {
+            particulasAmbiente.dibujar(g2);
+        }
+
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
         int centroX = getWidth() / 2;
         int centroY = getHeight() / 2;
-
-
-        int marcoOffsetY = 75;
-
-        // 2.  PERSONAJE INACTIVO TRANSPARENTE EN EL FONDO
-        int indiceInactivo = (indiceActual + 1) % opciones.size();
-        if (indiceInactivo < listaGestores.size()) {
-            GestorSprites gestorInactivo = listaGestores.get(indiceInactivo);
-            BufferedImage hojaInactiva = gestorInactivo.obtener(EstadoPersonaje.IDLE);
-
-            if (hojaInactiva != null) {
-                Composite compOriginal = g2.getComposite();
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.40f));
-
-                int anchoInactivo = (int) (ANCHO_FRAME * ESCALA_FONDO);
-                int altoInactivo  = (int) (ALTO_FRAME * ESCALA_FONDO);
-
-                // Se coloca a la derecha o izquierda en la penumbra
-                int fondoX = (indiceActual == 0) ? (centroX + 235) : (centroX - 235 - anchoInactivo);
-                int fondoY = (centroY + marcoOffsetY) - (altoInactivo / 2);
-
-                g2.drawImage(hojaInactiva,
-                        fondoX, fondoY, fondoX + anchoInactivo, fondoY + altoInactivo,
-                        0, 0, ANCHO_FRAME, ALTO_FRAME, this);
-
-                g2.setComposite(compOriginal); // Restablecer opacidad completa
-            }
-        }
+        int marcoOffsetY = 30;
 
         // 3. SPRITE ACTIVO DEL PERSONAJE DENTRO DEL RECUADRO
         if (indiceActual < listaGestores.size()) {
             GestorSprites gestorActivo = listaGestores.get(indiceActual);
-            BufferedImage hojaActiva = gestorActivo.obtener(EstadoPersonaje.IDLE);
+            BufferedImage hojaActiva = gestorActivo.obtener(EstadoAnimacion.IDLE);
 
             if (hojaActiva != null) {
                 int spriteAncho = (int) (ANCHO_FRAME * ESCALA_ACTIVO);
                 int spriteAlto  = (int) (ALTO_FRAME * ESCALA_ACTIVO);
 
-                // Cuadro actual de la animación (fila 0 de frente)
                 int srcX1 = cuadroIdleActual * ANCHO_FRAME;
                 int srcY1 = 0;
                 int srcX2 = srcX1 + ANCHO_FRAME;
@@ -241,17 +248,7 @@ public class SeleccionPersonajePanel extends JPanel {
         }
     }
 
-    // --- MÉTODOS --
-
-    public JButton getBotonIniciarPartida() {
-        return botonIniciarPartida;
-    }
-
-    public JButton getBotonVolverMenu() {
-        return botonVolverMenu;
-    }
-
-    public String getGeneroSeleccionado() {
-        return opciones.get(indiceActual).genero();
-    }
+    public JButton getBotonIniciarPartida() { return botonIniciarPartida; }
+    public JButton getBotonVolverMenu() { return botonVolverMenu; }
+    public String getGeneroSeleccionado() { return opciones.get(indiceActual).genero(); }
 }

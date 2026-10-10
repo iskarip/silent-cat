@@ -16,7 +16,7 @@ public class GestorSprites {
 
     // EnumMap: un Map para cuando la clave es un enum.
     // Guarda una imagen fija para cada estado del personaje (excepto IDLE, que es un spritesheet animado).
-    private final Map<EstadoPersonaje, BufferedImage> spritesFijos = new EnumMap<>(EstadoPersonaje.class);
+    private final Map<EstadoAnimacion, BufferedImage> spritesFijos = new EnumMap<>(EstadoAnimacion.class);
 
     // cache compartido para imagenes.
     private static final Map<String, Image> CACHE_IMAGENES = new HashMap<>();
@@ -26,15 +26,18 @@ public class GestorSprites {
             carpetaBase += "/";
         }
 
-        cargar(EstadoPersonaje.IDLE, carpetaBase + "idle.png");
-        cargar(EstadoPersonaje.CAMINANDO, carpetaBase + "caminar.png");
-        cargar(EstadoPersonaje.CORRIENDO, carpetaBase + "correr.png");
-        cargar(EstadoPersonaje.ATACANDO, carpetaBase + "atacar.png");
-        cargar(EstadoPersonaje.RECIBIENDO_DANIO, carpetaBase + "recibirDanio.png");
-        cargar(EstadoPersonaje.MURIENDO, carpetaBase + "muere.png");
+        cargar(EstadoAnimacion.IDLE, carpetaBase + "idle.png");
+        cargar(EstadoAnimacion.CAMINANDO, carpetaBase + "caminar.png");
+        cargar(EstadoAnimacion.CORRIENDO, carpetaBase + "correr.png");
+        cargar(EstadoAnimacion.ATACANDO, carpetaBase + "atacar.png");
+        cargar(EstadoAnimacion.RECIBIENDO_DANIO, carpetaBase + "recibirDanio.png");
+        cargar(EstadoAnimacion.MURIENDO, carpetaBase + "muere.png");
+        cargar(EstadoAnimacion.SENTADO, carpetaBase + "sentado.png");
+        cargar(EstadoAnimacion.LEVANTANDOSE, carpetaBase + "levantarse.png");
+    
     }
 
-    private void cargar(EstadoPersonaje estado, String rutaRecurso) {
+    private void cargar(EstadoAnimacion estado, String rutaRecurso) {
         try (InputStream is = getClass().getResourceAsStream(rutaRecurso)) {
             if (is == null) {
                 System.out.println("No se encontro el recurso en: " + rutaRecurso);
@@ -46,7 +49,7 @@ public class GestorSprites {
         }
     }
 
-    public BufferedImage obtener(EstadoPersonaje estado) {
+    public BufferedImage obtener(EstadoAnimacion estado) {
         return spritesFijos.get(estado);
     }
 
@@ -81,7 +84,7 @@ public class GestorSprites {
     }
 
     // --- DIBUJADO DE SPRITESHEET (Absorbe el corte de NivelPanel) ---
-    public void dibujarCuadro(Graphics2D g2d, EstadoPersonaje estado, int fila,
+    public void dibujarCuadro(Graphics2D g2d, EstadoAnimacion estado, int fila,
                               int frame, int x, int y, int anchoCuadro, int altoCuadro, double escala) {
         BufferedImage hoja = obtener(estado);
         if (hoja == null) return;

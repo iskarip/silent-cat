@@ -1,10 +1,13 @@
 package Vista;
 
-public enum EstadoPersonaje {
+public enum EstadoAnimacion {
     IDLE,
     CAMINANDO,
     CORRIENDO,
     ATACANDO,
     RECIBIENDO_DANIO,
-    MURIENDO
+    MURIENDO,
+    SENTADO,
+    LEVANTANDOSE
 }
+

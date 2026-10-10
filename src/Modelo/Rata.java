@@ -48,12 +48,11 @@ public class Rata extends EntidadPasiva {
     private void elegirDireccion() {
         dx = 0;
         dy = 0;
-        switch (random.nextInt(5)) {
-            case 1: dx = 1;  direccion = Direccion.DERECHA;   break;
-            case 2: dx = -1; direccion = Direccion.IZQUIERDA; break;
-            case 3: dy = 1;  direccion = Direccion.ABAJO;     break;
-            case 4: dy = -1; direccion = Direccion.ARRIBA;    break;
-            default: break; // se queda quieta
-        }
+        if (random.nextInt(5) == 0) return; // 1 de cada 5 veces se queda quieta
+
+        Direccion nueva = Direccion.aleatoria(random);
+        direccion = nueva;
+        dx = nueva.getDx();
+        dy = nueva.getDy();
     }
 }

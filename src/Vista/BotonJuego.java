@@ -38,12 +38,18 @@ public class BotonJuego extends JButton {
 
     // Sobrecarga para mantener compatibilidad con las llamadas que pasaban la ruta String del sonido
     public BotonJuego(String rutaNormal, String rutaHover, String rutaSonidoHover, int ancho, int alto) {
-        this(rutaNormal, rutaHover, (Runnable) null, ancho, alto);
+        this(rutaNormal, rutaHover, sonidoHover(rutaSonidoHover), ancho, alto);
         // Si se provee un manejador global de audio en Vista o vía setter, se asigna aquí
     }
 
     public BotonJuego(String rutaNormal, String rutaHover, String rutaSonidoHover) {
         this(rutaNormal, rutaHover, rutaSonidoHover, -1, -1);
+    }
+
+    // arma la accion de hover que reproduce el sonido
+    private static Runnable sonidoHover(String rutaSonido) {
+        if (rutaSonido == null) return null;
+        return () -> ReproductorSonido.reproducir(rutaSonido);
     }
 
     public void setAccionHover(Runnable accionHover) {
