@@ -36,18 +36,19 @@ public class NivelFactory {
         agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
         agregarVarias(nivel, (columna, fila) -> new Rata(columna, fila), new int[]{27, 14}, new int[]{6, 13});
         
-        //pruebaenemigo sensible a la luz, con sprites de nurse
+        //pruebaenemigo sensible a la luz
         agregarVarias(nivel, (columna, fila) -> new EnemigoWatcher(100, 10, nextId++, columna, fila, SPRITES_WATCHER), new int[]{26, 9});
         
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
-        nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Esta roto, no puedo pasar poca acá"));
+        nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Falta la mitad de los escalones. Tiene que haber otro camino."));
+        nivel.agregarZona(new ZonaMensaje(10, 13, 2, "El ascensor no responde. Está muerto."));
         nivel.agregarZona(new PuntoFlashback(25, 8, 2));
 
         Item llave = new Item("llave", "/Recursos/Sprites/Items/llave.png", 21, 5);
         llave.setEscala(0.5);
         nivel.agregarItem(llave);
 
-        crearHabitacionSecreta(); //la habitacion secreta, que se abre con la llave
+        nivel.agregarHabitacion(crearHabitacionSecreta()); //la habitacion secreta, que se abre con la llave
 
         return nivel;
     }
@@ -57,24 +58,9 @@ public class NivelFactory {
         
         Nivel nivel = new Nivel(2, palancaAscensor, "Recursos/Mapas/Grid/grid_sotano.txt","/Recursos/Mapas/Imagen/mapa_sotano.png", 12, 6);
 
+        agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 20), new int[]{20, 9}, new int[]{10, 9}, new int[]{2, 11});
 
-        ItemMedicina medicina1 = new ItemMedicina(20,9,7);
-        nivel.agregarItem(medicina1);
-
-        ItemMedicina medicina2 = new ItemMedicina(10,9,25);
-        nivel.agregarItem(medicina2);
-
-        ItemMedicina medicina3 = new ItemMedicina(2,11,25);
-        nivel.agregarItem(medicina3);
-
-        ItemBateria bateria1 = new ItemBateria(4,7);
-        nivel.agregarItem(bateria1);
-
-        ItemBateria bateria2 = new ItemBateria(4,12);
-        nivel.agregarItem(bateria2);
-
-        ItemBateria bateria3 = new ItemBateria(19,4);
-        nivel.agregarItem(bateria3);
+        agregarVariosItems(nivel, (columna, fila) -> new ItemBateria(columna, fila), new int[]{4, 7}, new int[]{4, 12}, new int[]{19, 4});
 
         agregarVarias(nivel,(columna, fila) -> new EnemigoComun(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{15, 9}, new int[]{2, 8});
 
@@ -123,7 +109,7 @@ public class NivelFactory {
                     "Recursos/Mapas/Grid/grid_habitacion_sotano.txt",
                     "/Recursos/Mapas/Imagen/habitacion_sotano.png",
                     7, 6,        // posicionInicial: tile donde aparece el personaje adentro
-                    8, 22);     // puerta
+                    22, 9);     // puerta
         }
 
     private void agregarVarias(Nivel nivel, BiFunction<Integer, Integer, Entidad> creador, int[]... posiciones) {

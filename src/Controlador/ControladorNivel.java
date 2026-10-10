@@ -169,10 +169,17 @@ public class ControladorNivel {
         }
 
         // Asignación de interacción con 'E'
+
         this.controladorTeclado.setAccionInteraccionar(() -> {
             Personaje personaje = partida.getPersonaje();
             Nivel nivel = partida.getNivelActual();
-            if (espacioActivo != nivel) return;
+
+            if (espacioActivo instanceof Habitacion habitacion) {
+                if (habitacion.salidaAlAlcance(personaje)) {
+                    salirDeHabitacion(habitacion);
+                }
+                return;
+            }
 
             Habitacion habitacion = nivel.getHabitacionAlAlcance(personaje);
             if (habitacion != null) {
@@ -181,7 +188,6 @@ public class ControladorNivel {
                 controladorAcertijo.intentarInteraccion(nivel, personaje, controladorTeclado);
             }
         });
-
 
         // Asignación de acción de Linterna
         this.controladorTeclado.setAccionLinterna(() -> {
@@ -407,6 +413,14 @@ public class ControladorNivel {
         partida.getPersonaje().colocarEnTile(habitacion.getPosicionInicialX(),
                 habitacion.getPosicionInicialY());
         vista.setEspacioActual(habitacion);
+        controladorTeclado.limpiarTeclas();
+    }
+
+    private void salirDeHabitacion(Habitacion habitacion) {
+        Nivel nivel = partida.getNivelActual();
+        espacioActivo = nivel;
+        partida.getPersonaje().colocarEnTile(habitacion.getRetornoX(), habitacion.getRetornoY());
+        vista.setEspacioActual(nivel);
         controladorTeclado.limpiarTeclas();
     }
 

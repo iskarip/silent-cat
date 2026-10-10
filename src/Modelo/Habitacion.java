@@ -1,5 +1,4 @@
 package Modelo;
-
 import java.awt.Rectangle;
 
 public class Habitacion extends EspacioBase {
@@ -39,8 +38,17 @@ public class Habitacion extends EspacioBase {
         int centroX = puertaX * MapaColision.TILE + MapaColision.TILE / 2;
         int centroY = puertaY * MapaColision.TILE + MapaColision.TILE / 2;
 
-        Rectangle hb = personaje.getHitbox();
+        return Math.hypot(personaje.getPosicionX() - centroX,
+                personaje.getPosicionY() - centroY) <= RADIO_PUERTA;
+    }
 
+    public boolean salidaAlAlcance(Personaje personaje) {
+        if (personaje == null) return false;
+
+        int centroX = getPosicionInicialX() * MapaColision.TILE + MapaColision.TILE / 2;
+        int centroY = getPosicionInicialY() * MapaColision.TILE + MapaColision.TILE / 2;
+
+        Rectangle hb = personaje.getHitbox();
         return Math.hypot(hb.getCenterX() - centroX,
                 hb.getCenterY() - centroY) <= RADIO_PUERTA;
     }

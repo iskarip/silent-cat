@@ -44,7 +44,7 @@ public abstract class Acertijo implements Interactuable, Posicionable {
         return Math.hypot(personaje.getPosicionX() - centroX,
                 personaje.getPosicionY() - centroY) <= RADIO_INTERACCION;
     }
-
+    
     public void reiniciarIntentos() {
         this.intentosRestantes = INTENTOS_MAXIMOS;
     }
