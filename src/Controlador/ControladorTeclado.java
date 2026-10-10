@@ -7,16 +7,15 @@ import java.util.Set;
 
 public class ControladorTeclado extends KeyAdapter {
 
-    // Se conserva el Set de teclas activas exactamente igual a como lo programaron
     private final Set<Integer> teclasPresionadas = new HashSet<>();
+    // Teclas "virtuales" que mantiene apretadas el mando (separadas del teclado físico)
+    private final Set<Integer> teclasMando = new HashSet<>();
 
-    // Acciones para teclas de pulso único (Espacio para atacar, F para debug)
     private Runnable accionAtaque;
     private Runnable accionDebugFlashback;
-    private Runnable accionLinterna; 
+    private Runnable accionLinterna;
     private Runnable accionInventario;
-    private Runnable accionInteraccionar; 
-
+    private Runnable accionInteraccionar;
 
     public void setAccionAtaque(Runnable accionAtaque) {
         this.accionAtaque = accionAtaque;
@@ -38,34 +37,29 @@ public class ControladorTeclado extends KeyAdapter {
         this.accionInteraccionar = accionInteraccionar;
     }
 
-
     @Override
     public void keyPressed(KeyEvent e) {
         teclasPresionadas.add(e.getKeyCode());
+        ejecutarAccion(e.getKeyCode());
+    }
 
-        // Mantiene la tecla Espacio para ejecutar el ataque
-        if (e.getKeyCode() == KeyEvent.VK_SPACE && accionAtaque != null) {
+    // Acciones de pulso único. Las usan el teclado (keyPressed) y el mando.
+    public void ejecutarAccion(int keyCode) {
+        if (keyCode == KeyEvent.VK_SPACE && accionAtaque != null) {
             accionAtaque.run();
         }
-
-        // Mantiene la tecla F para la prueba del flashback
-        if (e.getKeyCode() == KeyEvent.VK_F && accionDebugFlashback != null) {
+        if (keyCode == KeyEvent.VK_F && accionDebugFlashback != null) {
             accionDebugFlashback.run();
         }
-
-        // Mantiene la tecla L para activar la linterna
-        if (e.getKeyCode() == KeyEvent.VK_L && accionLinterna != null) {
+        if (keyCode == KeyEvent.VK_L && accionLinterna != null) {
             accionLinterna.run();
         }
-
-        if (e.getKeyCode() == KeyEvent.VK_TAB && accionInventario != null) {
+        if (keyCode == KeyEvent.VK_TAB && accionInventario != null) {
             accionInventario.run();
         }
-
-        if (e.getKeyCode() == KeyEvent.VK_E && accionInteraccionar != null) {
+        if (keyCode == KeyEvent.VK_E && accionInteraccionar != null) {
             accionInteraccionar.run();
         }
-    
     }
 
     @Override
@@ -73,12 +67,21 @@ public class ControladorTeclado extends KeyAdapter {
         teclasPresionadas.remove(e.getKeyCode());
     }
 
-    // Método de consulta para saber si una tecla sigue apretada durante el Game Loop
+    // El mando marca o suelta una tecla virtual
+    public void setTeclaMando(int keyCode, boolean presionada) {
+        if (presionada) {
+            teclasMando.add(keyCode);
+        } else {
+            teclasMando.remove(keyCode);
+        }
+    }
+
     public boolean estaPresionada(int keyCode) {
-        return teclasPresionadas.contains(keyCode);
+        return teclasPresionadas.contains(keyCode) || teclasMando.contains(keyCode);
     }
 
     public void limpiarTeclas() {
         teclasPresionadas.clear();
+        teclasMando.clear();
     }
 }

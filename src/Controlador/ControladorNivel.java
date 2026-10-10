@@ -40,6 +40,7 @@ public class ControladorNivel {
     private final ControladorPausa controladorPausa;
     private final ControladorAmbiente controladorAmbiente;
     private EspacioBase espacioActivo;
+    private final ControladorMando controladorMando;
 
     // Componentes visuales desacoplados (reciben tipos planos / primitivos)
     private final FlashbackGato flashbackGato;
@@ -69,6 +70,15 @@ public class ControladorNivel {
 
         // Instanciación de controladores específicos
         this.controladorTeclado = new ControladorTeclado();
+
+                ControladorMando mando = null;
+            try {
+                mando = new ControladorMando(controladorTeclado);
+            } catch (Throwable t) {
+                System.out.println("Soporte de mando desactivado: " + t);
+            }
+            this.controladorMando = mando;
+
         this.controladorMovimiento = new ControladorMovimiento();
         this.controladorCombate = new ControladorCombate();
         this.controladorEntidades = new ControladorEntidades();
@@ -162,6 +172,7 @@ public class ControladorNivel {
                 controladorAcertijo.intentarInteraccion(nivel, personaje, controladorTeclado);
             }
         });
+
 
         // Asignación de acción de Linterna
         this.controladorTeclado.setAccionLinterna(() -> {
@@ -353,6 +364,8 @@ public class ControladorNivel {
         );
 
         controladorEntidades.actualizar(nivelActual, personaje, vista);
+
+        if (controladorMando != null) controladorMando.actualizar();
 
         if (espacioActivo == nivelActual) {
             controladorAcertijo.comprobarProximidad(nivelActual, personaje);

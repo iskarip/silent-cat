@@ -1,0 +1,59 @@
+[33m4072cd7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Cambio estetico para una mejor implementacion de las imagenes de los acertijos numericos
+[33m38e9b6e[m[33m ([m[1;32miskari_tiles[m[33m)[m Correcion agregando la variable conexion, mencionada en teoria
+[33m21b99de[m Merge pull request #4 from iskarip/cambios-Vista
+[33m5c82999[m Modifique las clases de Vista para sacarle los imports de Modelo
+[33mb6fbc10[m Agrega interfaz y controladores para acertijo de candado
+[33m6dbce4e[m Ya resolvi los errores, ahora anda el main
+[33ma8c2abb[m Merge pull request #3 from iskarip/rama-aldana
+[33m4b609c0[m Merge branch 'main' into rama-aldana
+[33m9d79fd6[m Agregue la habitacion al sotano una vez se resuelve el acertijo se entra con E
+[33m2ba8af0[m Arreglado el checkpoint. Ahora se puede mover el personaje y reaparece desde donde murio. Tambien se le da un poco de tiempo al personaje para que el enemigo no lo ataque enseguida
+[33m30bf1f2[m Merge pull request #2 from iskarip/seleccionPersonajePanel
+[33m6d3aecf[m[33m ([m[1;31morigin/seleccionPersonajePanel[m[33m)[m Ajuste la posicion del boton de inicar partida en la pantalla de seleccion personaje
+[33mc740d78[m Agregue estetica provisional al acerijo del candado
+[33m60ef524[m Hice el checkpoint pero aun hay errores; el personaje no camina despues de reanudar la partida
+[33mcfd7421[m Merge branch 'main' of https://github.com/iskarip/silent-cat
+[33m7487881[m Cambie la logica de los acerijos, probablemente no esta del todo bien pero funciona por ahora
+[33m4bedfc0[m Agregue las imagenes nuevas definitivas del flashback del gato.
+[33m428afa4[m agregada base de datos en menu configuraciones, me queda pulir la estetica y agregar boton para volver al menu, pero guarda los cambios hechos.
+[33m08619a0[m arregle la pantalla negra al volver al menu en la segunda partida y agregue la interfaz ObservadorAcertijo, Acertijo.interactuar() avisa al observador y ControladorAcertijo es quien muestra el panel, asi el modelo no conoce la vista. Todavia falta probar con acertijos reales. También agregue un mensaje al recoger la llave.
+[33mdce1ce7[m La lentitud del flashback estaba frenando al personaje asi que lo corregi, movi el cooldown de ataque que estaba en el controlador al modelo. Ahora con shift el personaje puede correr y consume su estamina, tambien se ve la animacion de correr
+[33m79ad9c9[m Merge pull request #1 from iskarip/rama-aldana
+[33m60faf16[m[33m ([m[1;31morigin/rama-aldana[m[33m)[m Aplique observers, tambien modifique para que el enemigo reciba daño y que ataque porque antes no corrian bien esos sprites, ajuste la hitbox
+[33mf2abcaf[m cambie la estetica del gameover
+[33m21be882[m Actualice el sprite de la rata faltan modificacione
+[33me517859[m Arregle el GameLoop, ahora a mi me anda bastante fluido y bien. Capaz a ustedes les va mas rapido. En caso de que si, hay que preguntarle a los profes
+[33mf10b78c[m la musica del menu vuelve a sonar al volver desde pausa o game over (reproducirEnLoop ahora corre en un hilo) - game over ahora aparece despues de la animacion de muerte porq antes no se veia
+[33mdd36d8c[m Agregue inventario se abre con tab
+[33mc12ec9b[m los controladores hacian el trabajo de modelo asi que ahora solo traducen la entrada del usuario a una orden y le avisan a la vista
+[33m8faccff[m arregle el merch
+[33m1316f2c[m Cambie la logica de leer las entidades para que podamos implmentar ratas
+[33mc298fe7[m cree un controlador para entidades pasivas, movi la logica del gato y la saque de clases donde ya no hace falta que este. Defini el metodo moverse y me guie de esa logica para el gato y su interaccion con el pj
+[33mcbc3cb9[m No me andaba el main pero ya lo arregle, era una linea de codigo nomas :p
+[33mb6d00a3[m Modifique el código de NivelPanel para pasarle funcionalidades que no le correspondían, ahora hay que fijarse bien donde colocarlo. Modifique: GestorSprites, FinDelJuego (ahora es observer), ControladorPausa, BarraVida y NivelPanel. Ahora respeta SOLID! :D
+[33mb78ecf6[m me falto agregar algo
+[33mee906a7[m mojere el polimorfismo de las zonas de proximidad, cambie la herencia de las entidades, cambie la menera de usar los flashbacks
+[33m40f1c68[m Particulas de polvo para el menu
+[33m650e1d2[m Cree la clase FabricaAcertijo (Factory) para la creacion de acertijos. Tambien cree la clase ObservadorPersonaje en Modelo. Voy a seguir con los Observadores y organizacion de NivelPanel
+[33m0f670da[m hola
+[33m26eec9a[m Me salia un merge asi que lo arregle :(
+[33me7ceb2a[m Enlace a archivo doc con el armado de la entrega y actualizacion del diagrama de clases de acuerdo a nuestro juego.
+[33m36fe799[m Merge branch 'main' of https://github.com/iskarip/silent-cat
+[33m5785fd5[m link al documento de la interfaz visual
+[33mf3129ea[m Se agrego un mensaje con las coordenadas correctas en el nivel planta baja. Servira para que interactue en el futuro.
+[33m56ccc3c[m Actualizaciones en el read.me para la entrega 4
+[33md124b11[m Oscureci el fondo del menu
+[33ma53c90f[m Agregue metodos a reproducir sonido para que repordusca musica en loop y la agregue al menu, tambien le dejo metodos listos para realizar el AjustesPanel
+[33md9f4cca[m Agregue para posicionar una certijo por tile y acomode el grid de la planta baja
+[33m0f57f99[m Termine el nivel planta baja y lo agregue para poder usarlo, el grid tambien aunque me queda mejorarlo unu, saque las instanciaciones porque no se ver bien las coordenadas, asiq inicia el personaje solo en ese nivel planta_baja.
+[33m16762c0[m 1. Modifique un poco el codigo de AuraVisual para que vaya mas fluido el personaje, el aura/linterna y que no se sobrecargue la CPU. Ahora el diseño en pantalla lo maneja la GPU (recomendable ya que vamos a implementar mas enemigos). 2. Agregue una clase FinDelJuego en Vista y comente codigo de Game Over de NivelPanel para descomprimir las funcionalidades de esa clase. 3. Agregue una foto de calavera en la pantalla cuando se muere el personaje.
+[33m4709400[m Cree la superclase ZonaProximidad de la cual heredan PuntoFlashback y ZonaMensaje para poder agregar esas cosas segun zonas especificas del mapa. Cree la clase controladorAmbiente para poder controlar tanto los mensajes como los flashbacks. Cree la clase vista, MensajeAmbiental puse estetica de prueba. Agregue un metodo a la vista FlashbackGato para ponerle distorsion y no solo imagenes. En Nivel factory agrege mas o menos las zonas donde van a aparecer los mensajes, me guie de la ubicacion de los enemigos, pude ver que sale el mensaje pero el flashback aun no solo, pero probandolo con la letra F si sale uwu.
+[33m6ec522a[m Intento de pusheo :0
+[33mf303737[m Cambie la pantalla de selccion de personaje. Aun estoy viendo los botones para que quede mejor. El boton de -Volver- puede ser un poco redundante pero lo deje porque sino tenia que empezar la partida para solo probar diseño. Podemos sacarlo despues. Quiero ver la pantalla de pausa y la pantalla de cuando se muere el personaje.
+[33mc21b881[m Estoy haciendo cambios en la pantalla de seleccion de personaje
+[33md304980[m Cambie la imagen de fondo de SeleccionPersonaje
+[33m396df38[m Re organice la herencia y polimorfismo de los espacios jugables para empezar a implementar los acertijos
+[33mbdb32a9[m ahora si el enemigo no se tendria que trabar ni traspasar paredes, y agregue dos medicinas mas al mapa
+[33m27caa17[m Agregue metodos necesario en acertijo, acertijoObjeto y controladorAcertijo, queria ver lo de implementar el acertijo de la puerta y el item del aceite. Hice un modelo en el nivel Factory de ese acertijo de la puerta para que este en Planta baja, que es el nivel que aun no esta, pero lo deje mas o menos armado para cuando lo tenga. Le baje la velocidad al jugador y enemigo y agregue un condicional, creo que aumentaba la velocidad si presionabamos dos teclas o caminabamos en diagonal por eso, por lo que se multiplicaba.
+[33m8a7ac61[m agregue a los enemigos de vuelta, arregle la animacion de ataque y enemigo ya no atraviesa paredes
+[33m48e3c51[m corrección de animaciones IDLE, duplic

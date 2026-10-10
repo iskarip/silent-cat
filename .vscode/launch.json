@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+        "type": "java",
+        "name": "Main",
+        "request": "launch",
+        "mainClass": "Main",
+        "projectName": "silent-cat_47d26b5f"
+    },
+    {
+        "type": "java",
+        "name": "Prueba Mando",
+        "request": "launch",
+        "mainClass": "PruebaMando",
+        "vmArgs": "-Djava.library.path=lib/natives --enable-native-access=ALL-UNNAMED"
+    }
+]
+}
