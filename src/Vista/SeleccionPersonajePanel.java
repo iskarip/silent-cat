@@ -195,7 +195,7 @@ public class SeleccionPersonajePanel extends JPanel {
         int indiceInactivo = (indiceActual + 1) % opciones.size();
         if (indiceInactivo < listaGestores.size()) {
             GestorSprites gestorInactivo = listaGestores.get(indiceInactivo);
-            BufferedImage hojaInactiva = gestorInactivo.obtener(EstadoPersonaje.IDLE);
+            BufferedImage hojaInactiva = gestorInactivo.obtener(EstadoAnimacion.IDLE);
 
             if (hojaInactiva != null) {
                 Composite compOriginal = g2.getComposite();
@@ -219,7 +219,7 @@ public class SeleccionPersonajePanel extends JPanel {
         // 3. SPRITE ACTIVO DEL PERSONAJE DENTRO DEL RECUADRO
         if (indiceActual < listaGestores.size()) {
             GestorSprites gestorActivo = listaGestores.get(indiceActual);
-            BufferedImage hojaActiva = gestorActivo.obtener(EstadoPersonaje.IDLE);
+            BufferedImage hojaActiva = gestorActivo.obtener(EstadoAnimacion.IDLE);
 
             if (hojaActiva != null) {
                 int spriteAncho = (int) (ANCHO_FRAME * ESCALA_ACTIVO);

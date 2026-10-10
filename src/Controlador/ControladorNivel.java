@@ -11,7 +11,7 @@ import Modelo.EspacioBase;
 import Modelo.Habitacion;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
-import Vista.EstadoPersonaje;
+import Vista.EstadoAnimacion;
 import Vista.InventarioVisual;
 import Vista.AuraVisual;
 import Vista.FlashbackGato;
@@ -343,7 +343,7 @@ public class ControladorNivel {
         if (!personaje.estaVivo()) {
             if (!personajeMuerto) {
                 personajeMuerto = true;
-                vista.setEstado(EstadoPersonaje.MURIENDO);
+                vista.setEstado(EstadoAnimacion.MURIENDO);
             }
             vista.avanzarAnimacionMuerte();
             return;

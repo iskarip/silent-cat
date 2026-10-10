@@ -7,6 +7,7 @@ public class NivelFactory {
     //SPRITES ENTIDADES
 
     private static final String SPRITES_NURSE = "/Recursos/Sprites/Enemigos/Nurse/";
+    private static final String SPRITES_WATCHER = "/Recursos/Sprites/Enemigos/Watcher/";
     private int nextId = 1;
 
     // Sirve para crear niveles según su número. Si el número no es válido, lanza una excepción.
@@ -36,8 +37,7 @@ public class NivelFactory {
         agregarVarias(nivel, (columna, fila) -> new Rata(columna, fila), new int[]{27, 14}, new int[]{6, 13});
         
         //pruebaenemigo sensible a la luz, con sprites de nurse
-        agregarVarias(nivel, (columna, fila) -> new EnemigoFotosensible(100, 10, nextId++, columna, fila, SPRITES_NURSE),
-                 new int[]{16, 14});
+        agregarVarias(nivel, (columna, fila) -> new EnemigoWatcher(100, 10, nextId++, columna, fila, SPRITES_WATCHER), new int[]{26, 9});
         
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
         nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Esta roto, no puedo pasar poca acá"));
@@ -90,6 +90,7 @@ public class NivelFactory {
         nivel.agregarZona(new ZonaMensaje(15, 8, 2, "Huele a sangre..."));
         nivel.agregarZona(new ZonaMensaje(2, 8, 2, "El aire se siente muy pesado."));
 
+        agregarVarias(nivel, (columna, fila) -> new EnemigoFotosensible(100, 20, nextId++, columna, fila, SPRITES_WATCHER), new int[]{19, 4});
         return nivel;
     }
 

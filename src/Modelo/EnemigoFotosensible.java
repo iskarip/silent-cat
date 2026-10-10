@@ -4,8 +4,7 @@ package Modelo;
     //hereda todo el mov y combate de la clase enemigo, solo define sus propias reglas.
 public class EnemigoFotosensible extends Enemigo {
  
-    public EnemigoFotosensible(int puntosVida, int danioBase, int idEnemigo,
-                               int columna, int fila, String rutaSprites) {
+    public EnemigoFotosensible(int puntosVida, int danioBase, int idEnemigo, int columna, int fila, String rutaSprites) {
         super(puntosVida, danioBase, idEnemigo, columna, fila, rutaSprites);
     }
  
