@@ -8,6 +8,7 @@ public class Partida {
     // -- ATRIBUTOS --
     private static Partida instancia;
     private Personaje personaje;
+    private String genero; // distingue el personaje: hace falta para poder guardar y continuar
     private EspacioBase espacioActivo;
 
     private Map<Integer, Nivel> niveles;
@@ -42,6 +43,9 @@ public class Partida {
     public Personaje getPersonaje() { return personaje; }
     public void setPersonaje(Personaje personaje) { this.personaje = personaje; }
 
+    public String getGenero() { return genero; }
+    public void setGenero(String genero) { this.genero = genero; }
+
     
     // -- METODOS --
 
@@ -65,6 +69,40 @@ public class Partida {
         if (inicial != null) {
             personaje.colocarEnTile(inicial.getPosicionInicialX(), inicial.getPosicionInicialY());
         }
+    }
+
+    // Arma una foto del estado actual para guardarla (el modelo no sabe cómo ni dónde)
+    public Progreso crearProgreso() {
+        Nivel nivel = getNivelActual();
+        return new Progreso(genero, numeroNivelActual,
+                nivel.getCheckpointX(), nivel.getCheckpointY(),
+                personaje.getPuntosVida(), personaje.getLinterna().getBateria());
+    }
+
+    // Lo contrario: después de iniciarPartida(), deja la partida como estaba al guardar
+    public boolean aplicarProgreso(Progreso progreso) {
+        if (progreso == null || !niveles.containsKey(progreso.getNumeroNivel())) {
+            return false;
+        }
+
+        for (int i = 1; i < progreso.getNumeroNivel(); i++) {
+            if (niveles.containsKey(i)) {
+                niveles.get(i).setNivelSuperado(true); // los anteriores ya estaban superados
+            }
+        }
+
+        numeroNivelActual = progreso.getNumeroNivel();
+        Nivel nivel = getNivelActual();
+        nivel.guardarCheckpoint(progreso.getCheckpointX(), progreso.getCheckpointY());
+
+        espacioActivo = nivel;
+        habitacionActiva = null;
+        personaje.colocarEnTile(progreso.getCheckpointX() / MapaColision.TILE,
+                                progreso.getCheckpointY() / MapaColision.TILE);
+        personaje.setPuntosVida(progreso.getVida());
+        personaje.getLinterna().setBateria(progreso.getBateria());
+        this.genero = progreso.getGenero();
+        return true;
     }
 
     public boolean avanzarSiguienteNivel() {

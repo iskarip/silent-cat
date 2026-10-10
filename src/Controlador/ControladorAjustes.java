@@ -1,7 +1,7 @@
 package Controlador;
 
 import Modelo.Configuracion;
-import Persistencia.ConfiguracionDAO;
+import Modelo.ConfiguracionDAO;
 import Persistencia.ConfiguracionDAOSQLite;
 import Vista.ReproductorSonido;
 import Vista.AjustesPanel;
@@ -13,10 +13,10 @@ public class ControladorAjustes {
     private final JuegoFrame ventanaPrincipal;
     private final ConfiguracionDAO configuracionDAO;
 
-    public ControladorAjustes(AjustesPanel vista, JuegoFrame ventanaPrincipal) {
+    public ControladorAjustes(AjustesPanel vista, JuegoFrame ventanaPrincipal, ConfiguracionDAO configuracionDAO) {
         this.vista = vista;
         this.ventanaPrincipal = ventanaPrincipal;
-        this.configuracionDAO = new ConfiguracionDAOSQLite();
+        this.configuracionDAO = configuracionDAO;
 
         cargarConfiguracionGuardada();
         configurarListeners();

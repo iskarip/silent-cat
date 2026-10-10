@@ -4,7 +4,10 @@ import Modelo.Arma;
 import Modelo.Linterna;
 import Modelo.Nivel;
 import Modelo.Partida;
+import Modelo.Progreso;
 import Modelo.Personaje;
+import Modelo.ConfiguracionDAO;
+import Modelo.ProgresoDAO;
 import Vista.ReproductorSonido;
 import Vista.GestorSprites;
 import Vista.JuegoFrame;
@@ -16,13 +19,22 @@ public class ControladorPrincipal {
 
     private JuegoFrame ventana;
     private ControladorNivel controladorNivelActual;
+    private final ControladorProgreso controladorProgreso;
     public static final String MUSICA_MENU = "Recursos/Sonidos/UI/menu1.wav";
 
-    public ControladorPrincipal(JuegoFrame ventana) {
+    public ControladorPrincipal(JuegoFrame ventana, ConfiguracionDAO configuracionDAO, ProgresoDAO progresoDAO) {
+
+        // se crea el controlador de progreso antes de configurar los eventos del menu
         this.ventana = ventana;
+        this.controladorProgreso = new ControladorProgreso(Partida.getInstancia(), progresoDAO);
+
         configurarEventosMenu();
         configurarEventosSeleccion();
-        new ControladorAjustes(ventana.getAjustesPanel(), ventana); //este controlador cargaria la configuracion guardada
+        new ControladorAjustes(ventana.getAjustesPanel(), ventana, configuracionDAO); // carga la configuracion guardada
+
+        // muestra u oculta el boton de "continuar" segun si hay datos guardados
+        ventana.getMenuPanel().setContinuarVisible(controladorProgreso.hayProgreso());
+
     }
 
     private void configurarEventosMenu() {
@@ -32,6 +44,8 @@ public class ControladorPrincipal {
         menu.getBotonNuevaPartida().addActionListener(e -> {
             ventana.mostrarPantalla("seleccion");
         });
+
+        menu.getBotonContinuar().addActionListener(e -> continuarJuego());
 
         menu.getBotonAjustes().addActionListener(e -> {
             ventana.mostrarPantalla("ajustes");
@@ -45,9 +59,9 @@ public class ControladorPrincipal {
     private void configurarEventosSeleccion() {
         Vista.SeleccionPersonajePanel seleccion = ventana.getSeleccionPersonajePanel();
 
-        // Iniciar la partida
+        // Iniciar la partida nueva (se le pasa null porq no hay objeto Progreso previo)
         seleccion.getBotonIniciarPartida().addActionListener(e -> {
-            comenzarJuego(seleccion.getGeneroSeleccionado());
+            comenzarJuego(seleccion.getGeneroSeleccionado(), null);
         });
 
         // Regresar a la pantalla de menú principal
@@ -55,8 +69,14 @@ public class ControladorPrincipal {
             ventana.mostrarPantalla("menu");
         });
     }
+
+    private void continuarJuego() {
+        Progreso progreso = controladorProgreso.cargar();
+        if (progreso == null) return;
+        comenzarJuego(progreso.getGenero(), progreso);
+    }
     
-    private void comenzarJuego(String genero) {
+    private void comenzarJuego(String genero, Progreso progreso) {
 
         
         ReproductorSonido.detenerMusica(); 
@@ -69,13 +89,13 @@ public class ControladorPrincipal {
         // 1. Instanciación de Partida (Singleton)
         Partida partida = Partida.getInstancia();
         partida.iniciarPartida(3);
+        partida.setGenero(genero);
+        if (progreso != null) {
+            partida.aplicarProgreso(progreso);
+        }
 
-        // 2. Creación del personaje
-        Personaje personaje = new Personaje("Protagonista", new Arma(), new Linterna());
-        partida.setPersonaje(personaje);
-        
-        Nivel nivel = partida.getNivelActual();
-        personaje.colocarEnTile(nivel.getPosicionInicialX(), nivel.getPosicionInicialY());
+        // 2. El personaje ya lo armo la partida
+        Personaje personaje = partida.getPersonaje();
         
         // 3. Configuración de GestorSprites
         GestorSprites spritesPersonaje = new GestorSprites("/Recursos/Sprites/Personajes/" + genero + "/");
@@ -90,7 +110,7 @@ public class ControladorPrincipal {
         ventana.mostrarPantallaConFundido("nivel");
 
         // 6. Asignar e iniciar el ControladorNivel al atributo global
-        controladorNivelActual = new ControladorNivel(partida, nivelPanel, ventana);
+        controladorNivelActual = new ControladorNivel(partida, nivelPanel, ventana, controladorProgreso);
         controladorNivelActual.iniciar(); 
     }
 }

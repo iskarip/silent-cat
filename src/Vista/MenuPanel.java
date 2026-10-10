@@ -14,6 +14,7 @@ public class MenuPanel extends JPanel {
     private BufferedImage imagenFondo;
 
     private BotonJuego botonNuevaPartida;
+    private BotonJuego botonContinuar;
     private BotonJuego botonAjustes;
     private BotonJuego botonSalir;
 
@@ -47,6 +48,8 @@ public class MenuPanel extends JPanel {
 
         // 3. Botones personalizados
         botonNuevaPartida = new BotonJuego("/Recursos/UI/Menu/Botones/NuevaPartida.png", "/Recursos/UI/Menu/Botones/NuevaPartidaHover.png", "Recursos/Sonidos/UI/sonido3.wav");
+        botonContinuar    = new BotonJuego("/Recursos/UI/Menu/Botones/Continuar.png", "/Recursos/UI/Menu/Botones/ContinuarHover.png", "Recursos/Sonidos/UI/sonido3.wav");
+        botonContinuar.setVisible(false); // arranca oculto, el controlador lo muestra si hay partida guardada
         botonAjustes      = new BotonJuego("/Recursos/UI/Menu/Botones/Ajustes.png", "/Recursos/UI/Menu/Botones/AjustesHover.png", "Recursos/Sonidos/UI/sonido3.wav");
         botonSalir        = new BotonJuego("/Recursos/UI/Menu/Botones/Salir.png", "/Recursos/UI/Menu/Botones/SalirHover.png", "Recursos/Sonidos/UI/sonido3.wav");
 
@@ -56,20 +59,33 @@ public class MenuPanel extends JPanel {
         gbc.insets = new Insets(300, 80, 15, 0); 
         add(botonNuevaPartida, gbc);
 
-        // --- BOTÓN 2: AJUSTES ---
+        // --- BOTON 2: CONTINUAR ---
         gbc.gridy = 1;
+        gbc.insets = new Insets(10, 80, 15, 0);
+        add(botonContinuar, gbc);
+
+        // --- BOTÓN 3: AJUSTES ---
+        gbc.gridy = 2;
         gbc.insets = new Insets(10, 80, 15, 0); 
         add(botonAjustes, gbc);
 
-        // --- BOTÓN 3: SALIR ---
-        gbc.gridy = 2;
+        // --- BOTÓN 4: SALIR ---
+        gbc.gridy = 3;
         gbc.insets = new Insets(10, 80, 0, 0); 
         add(botonSalir, gbc);
     }
 
     public JButton getBotonNuevaPartida() { return botonNuevaPartida; }
+    public JButton getBotonContinuar() { return botonContinuar; }
     public JButton getBotonAjustes() { return botonAjustes; }
     public JButton getBotonSalir() { return botonSalir; }
+
+    // sin partida guardada el menu queda como antes (sin boton de continuar)
+    public void setContinuarVisible(boolean visible) {
+        botonContinuar.setVisible(visible);
+        revalidate();
+        repaint();
+    }
 
     private void cargarFondo() {
         try {
