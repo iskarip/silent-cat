@@ -108,4 +108,12 @@ public class ControladorPausa {
         ReproductorSonido.reproducirEnLoop(ControladorPrincipal.MUSICA_MENU);
     }
 
+    public void alternarPausa() {
+    if (controladorNivel.isPausado()) {
+        reanudar();
+    } else {
+        pausar();
+    }
+    }
+
 }

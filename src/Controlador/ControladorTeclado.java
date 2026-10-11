@@ -16,6 +16,7 @@ public class ControladorTeclado extends KeyAdapter {
     private Runnable accionLinterna;
     private Runnable accionInventario;
     private Runnable accionInteraccionar;
+    private Runnable accionPausa; 
 
     public void setAccionAtaque(Runnable accionAtaque) {
         this.accionAtaque = accionAtaque;
@@ -36,6 +37,11 @@ public class ControladorTeclado extends KeyAdapter {
     public void setAccionInteraccionar(Runnable accionInteraccionar) {
         this.accionInteraccionar = accionInteraccionar;
     }
+
+    public void setAccionPausa(Runnable accionPausa) {
+        this.accionPausa = accionPausa;
+    }
+
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -60,7 +66,12 @@ public class ControladorTeclado extends KeyAdapter {
         if (keyCode == KeyEvent.VK_E && accionInteraccionar != null) {
             accionInteraccionar.run();
         }
+        if (keyCode == KeyEvent.VK_ESCAPE && accionPausa != null) {
+            accionPausa.run();
+        }
+
     }
+
 
     @Override
     public void keyReleased(KeyEvent e) {
