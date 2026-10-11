@@ -16,7 +16,7 @@ public class ControladorTeclado extends KeyAdapter {
     private Runnable accionLinterna;
     private Runnable accionInventario;
     private Runnable accionInteraccionar;
-    private Runnable accionPausa; 
+    private Runnable accionPausa;
 
     public void setAccionAtaque(Runnable accionAtaque) {
         this.accionAtaque = accionAtaque;
