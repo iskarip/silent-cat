@@ -200,6 +200,12 @@ public class ControladorNivel {
 
         this.vista.addKeyListener(controladorTeclado);
         this.bucleDeJuego = new Timer(16, e -> cicloPrincipal());
+
+        this.controladorTeclado.setAccionPausa(() -> {
+        if (!personajeMuerto) {
+        this.controladorPausa.alternarPausa();
+        }
+        });
     }
 
     // -- SINCRONIZACIÓN DE INVENTARIO DESACOPLADO --
