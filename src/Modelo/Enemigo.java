@@ -59,6 +59,12 @@ public abstract class Enemigo extends EntidadCombatible {
         return this.moviendose;
     }
 
+    //Un enemigo que esta persiguiendo al jugador representa una amenaza media
+    @Override
+    public int getNivelAmenaza() {
+        return alertado ? 2 : 0;
+    }
+
     @Override
     public Rectangle getHitbox() {
         return construirHitbox(getPosicionX(), getPosicionY());

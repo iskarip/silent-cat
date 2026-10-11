@@ -16,6 +16,7 @@ public interface StateWatcher {
 
     default double getProgreso() { return 0; } // Avance 0.0 a 1.0 de las transiciones (por defecto 0).
     
+    default int getNivelAmenaza() { return 0; } // uanto peligro representa en este estado
 
 
 }

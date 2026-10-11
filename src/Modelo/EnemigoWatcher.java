@@ -58,5 +58,9 @@ public class EnemigoWatcher extends EnemigoFotosensible {
  
     @Override
     public double getProgresoPostura() { return estado.getProgreso(); }
+
+    @Override
+    public int getNivelAmenaza() { return estado.getNivelAmenaza(); }
+
 }
  

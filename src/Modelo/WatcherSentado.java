@@ -3,14 +3,17 @@ package Modelo;
 
 public class WatcherSentado implements StateWatcher {
     
-  @Override
-    public void actualizar(EnemigoWatcher watcher, Personaje jugador, MapaColision mapa) {
+     @Override
+        public void actualizar(EnemigoWatcher watcher, Personaje jugador, MapaColision mapa) {
         // detectaAlJugador ya exige linterna encendida y estar dentro del radio
         if (watcher.detectaAlJugador(jugador)) {
             watcher.despertar();
         }
     }
- 
+    
+    @Override
+    public int getNivelAmenaza() { return 1; }   
+
     @Override
     public boolean puedeAtacar() { return false; }
  
