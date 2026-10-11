@@ -1,23 +1,7 @@
 package Controlador;
 
-import Modelo.Partida;
-import Modelo.Nivel;
-import Modelo.Personaje;
-import Modelo.Linterna;
-import Modelo.ObservadorPersonaje;
-import Modelo.ObservadorLinterna;
-import Vista.ReproductorSonido;
-import Modelo.EspacioBase;
-import Modelo.Habitacion;
-import Vista.JuegoFrame;
-import Vista.NivelPanel;
-import Vista.EstadoAnimacion;
-import Vista.InventarioVisual;
-import Vista.AuraVisual;
-import Vista.FlashbackGato;
-import Vista.BarraBateria;
-import Vista.BarraVida;
-import Vista.MensajeAmbiental;
+import Modelo.*;
+import Vista.*;
 
 import javax.swing.Timer;
 import java.awt.Toolkit;
@@ -40,8 +24,8 @@ public class ControladorNivel {
     private final ControladorItems controladorItems;
     private final ControladorPausa controladorPausa;
     private final ControladorAmbiente controladorAmbiente;
-    private EspacioBase espacioActivo;
     private final ControladorMando controladorMando;
+    private final ControladorEspacio controladorEspacio;
 
     // Componentes visuales desacoplados (reciben tipos planos / primitivos)
     private final FlashbackGato flashbackGato;
@@ -50,6 +34,7 @@ public class ControladorNivel {
     private final BarraVida barraVida;
     private final AuraVisual linternaOverlay;
     private final InventarioVisual inventarioVisual;
+    private final AvisoInteraccion avisoInteraccion;
 
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
@@ -68,6 +53,7 @@ public class ControladorNivel {
         this.partida = partida;
         this.vista = vista;
         this.ventanaPrincipal = ventanaPrincipal;
+        this.controladorEspacio = new ControladorEspacio(partida, vista);
 
         // Instanciación de controladores específicos
         this.controladorTeclado = new ControladorTeclado();
@@ -89,7 +75,8 @@ public class ControladorNivel {
 
         this.flashbackGato = new FlashbackGato();
         this.mensajeAmbiental = new MensajeAmbiental();
-        this.controladorAmbiente = new ControladorAmbiente(flashbackGato, mensajeAmbiental, vista);
+        this.avisoInteraccion = new AvisoInteraccion();
+        this.controladorAmbiente = new ControladorAmbiente(flashbackGato, mensajeAmbiental, this.avisoInteraccion, vista);
 
         this.controladorAcertijo = new ControladorAcertijo(vista, controladorAmbiente);
 
@@ -100,6 +87,7 @@ public class ControladorNivel {
         this.vista.agregarCapaVisual(linternaOverlay);
         this.vista.agregarCapaVisual(this.flashbackGato);
         this.vista.agregarCapaVisual(this.mensajeAmbiental);
+        this.vista.agregarCapaVisual(this.avisoInteraccion);
 
         this.inventarioVisual = new InventarioVisual();
         this.vista.agregarCapaVisual(inventarioVisual);
@@ -174,9 +162,10 @@ public class ControladorNivel {
             Personaje personaje = partida.getPersonaje();
             Nivel nivel = partida.getNivelActual();
 
-            if (espacioActivo instanceof Habitacion habitacion) {
-                if (habitacion.salidaAlAlcance(personaje)) {
-                    salirDeHabitacion(habitacion);
+            if (controladorEspacio.estaEnHabitacion()) {
+                Habitacion actual = partida.getHabitacionActiva();
+                if (actual.salidaAlAlcance(personaje)) {
+                    salirDeHabitacion();
                 }
                 return;
             }
@@ -300,13 +289,9 @@ public class ControladorNivel {
     }
 
     private void sincronizarModeloConVista() {
-        Nivel nivelActual = partida.getNivelActual();
         Personaje personaje = partida.getPersonaje();
 
-        if (nivelActual != null) {
-            espacioActivo = nivelActual;
-            vista.setNivelActual(nivelActual);
-        }
+        controladorEspacio.sincronizarVista();
 
         if (personaje != null) {
             vista.setPersonaje(personaje);
@@ -373,7 +358,7 @@ public class ControladorNivel {
 
         controladorMovimiento.procesarMovimientoJugador(
                 personaje,
-                espacioActivo.getMapaColision(),
+                controladorEspacio.getEspacioActivo().getMapaColision(),
                 controladorTeclado,
                 vista
         );
@@ -382,12 +367,12 @@ public class ControladorNivel {
 
         if (controladorMando != null) controladorMando.actualizar();
 
-        if (espacioActivo == nivelActual) {
+        if (!controladorEspacio.estaEnHabitacion()) {
             controladorAcertijo.comprobarProximidad(nivelActual, personaje);
         }
 
-        controladorItems.actualizar(nivelActual, personaje, controladorAmbiente);
-        controladorAmbiente.comprobarZonas(nivelActual, personaje);
+        controladorItems.actualizar(controladorEspacio.getEspacioActivo(), personaje, controladorAmbiente);
+        controladorAmbiente.comprobarZonas(controladorEspacio.getEspacioActivo(), personaje);
         personaje.actualizarEfectos();
 
         // Gasto periódico de batería y sincronización con BarraBateria
@@ -409,34 +394,19 @@ public class ControladorNivel {
     }
 
     private void entrarAHabitacion(Habitacion habitacion) {
-        espacioActivo = habitacion;
-        partida.getPersonaje().colocarEnTile(habitacion.getPosicionInicialX(),
-                habitacion.getPosicionInicialY());
-        vista.setEspacioActual(habitacion);
+        controladorAmbiente.ocultarAvisoInteraccion();
+        controladorEspacio.entrar(habitacion);
         controladorTeclado.limpiarTeclas();
     }
 
-    private void salirDeHabitacion(Habitacion habitacion) {
-        Nivel nivel = partida.getNivelActual();
-        espacioActivo = nivel;
-        partida.getPersonaje().colocarEnTile(habitacion.getRetornoX(), habitacion.getRetornoY());
-        vista.setEspacioActual(nivel);
+    private void salirDeHabitacion() {
+        controladorAmbiente.ocultarAvisoInteraccion();
+        controladorEspacio.salir();
         controladorTeclado.limpiarTeclas();
     }
 
     private void cambiarDeNivel() {
-        partida.getNivelActual().setNivelSuperado(true);
-
-        if (!partida.avanzarSiguienteNivel()) {
-            return;
-        }
-
-        Nivel nivelNuevo = partida.getNivelActual();
-        espacioActivo = nivelNuevo;
-
-        partida.getPersonaje().colocarEnTile(nivelNuevo.getPosicionInicialX(),
-                nivelNuevo.getPosicionInicialY());
-        vista.setNivelActual(nivelNuevo);
+        if (!controladorEspacio.cambiarDeNivel()) return;
         actualizarInventarioVisual();
         controladorTeclado.limpiarTeclas();
     }

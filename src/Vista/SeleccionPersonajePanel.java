@@ -27,10 +27,10 @@ public class SeleccionPersonajePanel extends JPanel {
     private ParticulasAmbiente particulasAmbiente;
 
     // Componentes de interfaz
-    private JButton botonFlechaIzquierda;
-    private JButton botonFlechaDerecha;
-    private JButton botonIniciarPartida;
-    private JButton botonVolverMenu;
+    private BotonJuego botonFlechaIzquierda;
+    private BotonJuego botonFlechaDerecha;
+    private BotonJuego botonIniciarPartida;
+    private BotonJuego botonVolverMenu;
 
     // Animación y loop visual
     private Timer timerLoop;
@@ -87,43 +87,11 @@ public class SeleccionPersonajePanel extends JPanel {
         }
     }
 
-    private JButton crearBotonPNG(String rutaRecurso, String textoAlternativo, int ancho, int alto) {
-        JButton boton = new JButton();
-        ImageIcon icono = null;
-
-        try {
-            java.net.URL url = getClass().getResource(rutaRecurso);
-            if (url != null) {
-                ImageIcon iconoOriginal = new ImageIcon(url);
-                Image escalada = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
-                icono = new ImageIcon(escalada);
-            } else {
-                System.out.println("[SeleccionPersonajePanel] No se encontró el recurso: " + rutaRecurso);
-            }
-        } catch (Exception ignored) {}
-
-        if (icono != null) {
-            boton.setIcon(icono);
-        } else {
-            boton.setText(textoAlternativo);
-            boton.setFont(new Font("Arial", Font.BOLD, 18));
-            boton.setForeground(new Color(220, 180, 70));
-        }
-
-        boton.setOpaque(false);
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setBorder(null);
-        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return boton;
-    }
-
     private void crearComponentesUI() {
-        botonFlechaIzquierda = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaIzquierda.png", "<", ANCHO_FLECHA, ALTO_FLECHA);
-        botonFlechaDerecha   = crearBotonPNG("/Recursos/UI/Menu/Botones/FlechaDerecha.png", ">", ANCHO_FLECHA, ALTO_FLECHA);
-        botonIniciarPartida  = crearBotonPNG("/Recursos/UI/Menu/Botones/botonIniciarPartida.png", "INICIAR PARTIDA", 330, 115);
-        botonVolverMenu      = crearBotonPNG("/Recursos/UI/Menu/Botones/botonVolver.png", "VOLVER", 210, 75);
+        botonFlechaIzquierda = new BotonJuego("/Recursos/UI/SeleccionPersonaje/Botones/FlechaIzquierda.png", "<", "Recursos/Sonidos/UI/sonido3.wav", ANCHO_FLECHA, ALTO_FLECHA);
+        botonFlechaDerecha   = new BotonJuego("/Recursos/UI/SeleccionPersonaje/Botones/FlechaDerecha.png", ">", "Recursos/Sonidos/UI/sonido3.wav", ANCHO_FLECHA, ALTO_FLECHA);
+        botonIniciarPartida  = new BotonJuego("/Recursos/UI/SeleccionPersonaje/Botones/IniciarPartida.png", "/Recursos/UI/SeleccionPersonaje/Botones/IniciarPartidaHover.png", "Recursos/Sonidos/UI/sonido3.wav");
+        botonVolverMenu      = new BotonJuego("/Recursos/UI/SeleccionPersonaje/Botones/Volver.png", "/Recursos/UI/SeleccionPersonaje/Botones/VolverHover.png", "Recursos/Sonidos/UI/sonido3.wav");
 
         botonFlechaIzquierda.addActionListener(e -> alternarSeleccion(-1));
         botonFlechaDerecha.addActionListener(e -> alternarSeleccion(1));
@@ -167,14 +135,13 @@ public class SeleccionPersonajePanel extends JPanel {
         int centroY = getHeight() / 2;
         int altoPanel = getHeight();
 
-        // 1. BOTÓN VOLVER
-        int anchoVolver = 210;
-        int altoVolver = 75;
+        // 1. BOTÓN VOLVER (esquina inferior izquierda, con el tamaño de su imagen)
         if (botonVolverMenu != null) {
-            botonVolverMenu.setBounds(35, altoPanel - altoVolver - 30, anchoVolver, altoVolver);
+            Dimension tam = botonVolverMenu.getPreferredSize();
+            botonVolverMenu.setBounds(35, altoPanel - tam.height - 30, tam.width, tam.height);
         }
 
-        // 2. FLECHAS LATERALES
+        // 2. FLECHAS LATERALES (estas sí tienen tamaño fijo, se escalan en el constructor)
         int desfasajeX = 265;
         int desfasajeY = 30;
 
@@ -195,11 +162,10 @@ public class SeleccionPersonajePanel extends JPanel {
             );
         }
 
-        // 3. BOTÓN INICIAR PARTIDA
+        // 3. BOTÓN INICIAR PARTIDA (centrado, con el tamaño de su imagen)
         if (botonIniciarPartida != null) {
-            int anchoIniciar = 330;
-            int altoIniciar = 115;
-            botonIniciarPartida.setBounds(centroX - (anchoIniciar / 2), centroY + 330, anchoIniciar, altoIniciar);
+            Dimension tam = botonIniciarPartida.getPreferredSize();
+            botonIniciarPartida.setBounds(centroX - (tam.width / 2), centroY + 290, tam.width, tam.height);
         }
     }
 

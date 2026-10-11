@@ -4,6 +4,7 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
  
 //va a mostrar en el centro de la pantalla un mensaje
@@ -45,11 +46,19 @@ public class MensajeAmbiental implements InterfazVisual {
  
         g2d.setFont(new Font("Serif", Font.ITALIC, 40));
         g2d.setColor(new Color(180, 20, 20)); // rojizo, tipo Silent Hill
-        int anchoTexto = g2d.getFontMetrics().stringWidth(mensajeActual);
-        int x = (ancho - anchoTexto) / 2;
-        int y = alto - 80;
-        g2d.drawString(mensajeActual, x, y);
- 
+
+        FontMetrics fm = g2d.getFontMetrics();
+        String[] lineas = mensajeActual.split("\n");
+        int alturaLinea = fm.getHeight();
+        int yBase = alto - 80 - (lineas.length - 1) * alturaLinea;
+
+        for (int i = 0; i < lineas.length; i++) {
+            int x = (ancho - fm.stringWidth(lineas[i])) / 2;
+            g2d.drawString(lineas[i], x, yBase + i * alturaLinea);
+        }
+
         g2d.setComposite(original);
+        
+
     }
 }

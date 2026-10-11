@@ -12,7 +12,6 @@ public class Nivel extends EspacioBase {
     private boolean checkpoint;
     private int accesoSiguienteNivelX, accesoSiguienteNivelY;
     private int acertijoColumna, acertijoFila;
-    private List<ZonaProximidad> zonas = new ArrayList<>();
 
     private int checkpointX;
     private int checkpointY;
@@ -66,10 +65,6 @@ public class Nivel extends EspacioBase {
         if (h != null) this.habitaciones.add(h);
     }
 
-    public void agregarZona(ZonaProximidad zona) {
-        if (zona != null) zonas.add(zona);
-    }
-
     public void resolverAtaque(Personaje atacante) {
         if (listaEntidades == null) return;
         Rectangle hitboxGolpe = atacante.getHitboxAtaque();
@@ -79,8 +74,6 @@ public class Nivel extends EspacioBase {
             }
         }
     }
-
-    public List<ZonaProximidad> getZonas() { return zonas; }
 
     public int getCheckpointX() {
         return checkpointX;

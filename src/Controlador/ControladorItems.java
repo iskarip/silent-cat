@@ -1,18 +1,21 @@
 package Controlador;
 
 import Modelo.Personaje;
-import Modelo.Nivel;
 import Modelo.Item;
 import Modelo.ObservadorAmbiente;
 import java.awt.Rectangle;
 import java.util.List;
+import Modelo.EspacioJugable;
 
 public class ControladorItems {
 
-    public void actualizar(Nivel nivelActual, Personaje personaje, ObservadorAmbiente observador) {
-        if (nivelActual == null || personaje == null) return;
+  
 
-        List<Item> items = nivelActual.getListaItems();
+
+    public void actualizar(EspacioJugable espacio, Personaje personaje, ObservadorAmbiente observador) {
+        if (espacio == null || personaje == null) return;
+
+        List<Item> items = espacio.getListaItems();
         if (items == null) return;
 
         Rectangle hitboxJugador = personaje.getHitbox();

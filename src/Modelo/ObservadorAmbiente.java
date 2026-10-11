@@ -12,6 +12,10 @@ package Modelo;
 
         // Un PuntoFlashback pide mostrar la imagen del flashback.
         void mostrarFlashback();
+
+        void mostrarAvisoInteraccion(String texto);
+        
+        void ocultarAvisoInteraccion();
     }
         
 

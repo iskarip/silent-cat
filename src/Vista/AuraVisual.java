@@ -84,10 +84,10 @@ public class AuraVisual implements InterfazVisual {
             texturaVinieta = new BufferedImage(radioVinieta * 2,  radioVinieta * 2, BufferedImage.TYPE_INT_ARGB);
             Graphics2D gV = texturaVinieta.createGraphics();
 
-            float[] distVinieta = {0.0f, 0.5f, 1.0f};
+            float[] distVinieta = {0.0f,0.3f, 1.0f};
             Color[] coloresVinieta = {
-                    new Color(0,0,0,60),
-                    new Color(0, 0, 0, 180),
+                    new Color(0,0,0,110),
+                    new Color(0, 0, 0, 215),
                     new Color(0, 0, 0, 255)
             };
 

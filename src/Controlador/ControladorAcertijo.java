@@ -34,7 +34,6 @@ public class ControladorAcertijo implements ObservadorAcertijo {
     private final ActionListener alSalir = e -> volverAlNivel();
 
     private boolean acertijoActivo = false; // true mientras la pantalla del acertijo está abierta
-    private boolean avisoMostrado = false;  // evita repetir "Presiona E" en cada tick mientras sigue cerca
     private AcertijoNumerico acertijoActual; // el acertijo que se está resolviendo ahora
     private Personaje personajeActual;       // el personaje que lo está resolviendo
 
@@ -57,11 +56,11 @@ public class ControladorAcertijo implements ObservadorAcertijo {
     public void comprobarProximidad(Nivel nivel, Personaje personaje) {
         if (acertijoActivo || nivel == null || personaje == null) return;
 
-        boolean alAlcance = nivel.getAcertijoAlAlcance(personaje) != null;
-        if (alAlcance && !avisoMostrado) {
-            ambiente.mostrarMensaje("Presiona E para interactuar");
+        if (nivel.getAcertijoAlAlcance(personaje) != null) {
+            ambiente.mostrarAvisoInteraccion("[E] Interactuar");
+        } else {
+            ambiente.ocultarAvisoInteraccion();
         }
-        avisoMostrado = alAlcance;
     }
 
     // Se llama al apretar E. Si hay un acertijo al alcance, el personaje interactúa con él.

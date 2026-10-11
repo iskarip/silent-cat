@@ -12,6 +12,7 @@ public abstract class EspacioBase implements EspacioJugable {
     protected String rutaImagenFondo;
     protected List<Item> listaItems;
     protected List<Entidad> listaEntidades;
+    protected List<ZonaProximidad> zonas = new ArrayList<>();
 
     public EspacioBase(String rutaGrid, String rutaImagenFondo,
                        int posicionInicialX, int posicionInicialY, Acertijo acertijo) {
@@ -35,6 +36,7 @@ public abstract class EspacioBase implements EspacioJugable {
 
     public int getPosicionInicialX() { return posicionInicialX; }
     public int getPosicionInicialY() { return posicionInicialY; }
+    public List<ZonaProximidad> getZonas() { return zonas; }
     public void setPosicionInicialX(int posicionInicialX) { this.posicionInicialX = posicionInicialX; }
     public void setPosicionInicialY(int posicionInicialY) { this.posicionInicialY = posicionInicialY; }
 
@@ -44,6 +46,10 @@ public abstract class EspacioBase implements EspacioJugable {
 
     public void agregarEntidad(Entidad e) {
         if (e != null) this.listaEntidades.add(e);
+    }
+
+    public void agregarZona(ZonaProximidad zona) {
+        if (zona != null) zonas.add(zona);
     }
 
     @Override public String getRutaImagenFondo() { return rutaImagenFondo; }
