@@ -6,7 +6,11 @@
         "name": "Main",
         "request": "launch",
         "mainClass": "Main",
+<<<<<<< HEAD
         "projectName": "silent-cat_c142c48d"
+=======
+        "projectName": "silent-cat_51a178a5"
+>>>>>>> df311d5f18f420e1768960b336010e81d0fa0b02
     },
     {
         "type": "java",
