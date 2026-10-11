@@ -1,8 +1,5 @@
 package Controlador;
 
-import Modelo.Arma;
-import Modelo.Linterna;
-import Modelo.Nivel;
 import Modelo.Partida;
 import Modelo.Progreso;
 import Modelo.Personaje;
@@ -13,7 +10,6 @@ import Vista.GestorSprites;
 import Vista.JuegoFrame;
 import Vista.MenuPanel;
 import Vista.NivelPanel;
-import javax.swing.JOptionPane;
 
 public class ControladorPrincipal {
 

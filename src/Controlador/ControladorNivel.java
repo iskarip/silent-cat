@@ -17,6 +17,7 @@ import Vista.AuraVisual;
 import Vista.FlashbackGato;
 import Vista.BarraBateria;
 import Vista.BarraVida;
+import Vista.BarraEstamina;
 import Vista.MensajeAmbiental;
 
 import javax.swing.Timer;
@@ -48,6 +49,7 @@ public class ControladorNivel {
     private final MensajeAmbiental mensajeAmbiental;
     private final BarraBateria barraBateria;
     private final BarraVida barraVida;
+    private final BarraEstamina barraEstamina;
     private final AuraVisual linternaOverlay;
     private final InventarioVisual inventarioVisual;
 
@@ -110,6 +112,9 @@ public class ControladorNivel {
 
         this.barraBateria = new BarraBateria();
         this.vista.agregarCapaVisual(barraBateria);
+
+        this.barraEstamina = new BarraEstamina();
+        this.vista.agregarCapaVisual(barraEstamina);
 
         Personaje personajeActual = partida.getPersonaje();
         if (personajeActual != null) {
@@ -389,6 +394,8 @@ public class ControladorNivel {
         controladorItems.actualizar(nivelActual, personaje, controladorAmbiente);
         controladorAmbiente.comprobarZonas(nivelActual, personaje);
         personaje.actualizarEfectos();
+        barraEstamina.actualizar(personaje.getNivelEstamina(), personaje.estaAgotado(),
+        personaje.getPosicionX(), personaje.getPosicionY());
 
         // Gasto periódico de batería y sincronización con BarraBateria
         contadorBateria++;

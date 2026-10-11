@@ -15,6 +15,7 @@ public abstract class Enemigo extends EntidadCombatible {
     private int radioDeteccion = 200;
     private boolean alertado = false;
     private int ticksEnfriamientoAtaque = 0;
+    private int ticksEnContacto = 0;
     private static final int ENFRIAMIENTO_ATAQUE = 60;
 
     private int spawnX;
@@ -78,7 +79,7 @@ public abstract class Enemigo extends EntidadCombatible {
         if (objetivo != null) {
             System.out.println("El enemigo " + this.idEnemigo + " ataca y hace" + this.danioBase + " de daño. ");
             objetivo.recibirDanio(this.danioBase);
-            ticksEnfriamientoAtaque = ENFRIAMIENTO_ATAQUE;
+            ticksEnfriamientoAtaque = getEnfriamientoAtaque();
         }
     }
 
@@ -187,6 +188,15 @@ public abstract class Enemigo extends EntidadCombatible {
 
     protected abstract boolean puedeAtacar (Personaje jugador);
 
+    protected int getEnfriamientoAtaque() {
+        return ENFRIAMIENTO_ATAQUE;   // 60 ticks = 1 segundo
+    }
+
+    // ticks seguidos tocando al jugador antes del primer golpe (0 = pega apenas te toca)
+    protected int getPreparacionAtaque() {
+        return 0;
+    }
+
     protected int getRadioDeteccion(){
         return radioDeteccion;
     }
@@ -220,8 +230,16 @@ public abstract class Enemigo extends EntidadCombatible {
     @Override
     public void actualizar(Personaje jugador, MapaColision mapa) {
         actualizarComportamiento(jugador, mapa);
-        if (puedeAtacar(jugador) && jugador.getHitbox().intersects(getHitbox())) {
-            atacar(jugador);
+
+        boolean enContacto = puedeAtacar(jugador) && jugador.getHitbox().intersects(getHitbox());
+
+        if (enContacto) {
+            ticksEnContacto++;
+            if (ticksEnContacto >= getPreparacionAtaque()) {
+                atacar(jugador);
+            }
+        } else {
+            ticksEnContacto = 0;   // si te alejás, la cuenta vuelve a empezar
         }
     }
     

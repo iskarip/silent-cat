@@ -48,8 +48,8 @@ public class Personaje extends EntidadCombatible {
     private static final double FACTOR_CORRER = 1.6;          // corriendo va 60% más rápido
     private static final double ESTAMINA_MAXIMA = 100;
     private static final double GASTO_CORRER = 0.5;
-    private static final double RECUPERACION = 0.2;
-    private static final double UMBRAL_RECUPERACION = 25;     // agotada, necesita 25 para volver a correr
+    private static final double RECUPERACION = 0.25;
+    private static final double UMBRAL_RECUPERACION = 40;     // agotada, necesita 25 para volver a correr
 
     // -- CONSTRUCTOR --
 
@@ -124,6 +124,10 @@ public class Personaje extends EntidadCombatible {
 
     public int getNivelEstamina() {
         return (int) nivelEstamina;
+    }
+
+    public boolean estaAgotado() {
+        return agotado;
     }
 
     public Arma getArma() {
