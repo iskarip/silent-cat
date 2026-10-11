@@ -15,4 +15,7 @@ public class WatcherActivo implements StateWatcher {
     @Override
     public PoseEntidadCombatible getPostura() { return PoseEntidadCombatible.NORMAL; }
     
+    @Override
+    public int getNivelAmenaza() { return 3; }   // despierto y persiguiendo seria maximo peligro
+
 }

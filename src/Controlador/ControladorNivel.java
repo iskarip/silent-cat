@@ -32,7 +32,10 @@ public class ControladorNivel {
     private final MensajeAmbiental mensajeAmbiental;
     private final BarraBateria barraBateria;
     private final BarraVida barraVida;
+    private final BarraEstamina barraEstamina;
     private final AuraVisual linternaOverlay;
+    private int tensionActual = 0;
+    
     private final InventarioVisual inventarioVisual;
     private final AvisoInteraccion avisoInteraccion;
 
@@ -99,6 +102,9 @@ public class ControladorNivel {
         this.barraBateria = new BarraBateria();
         this.vista.agregarCapaVisual(barraBateria);
 
+        this.barraEstamina = new BarraEstamina();
+        this.vista.agregarCapaVisual(barraEstamina);
+
         Personaje personajeActual = partida.getPersonaje();
         if (personajeActual != null) {
             this.barraVida = new BarraVida(personajeActual.getPuntosVida());
@@ -129,6 +135,7 @@ public class ControladorNivel {
                     @Override 
                     public void linternaCambio(int bateriaActual, boolean encendida) {
                         linternaOverlay.setEncendida(encendida);
+                        linternaOverlay.setBateria(bateriaActual);
                         barraBateria.actualizarBateria(bateriaActual);
                     }
                 });
@@ -295,13 +302,18 @@ public class ControladorNivel {
 
         if (personaje != null) {
             vista.setPersonaje(personaje);
+            linternaOverlay.setPosicionJugador(personaje.getPosicionX(), personaje.getPosicionY());
             barraVida.actualizarVida(personaje.getPuntosVida());
             if (personaje.getLinterna() != null) {
                 barraBateria.actualizarBateria(personaje.getLinterna().getBateria());
             }
             actualizarInventarioVisual();
         }
-    }
+        if (personaje.getLinterna() != null) {
+            barraBateria.actualizarBateria(personaje.getLinterna().getBateria());
+            linternaOverlay.setBateria(personaje.getLinterna().getBateria());   
+        }
+}
 
     private void cicloPrincipal() {
         if (pausado || controladorAcertijo.estaActivo()) {
@@ -329,6 +341,11 @@ public class ControladorNivel {
         if (acumulador > TIEMPO_OPTIMO_NS) {
             acumulador = 0.0;
         }
+    // El aura de la linterna necesita saber donde esta el jugador (se lo pasamos como numeros)
+        Personaje jugador = partida.getPersonaje();
+        if (jugador != null) {
+            linternaOverlay.setPosicionJugador(jugador.getPosicionX(), jugador.getPosicionY());
+        }
 
         vista.repaint();
         Toolkit.getDefaultToolkit().sync();
@@ -346,6 +363,9 @@ public class ControladorNivel {
             if (!personajeMuerto) {
                 personajeMuerto = true;
                 vista.setEstado(EstadoAnimacion.MURIENDO);
+                tensionActual = 0;
+                linternaOverlay.setTension(0);
+            
             }
             vista.avanzarAnimacionMuerte();
             return;
@@ -364,6 +384,7 @@ public class ControladorNivel {
         );
 
         controladorEntidades.actualizar(nivelActual, personaje, vista);
+        actualizarTension(personaje); 
 
         if (controladorMando != null) controladorMando.actualizar();
 
@@ -374,6 +395,8 @@ public class ControladorNivel {
         controladorItems.actualizar(controladorEspacio.getEspacioActivo(), personaje, controladorAmbiente);
         controladorAmbiente.comprobarZonas(controladorEspacio.getEspacioActivo(), personaje);
         personaje.actualizarEfectos();
+        barraEstamina.actualizar(personaje.getNivelEstamina(), personaje.estaAgotado(),
+        personaje.getPosicionX(), personaje.getPosicionY());
 
         // Gasto periódico de batería y sincronización con BarraBateria
         contadorBateria++;
@@ -384,6 +407,14 @@ public class ControladorNivel {
                 barraBateria.actualizarBateria(linterna.getBateria());
             }
             contadorBateria = 0;
+        }
+    }
+
+    private void actualizarTension(Personaje personaje) {
+        int nueva = controladorEntidades.calcularTension(controladorEspacio.getEspacioActivo(), personaje);
+        if (nueva != tensionActual) {
+        tensionActual = nueva;
+        linternaOverlay.setTension(nueva);
         }
     }
 

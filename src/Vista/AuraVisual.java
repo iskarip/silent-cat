@@ -1,11 +1,14 @@
 package Vista;
 
-import Modelo.Personaje;
+
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.RadialGradientPaint;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+
 
 // Esta clase se encarga de la atmosfera de iluminacion y oscuridad de nuestros niveles.
 // Escucha a la Linterna para saber si dibujar el aura de luz o no (Observer).
@@ -19,27 +22,67 @@ public class AuraVisual implements InterfazVisual {
 
     // Estado local notificado por la Linterna
     private boolean linternaEncendida = true;
+    
+    //datos q le pasa el controlador
+    private int bateria = 100;      // 0 a 100
+    private int tension = 0;        // 0 a 3
 
-    // --- METODO DEL OBSERVADOR ---
+    //posicion del jugador en el mapa (la actualiza el controlador)
+    private boolean posicionConocida = false;
+    private int jugadorX;
+    private int jugadorY;
+
+    // Intensidad actual de la luz (1 = plena, 0 = apagada)
+    private float intensidad = 1f;
+   
+
+
+    // --- METODO QUE USA EL CONTROLADOR ---
 
     // Lo llama el controlador cuando la linterna se prende o se apaga
     public void setEncendida(boolean encendida) {
         this.linternaEncendida = encendida;
     }
+    
+    public void setBateria(int bateria) {
+        this.bateria = bateria;
+    }
 
+    public void setTension(int tension) {
+        this.tension = tension;
+    }
+
+    public void setPosicionJugador(int x, int y) {
+        this.jugadorX = x;
+        this.jugadorY = y;
+        this.posicionConocida = true;
+    }
+    
+// Poca bateria o un enemigo cerca hacen que la luz titile mas seguido
+    private void actualizarIntensidad() {
+        double probabilidadDeCorte = 0.004
+            + (100 - bateria) / 100.0 * 0.03
+            + tension * 0.03;
+
+        float profundidadCorte = Math.max(0f, 0.15f - tension * 0.05f);    
+        float variacionLeve = 0.12f + tension * 0.08f;                    
+        float suavizado = 0.4f + tension * 0.1f;                          
+
+        float objetivo = (Math.random() < probabilidadDeCorte)
+            ? profundidadCorte                                        
+            : 1f - (float) Math.random() * variacionLeve;             
+        intensidad += (objetivo - intensidad) * suavizado;
+}
     @Override
     public void renderizar(Graphics2D g2d, int ancho, int alto, NivelPanel panel) {
-        // Primero obtengo mi personaje
-        Personaje personaje = panel.getPersonaje();
-
-        // Compruebo, si no hay personaje, no hago nada
-        if (personaje == null) {
+        //Si todavia no sabemos donde esta el jugador, no hay nada q iluminar
+        if (!posicionConocida){
             return;
         }
 
         // Calculo la posicion del personaje en el mapa
-        int centroX = personaje.getPosicionX() + (int)((NivelPanel.ANCHO_CUADRO * NivelPanel.ESCALA) / 2);
-        int centroY = personaje.getPosicionY() + (int)((NivelPanel.ALTO_CUADRO * NivelPanel.ESCALA) / 2);
+        int centroX = jugadorX + (int)((NivelPanel.ANCHO_CUADRO * NivelPanel.ESCALA) / 2);
+        int centroY = jugadorY + (int)((NivelPanel.ALTO_CUADRO * NivelPanel.ESCALA) / 2);
 
         // Coordenadas de pantalla
         int pantallaX = (int) ((centroX - panel.getCamaraX()) * NivelPanel.ZOOM);
@@ -70,13 +113,17 @@ public class AuraVisual implements InterfazVisual {
                 g2d.fillRect(0, pantallaY + radioVinieta, ancho, alto - (pantallaY + radioVinieta));
             }
         }
-
-        // Luz de la linterna: se dibuja basandose en el estado notificado por el Observer
+        
+        //luz de la linterna
         if (linternaEncendida && texturaAura != null) {
+            actualizarIntensidad();
+            Composite original = g2d.getComposite();
+            g2d.setComposite(AlphaComposite.SrcOver.derive(intensidad));
             g2d.drawImage(texturaAura, pantallaX - radioAura, pantallaY - radioAura, null);
+            g2d.setComposite(original);
         }
-    }
 
+}
     // Dibuja los gradientes en memoria una sola vez
     private void prepararTexturas(int radioVinieta, int radioAura) {
         if (texturaVinieta == null || radioVinietaCache != radioVinieta) {

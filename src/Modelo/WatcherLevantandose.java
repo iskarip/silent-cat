@@ -27,5 +27,8 @@ public class WatcherLevantandose implements StateWatcher {
     public PoseEntidadCombatible getPostura() { return PoseEntidadCombatible.LEVANTANDOSE; }
 
     @Override
+    public int getNivelAmenaza() { return 3; } //momento del susto
+
+    @Override
     public double getProgreso() { return (double) ticks / DURACION_TICKS; }
 }
