@@ -26,6 +26,7 @@ public class ControladorNivel {
     private final ControladorMando controladorMando;
     private final ControladorEspacio controladorEspacio;
     private final Pasos pasos;
+   
     // Componentes visuales desacoplados (reciben tipos planos / primitivos)
     private final FlashbackGato flashbackGato;
     private final MensajeAmbiental mensajeAmbiental;
@@ -75,11 +76,11 @@ public class ControladorNivel {
             }
             this.controladorMando = mando;
 
+            
         this.controladorMusica = new ControladorMusica();
         componentes.add(this.controladorMusica);
 
         this.pasos = new Pasos();
-
         ControladorPasos controladorPasos = new ControladorPasos(pasos);
         this.pasos.agregarObservador(controladorPasos);
         componentes.add(controladorPasos);
@@ -110,11 +111,26 @@ public class ControladorNivel {
         this.vista.agregarCapaVisual(this.flashbackGato);
         this.vista.agregarCapaVisual(this.mensajeAmbiental);
         this.vista.agregarCapaVisual(this.avisoInteraccion);
+        
         this.inventarioVisual = new InventarioVisual();
         this.vista.agregarCapaVisual(inventarioVisual);
+        
         this.controladorTeclado.setAccionInventario(() -> {
             actualizarInventarioVisual();
             inventarioVisual.alternar();
+        });
+        
+        this.pistaVisual = new PanelPista();
+        this.vista.agregarCapaVisual(pistaVisual);
+        this.controladorPista = new ControladorPista(pistaVisual);
+
+        ControladorInteraccion controladorInteraccion = new ControladorInteraccion(
+        controladorPista, controladorEspacio, controladorAcertijo, controladorTeclado, partida
+        );
+
+        // Asignación de interacción con 'E' delegada al nuevo controlador
+        this.controladorTeclado.setAccionInteraccionar(() -> {
+            controladorInteraccion.manejarInteraccion();
         });
 
         this.barraBateria = new BarraBateria();
@@ -163,37 +179,6 @@ public class ControladorNivel {
             this.barraVida = new BarraVida(100);
             this.vista.agregarCapaVisual(barraVida);
         }
-
-        this.pistaVisual = new PanelPista();
-        this.vista.agregarCapaVisual(pistaVisual);
-        this.controladorPista = new ControladorPista(pistaVisual);
-
-        // Asignación de interacción con 'E'
-
-        this.controladorTeclado.setAccionInteraccionar(() -> {
-            Personaje personaje = partida.getPersonaje();
-            Nivel nivel = partida.getNivelActual();
-
-            if (controladorPista.estaActivo()) {
-                controladorPista.cerrar();
-                return; // la E se usó para cerrar, no para interactuar
-            }
-
-            if (controladorEspacio.estaEnHabitacion()) {
-                Habitacion actual = partida.getHabitacionActiva();
-                if (actual.salidaAlAlcance(personaje)) {
-                    salirDeHabitacion();
-                }
-                return;
-            }
-
-            Habitacion habitacion = nivel.getHabitacionAlAlcance(personaje);
-            if (habitacion != null) {
-                entrarAHabitacion(habitacion);
-            } else {
-                controladorAcertijo.intentarInteraccion(nivel, personaje, controladorTeclado);
-            }
-        });
 
         this.controladorTeclado.setAccionSlot(indice -> {
                 if (!pausado && !personajeMuerto && !controladorAcertijo.estaActivo()
