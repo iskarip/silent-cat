@@ -94,7 +94,7 @@ public class NivelFactory {
                     "/Recursos/Mapas/Imagen/habitacion_sotano.png",
                     7, 6,        // posicionInicial
                     19, 2);      // puerta
-
+            habitacion.setTipoSuelo(TipoSuelo.METAL);
             Item palanca = new Item("palanca", "/Recursos/Sprites/Items/palanca.png", 1, 3);
             habitacion.agregarZona(new ZonaMensaje(1, 3, 1, "Una tuberia rota. Quizás sea de ayuda."));
             palanca.setEscala(0.5);
