@@ -31,7 +31,7 @@ public class NivelFactory {
        
         // 2. Se le pasa 'acertijo' al constructor de Nivel
         Nivel nivel = new Nivel(1, candadoPlantaBaja, "Recursos/Mapas/Grid/grid_planta_baja.txt", "/Recursos/Mapas/Imagen/mapa_planta_baja2.png", 16, 14);
-
+        nivel.setTipoSuelo(TipoSuelo.MADERA);
         agregarVarias(nivel, (columna, fila) -> new EnemigoComun(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{4, 11}, new int[]{22, 4});
         agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
         agregarVarias(nivel, (columna, fila) -> new Rata(columna, fila), new int[]{27, 14}, new int[]{6, 13});
@@ -41,7 +41,7 @@ public class NivelFactory {
         
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
         nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Falta la mitad de los escalones. Tiene que haber otro camino."));
-        nivel.agregarZona(new ZonaMensaje(8, 9, 2, "El ascensor no responde. Está muerto."));
+        nivel.agregarZona(new ZonaMensaje(7, 9, 1, "El ascensor no responde. Está muerto."));
         nivel.agregarZona(new PuntoFlashback(25, 8, 2));
 
         Item llave = new Item("llave", "/Recursos/Sprites/Items/llave.png", 21, 5);
@@ -57,6 +57,7 @@ public class NivelFactory {
             Acertijo palancaAscensor = new AcertijoObjeto (2, "Si encuentro algo para hacer palanca, quizás ceda.",10, 2, "palanca");
             
             Nivel nivel = new Nivel(2, palancaAscensor, "Recursos/Mapas/Grid/grid_sotano.txt","/Recursos/Mapas/Imagen/mapa_sotano.png", 12, 6);
+            nivel.setTipoSuelo(TipoSuelo.METAL);
 
             agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 20), new int[]{20, 9}, new int[]{10, 9}, new int[]{2, 11});
 
@@ -70,7 +71,6 @@ public class NivelFactory {
 
             nivel.agregarZona(new ZonaMensaje(15, 8, 2, "Huele a sangre..."));
             nivel.agregarZona(new ZonaMensaje(2, 8, 2, "El aire se siente muy pesado."));
-            nivel.agregarZona(new ZonaMensaje(18, 2, 2, "Una puerta. Parece que necesito un codigo para abrirla."));
             nivel.agregarZona(new ZonaMensaje(10, 2, 1, "Este ascensor parece funcionar, pero la puerta está atascada. \n Necesito algo para hacer palanca."));
             agregarVarias(nivel, (columna, fila) -> new EnemigoFotosensible(100, 20, nextId++, columna, fila, SPRITES_WATCHER), new int[]{19, 4});
             return nivel;
@@ -78,7 +78,7 @@ public class NivelFactory {
         
         private Habitacion crearHabitacionPalanca() {
             Acertijo acertijoPuerta = new AcertijoNumerico(3,
-                    "",
+                    "Necesito una clave...",
                     18, 2,
                     1234,
                     "/Recursos/UI/Acertijos/Panel/panel.png");
@@ -88,7 +88,7 @@ public class NivelFactory {
                     "Recursos/Mapas/Grid/grid_habitacion_sotano.txt",
                     "/Recursos/Mapas/Imagen/habitacion_sotano.png",
                     7, 6,        // posicionInicial
-                    18, 2);      // puerta
+                    19, 2);      // puerta
 
             Item palanca = new Item("palanca", "/Recursos/Sprites/Items/palanca.png", 1, 3);
             habitacion.agregarZona(new ZonaMensaje(1, 3, 1, "Una tuberia rota. Quizás sea de ayuda."));

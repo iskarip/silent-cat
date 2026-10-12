@@ -134,5 +134,15 @@ public class Partida {
         espacioActivo = getNivelActual();
         personaje.colocarEnTile(habitacion.getRetornoX(), habitacion.getRetornoY());
     }
+
+    // en Partida
+    public boolean hayInteraccionAlAlcance() {
+        if (habitacionActiva != null) {
+            return habitacionActiva.salidaAlAlcance(personaje);
+        }
+        Nivel nivel = getNivelActual();
+        return nivel.getHabitacionAlAlcance(personaje) != null
+                || nivel.getAcertijoAlAlcance(personaje) != null;
+    }
 }
 

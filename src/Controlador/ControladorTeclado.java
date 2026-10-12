@@ -5,7 +5,7 @@ import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ControladorTeclado extends KeyAdapter {
+public class ControladorTeclado extends KeyAdapter implements CicloDeVida {
 
     private final Set<Integer> teclasPresionadas = new HashSet<>();
     // Teclas "virtuales" que mantiene apretadas el mando (separadas del teclado físico)
@@ -83,5 +83,15 @@ public class ControladorTeclado extends KeyAdapter {
     public void limpiarTeclas() {
         teclasPresionadas.clear();
         teclasMando.clear();
+    }
+
+    @Override
+    public void alPausar() {
+        limpiarTeclas(); // Soltar las teclas atascadas al pausar
+    }
+
+    @Override
+    public void alDetener() {
+        limpiarTeclas();
     }
 }

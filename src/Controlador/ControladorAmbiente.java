@@ -1,6 +1,5 @@
 package Controlador;
 
-import Modelo.Nivel;
 import Modelo.ObservadorAmbiente;
 import Modelo.Personaje;
 import Modelo.ZonaProximidad;

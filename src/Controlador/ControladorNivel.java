@@ -26,7 +26,7 @@ public class ControladorNivel {
     private final ControladorAmbiente controladorAmbiente;
     private final ControladorMando controladorMando;
     private final ControladorEspacio controladorEspacio;
-
+    private final Pasos pasos;
     // Componentes visuales desacoplados (reciben tipos planos / primitivos)
     private final FlashbackGato flashbackGato;
     private final MensajeAmbiental mensajeAmbiental;
@@ -34,21 +34,24 @@ public class ControladorNivel {
     private final BarraVida barraVida;
     private final BarraEstamina barraEstamina;
     private final AuraVisual linternaOverlay;
+    private final PolvoVisual polvoVisual;
     private int tensionActual = 0;
-    
+    private final ControladorMusica controladorMusica;
     private final InventarioVisual inventarioVisual;
     private final AvisoInteraccion avisoInteraccion;
+    private final ControladorGameOver controladorGameOver;
 
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
     private boolean pausado = false;
-    private ActionListener alVolverDesdeGameOver;
     private int contadorBateria = 0;
 
     // Control de tiempo para 60 FPS estables
     private static final double TIEMPO_OPTIMO_NS = 1_000_000_000.0 / 60.0;
     private long tiempoAnterior = 0;
     private double acumulador = 0.0;
+
+    private final List<CicloDeVida> componentes = new ArrayList<>();
 
     // -- CONSTRUCTOR CONTROLADOR --
 
@@ -60,6 +63,7 @@ public class ControladorNivel {
 
         // Instanciación de controladores específicos
         this.controladorTeclado = new ControladorTeclado();
+        componentes.add(this.controladorTeclado);
 
                 ControladorMando mando = null;
             try {
@@ -69,13 +73,26 @@ public class ControladorNivel {
             }
             this.controladorMando = mando;
 
-        this.controladorMovimiento = new ControladorMovimiento();
+        this.controladorMusica = new ControladorMusica();
+        componentes.add(this.controladorMusica);
+
+        this.pasos = new Pasos();
+
+        ControladorPasos controladorPasos = new ControladorPasos(pasos);
+        this.pasos.agregarObservador(controladorPasos);
+        componentes.add(controladorPasos);
+
+        this.controladorGameOver = new ControladorGameOver(vista, ventanaPrincipal, this);
+        componentes.add(this.controladorGameOver);
+
+        this.controladorMovimiento = new ControladorMovimiento(pasos);
+
         this.controladorCombate = new ControladorCombate();
         this.controladorEntidades = new ControladorEntidades();
         this.controladorItems = new ControladorItems();
-
+        
         this.controladorPausa = new ControladorPausa(vista, ventanaPrincipal, this, controladorProgreso);
-
+        this.polvoVisual = new PolvoVisual();
         this.flashbackGato = new FlashbackGato();
         this.mensajeAmbiental = new MensajeAmbiental();
         this.avisoInteraccion = new AvisoInteraccion();
@@ -85,13 +102,12 @@ public class ControladorNivel {
 
         // Limpieza y registro polimórfico de capas visuales
         this.vista.limpiarCapasVisuales();
-
         this.linternaOverlay = new AuraVisual();
+        this.vista.agregarCapaVisual(polvoVisual);
         this.vista.agregarCapaVisual(linternaOverlay);
         this.vista.agregarCapaVisual(this.flashbackGato);
         this.vista.agregarCapaVisual(this.mensajeAmbiental);
         this.vista.agregarCapaVisual(this.avisoInteraccion);
-
         this.inventarioVisual = new InventarioVisual();
         this.vista.agregarCapaVisual(inventarioVisual);
         this.controladorTeclado.setAccionInventario(() -> {
@@ -141,23 +157,6 @@ public class ControladorNivel {
                 });
             }
 
-            // Configurar botones de FinDelJuego (con hover desacoplado vía Runnable)
-            this.alVolverDesdeGameOver = e -> {
-                detener();
-                this.vista.getFinDelJuego().setVisible(false);
-                this.vista.reiniciarEstadoNivel();
-                ventanaPrincipal.mostrarPantalla("menu");
-                ReproductorSonido.reproducirEnLoop(ControladorPrincipal.MUSICA_MENU);
-            };
-            this.vista.getFinDelJuego().getBotonVolverMenu().addActionListener(this.alVolverDesdeGameOver);
-            this.vista.getFinDelJuego().getBotonVolverMenu().setAccionHover(() ->
-                    ReproductorSonido.reproducir("Recursos/Sonidos/UI/sonido3.wav")
-            );
-
-            this.vista.getFinDelJuego().getBotonReintentar().addActionListener(e -> reintentarDesdeCheckpoint());
-            this.vista.getFinDelJuego().getBotonReintentar().setAccionHover(() ->
-                    ReproductorSonido.reproducir("Recursos/Sonidos/UI/sonido3.wav")
-            );
         } else {
             this.barraVida = new BarraVida(100);
             this.vista.agregarCapaVisual(barraVida);
@@ -220,6 +219,10 @@ public class ControladorNivel {
     public void iniciar() {
         reiniciarEstado();
         sincronizarModeloConVista();
+        Nivel nivelInicial = partida.getNivelActual();
+        if (nivelInicial != null) {
+            controladorMusica.reproducirParaNivel(nivelInicial.getNumeroNivel());
+        }
         this.tiempoAnterior = System.nanoTime();
         this.acumulador = 0.0;
         bucleDeJuego.start();
@@ -228,21 +231,21 @@ public class ControladorNivel {
     public void detener() {
         if (bucleDeJuego != null) {
             bucleDeJuego.stop();
+            detenerComponentes();
         }
         vista.removeKeyListener(controladorTeclado);
         controladorPausa.desconectar();
         controladorAcertijo.desconectar();
-        if (alVolverDesdeGameOver != null) {
-            vista.getFinDelJuego().getBotonVolverMenu().removeActionListener(alVolverDesdeGameOver);
-        }
     }
 
     public void setPausado(boolean pausado) {
         this.pausado = pausado;
         if (bucleDeJuego != null) {
             if (pausado) {
+                pausarComponentes(); 
                 bucleDeJuego.stop();
             } else {
+                reanudarComponentes(); 
                 this.tiempoAnterior = System.nanoTime();
                 this.acumulador = 0.0;
                 bucleDeJuego.start();
@@ -362,16 +365,15 @@ public class ControladorNivel {
         if (!personaje.estaVivo()) {
             if (!personajeMuerto) {
                 personajeMuerto = true;
+                pausarComponentes();
                 vista.setEstado(EstadoAnimacion.MURIENDO);
                 tensionActual = 0;
                 linternaOverlay.setTension(0);
-            
             }
             vista.avanzarAnimacionMuerte();
             return;
         }
-
-        if (nivelActual.verificarSiCompleto() && !nivelActual.getNivelSuperado()) {
+                if (nivelActual.verificarSiCompleto() && !nivelActual.getNivelSuperado()) {
             cambiarDeNivel();
             return;
         }
@@ -379,6 +381,7 @@ public class ControladorNivel {
         controladorMovimiento.procesarMovimientoJugador(
                 personaje,
                 controladorEspacio.getEspacioActivo().getMapaColision(),
+                controladorEspacio.getEspacioActivo().getTipoSuelo(),
                 controladorTeclado,
                 vista
         );
@@ -388,9 +391,7 @@ public class ControladorNivel {
 
         if (controladorMando != null) controladorMando.actualizar();
 
-        if (!controladorEspacio.estaEnHabitacion()) {
-            controladorAcertijo.comprobarProximidad(nivelActual, personaje);
-        }
+        actualizarAvisoInteraccion();
 
         controladorItems.actualizar(controladorEspacio.getEspacioActivo(), personaje, controladorAmbiente);
         controladorAmbiente.comprobarZonas(controladorEspacio.getEspacioActivo(), personaje);
@@ -440,5 +441,26 @@ public class ControladorNivel {
         if (!controladorEspacio.cambiarDeNivel()) return;
         actualizarInventarioVisual();
         controladorTeclado.limpiarTeclas();
+        controladorMusica.reproducirParaNivel(partida.getNivelActual().getNumeroNivel());
+    }
+
+    private void actualizarAvisoInteraccion() {
+    if (controladorEspacio.hayInteraccionAlAlcance()) {
+        controladorAmbiente.mostrarAvisoInteraccion("[E] Interactuar");
+    } else {
+        controladorAmbiente.ocultarAvisoInteraccion();
+    }
+}
+
+    private void pausarComponentes() {
+        for (CicloDeVida c : componentes) c.alPausar();
+    }
+
+    private void reanudarComponentes() {
+        for (CicloDeVida c : componentes) c.alReanudar();
+    }
+
+    private void detenerComponentes() {
+        for (CicloDeVida c : componentes) c.alDetener();
     }
 }

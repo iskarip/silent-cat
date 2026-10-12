@@ -49,4 +49,9 @@ public class ControladorEspacio {
         vista.setNivelActual(partida.getNivelActual());
         return true;
     }
+
+    public boolean hayInteraccionAlAlcance() {
+        return partida.hayInteraccionAlAlcance();
+    }
+
 }

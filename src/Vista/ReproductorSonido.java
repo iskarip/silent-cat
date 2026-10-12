@@ -1,8 +1,10 @@
 package Vista;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.sound.sampled.*; //el * le dice a java que importe todas las clases de este paquete, porque voy a usar varias cosas del mismo lugar.
+import java.util.HashMap;
+import java.util.Map;
+import javax.sound.sampled.*;
 
 public class ReproductorSonido {
 
@@ -10,49 +12,50 @@ public class ReproductorSonido {
     private static float volumenEfectos = 1.0f;
 
     private static final List<Clip> clipsActivos = new ArrayList<>(); 
-    private static Clip musicaActual; // la canción que está sonando (una sola a la vez)
+    private static Clip musicaActual; // La canción que está sonando (una sola a la vez)
 
-    
-   public static void reproducir(String ruta) {
-    Thread hiloSonido = new Thread(() -> {
-        try {
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(
-                ReproductorSonido.class.getClassLoader().getResource(ruta));
+    private static final Map<String, Clip> clipsLoopEfecto = new HashMap<>(); // Clips ya leídos, por ruta
+    private static Clip loopEfectoActual; // El efecto en loop que está sonando ahora
 
-            Clip clip = AudioSystem.getClip();
-            clip.addLineListener(event -> {
-                if (event.getType() == LineEvent.Type.STOP) {
-                    clip.close();
-                    clipsActivos.remove(clip);
-                }
-            });
+    private static long posicionPausa = 0;
 
-            clip.open(audioIn);
-            aplicarVolumen(clip, volumenEfectos);
-            clip.start();
-        } catch (Exception e) {
-            System.out.println("No se pudo reproducir el sonido: " + e.getMessage());
-        }
-    }, "hilo-sonido"); // nombre del hilo, útil para debuggear
+    public static void reproducir(String ruta) {
+        Thread hiloSonido = new Thread(() -> {
+            try {
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+                        ReproductorSonido.class.getClassLoader().getResource(ruta));
 
-    hiloSonido.setDaemon(true); // no bloquea el cierre del programa si queda sonando
-    hiloSonido.start();
-}
-          
+                Clip clip = AudioSystem.getClip();
+                clip.addLineListener(event -> {
+                    if (event.getType() == LineEvent.Type.STOP) {
+                        clip.close();
+                        clipsActivos.remove(clip);
+                    }
+                });
+
+                clip.open(audioIn);
+                aplicarVolumen(clip, volumenEfectos);
+                clip.start();
+            } catch (Exception e) {
+                System.out.println("No se pudo reproducir el sonido: " + e.getMessage());
+            }
+        }, "hilo-sonido");
+
+        hiloSonido.setDaemon(true);
+        hiloSonido.start();
+    }
 
     public static void reproducirEnLoop(String ruta) {
         Thread hiloMusica = new Thread(() -> {
             try {
-                // leer el archivo y cargarlo en memoria
                 AudioInputStream audioIn = AudioSystem.getAudioInputStream(
                         ReproductorSonido.class.getClassLoader().getResource(ruta));
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioIn);
                 aplicarVolumen(clip, volumenMusica);
 
-                // cambiar la música actual, de a un hilo por vez
                 synchronized (ReproductorSonido.class) {
-                    detenerMusica(); // corta la anterior para que no se superpongan
+                    detenerMusica(); // Corta la anterior
                     musicaActual = clip;
                     musicaActual.loop(Clip.LOOP_CONTINUOUSLY);
                 }
@@ -70,8 +73,28 @@ public class ReproductorSonido {
             musicaActual.stop();
             musicaActual.close();
             musicaActual = null;
+            posicionPausa = 0;
         }
     }
+
+    // --- MÉTODOS DE PAUSA Y REANUDACIÓN DE MÚSICA CORREGIDOS ---
+
+    public static synchronized void pausarMusica() {
+        if (musicaActual != null && musicaActual.isRunning()) {
+            posicionPausa = musicaActual.getMicrosecondPosition();
+            musicaActual.stop();
+        }
+    }
+
+    public static synchronized void reanudarMusica() {
+        if (musicaActual != null && !musicaActual.isRunning()) {
+            musicaActual.setMicrosecondPosition(posicionPausa);
+            musicaActual.start();
+            musicaActual.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+    }
+
+    // --------------------------------------------------------
 
     public static float getVolumenMusica() {
         return volumenMusica;
@@ -107,4 +130,38 @@ public class ReproductorSonido {
         control.setValue(db);
     }
 
+    public static synchronized void reproducirEfectoEnLoop(String ruta) {
+        Clip clip = obtenerClipLoop(ruta);
+        if (clip == null || clip == loopEfectoActual) return;
+
+        detenerEfectoEnLoop();
+        aplicarVolumen(clip, volumenEfectos);
+        clip.setFramePosition(0);
+        clip.loop(Clip.LOOP_CONTINUOUSLY);
+        loopEfectoActual = clip;
     }
+
+    public static synchronized void detenerEfectoEnLoop() {
+        if (loopEfectoActual != null) {
+            loopEfectoActual.stop();
+            loopEfectoActual = null;
+        }
+    }
+
+    private static Clip obtenerClipLoop(String ruta) {
+        Clip clip = clipsLoopEfecto.get(ruta);
+        if (clip != null) return clip;
+
+        try {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+                    ReproductorSonido.class.getClassLoader().getResource(ruta));
+            clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clipsLoopEfecto.put(ruta, clip);
+            return clip;
+        } catch (Exception e) {
+            System.out.println("No se pudo cargar el efecto en loop: " + e.getMessage());
+            return null;
+        }
+    }
+}

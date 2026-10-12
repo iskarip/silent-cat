@@ -1,14 +1,18 @@
 package Controlador;
 
-import Modelo.MapaColision;
-import Modelo.Personaje;
+import Modelo.*;
 import Vista.EstadoAnimacion;
 import Vista.NivelPanel;
 import java.awt.event.KeyEvent;
 
+
 public class ControladorMovimiento {
 
-    public void procesarMovimientoJugador(Personaje personaje, MapaColision mapa, ControladorTeclado teclado, NivelPanel vista) {
+    private final Pasos pasos;
+
+
+    public void procesarMovimientoJugador(Personaje personaje, MapaColision mapa, TipoSuelo suelo,
+                                        ControladorTeclado teclado, NivelPanel vista) {
         if (personaje == null) return;
 
         // leer teclas y traducirlas a un movimiento
@@ -36,6 +40,9 @@ public class ControladorMovimiento {
         // le avisamos a la Vista qué animación mostrar
         boolean seEstaMoviendo = personaje.estaMoviendose();
 
+        // ACÁ, fuera de cualquier if: corre en todos los ticks
+        pasos.actualizar(seEstaMoviendo, suelo);
+
         if (!vista.estaAtacando() && !vista.estaRecibiendoDanio()) {
             EstadoAnimacion nuevoEstado;
 
@@ -51,5 +58,9 @@ public class ControladorMovimiento {
         }
 
         vista.actualizarAnimacion(seEstaMoviendo);
+    }
+
+    public ControladorMovimiento(Pasos pasos) {
+        this.pasos = pasos;
     }
 }

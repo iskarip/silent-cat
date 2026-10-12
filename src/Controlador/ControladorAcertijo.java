@@ -49,19 +49,6 @@ public class ControladorAcertijo implements ObservadorAcertijo {
         this.vista.getBotonSalir().addActionListener(alSalir);
     }
 
-    // -- PROXIMIDAD E INTERACCIÓN --
-
-    // Se llama en cada tick del game loop.
-    // Muestra "Presiona E" una sola vez al acercarse; al alejarse se vuelve a habilitar el aviso.
-    public void comprobarProximidad(Nivel nivel, Personaje personaje) {
-        if (acertijoActivo || nivel == null || personaje == null) return;
-
-        if (nivel.getAcertijoAlAlcance(personaje) != null) {
-            ambiente.mostrarAvisoInteraccion("[E] Interactuar");
-        } else {
-            ambiente.ocultarAvisoInteraccion();
-        }
-    }
 
     // Se llama al apretar E. Si hay un acertijo al alcance, el personaje interactúa con él.
     public void intentarInteraccion(Nivel nivel, Personaje personaje, ControladorTeclado teclado) {
@@ -88,8 +75,9 @@ public class ControladorAcertijo implements ObservadorAcertijo {
         this.acertijoActivo = true;
         this.acertijoActual = acertijo;
         this.personajeActual = personaje;
+        ambiente.ocultarAvisoInteraccion(); // <- nueva
         vista.mostrarEnunciado(acertijo.getDescripcion(), acertijo.getLargoRespuesta(),
-                       acertijo.getRutaImagen(), acertijo.getDistanciaCasilla());
+                    acertijo.getRutaImagen(), acertijo.getDistanciaCasilla());
         nivelPanel.mostrarAcertijo();
     }
 
@@ -145,4 +133,6 @@ public class ControladorAcertijo implements ObservadorAcertijo {
         vista.getBotonIntentar().removeActionListener(alIntentar);
         vista.getBotonSalir().removeActionListener(alSalir);
     }
+
+    
 }

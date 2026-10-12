@@ -1,6 +1,5 @@
 package Vista;
 
-
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
@@ -9,41 +8,45 @@ import java.awt.RadialGradientPaint;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
-
-// Esta clase se encarga de la atmosfera de iluminacion y oscuridad de nuestros niveles.
-// Escucha a la Linterna para saber si dibujar el aura de luz o no (Observer).
 public class AuraVisual implements InterfazVisual {
 
-    // -- ATRIBUTOS --
-    private BufferedImage texturaVinieta;
+    // Textura para la luz y DOS texturas para la viñeta (prendida / apagada)
+    private BufferedImage texturaVinietaLuz;
+    private BufferedImage texturaVinietaOscura;
     private BufferedImage texturaAura;
+    
     private int radioVinietaCache = 0;
     private int radioAuraCache = 0;
 
-    // Estado local notificado por la Linterna
+    // Estado de la linterna
     private boolean linternaEncendida = true;
-    
-    //datos q le pasa el controlador
-    private int bateria = 100;      // 0 a 100
-    private int tension = 0;        // 0 a 3
+    private boolean centroOscuro = false;
+    private boolean estadoCentroOscuroCache = false;
 
-    //posicion del jugador en el mapa (la actualiza el controlador)
+    // Datos del controlador
+    private int bateria = 100;
+    private int tension = 0;
+
+    // Posición del jugador
     private boolean posicionConocida = false;
     private int jugadorX;
     private int jugadorY;
 
-    // Intensidad actual de la luz (1 = plena, 0 = apagada)
     private float intensidad = 1f;
-   
 
+    // --- MÉTODOS DEL CONTROLADOR ---
 
-    // --- METODO QUE USA EL CONTROLADOR ---
-
-    // Lo llama el controlador cuando la linterna se prende o se apaga
     public void setEncendida(boolean encendida) {
         this.linternaEncendida = encendida;
     }
     
+    public void setCentroOscuro(boolean centroOscuro) {
+        if (this.centroOscuro != centroOscuro) {
+            this.centroOscuro = centroOscuro;
+            this.radioAuraCache = -1;
+        }
+    }
+
     public void setBateria(int bateria) {
         this.bateria = bateria;
     }
@@ -57,8 +60,7 @@ public class AuraVisual implements InterfazVisual {
         this.jugadorY = y;
         this.posicionConocida = true;
     }
-    
-// Poca bateria o un enemigo cerca hacen que la luz titile mas seguido
+
     private void actualizarIntensidad() {
         double probabilidadDeCorte = 0.004
             + (100 - bateria) / 100.0 * 0.03
@@ -72,33 +74,41 @@ public class AuraVisual implements InterfazVisual {
             ? profundidadCorte                                        
             : 1f - (float) Math.random() * variacionLeve;             
         intensidad += (objetivo - intensidad) * suavizado;
-}
+    }
+
     @Override
     public void renderizar(Graphics2D g2d, int ancho, int alto, NivelPanel panel) {
-        //Si todavia no sabemos donde esta el jugador, no hay nada q iluminar
-        if (!posicionConocida){
+        if (!posicionConocida) {
             return;
         }
 
-        // Calculo la posicion del personaje en el mapa
         int centroX = jugadorX + (int)((NivelPanel.ANCHO_CUADRO * NivelPanel.ESCALA) / 2);
         int centroY = jugadorY + (int)((NivelPanel.ALTO_CUADRO * NivelPanel.ESCALA) / 2);
 
-        // Coordenadas de pantalla
         int pantallaX = (int) ((centroX - panel.getCamaraX()) * NivelPanel.ZOOM);
         int pantallaY = (int) ((centroY - panel.getCamaraY()) * NivelPanel.ZOOM);
 
-        int radioVinieta = (int) (130 * NivelPanel.ZOOM);
-        int radioAura = (int) (130 * NivelPanel.ZOOM);
+        int radioVinieta = (int) (200 * NivelPanel.ZOOM);
+        int radioAura = (int) (150 * NivelPanel.ZOOM);
 
-        // Genera la imagen en memoria una sola vez
         prepararTexturas(radioVinieta, radioAura);
 
-        // Viñeta constante
-        if (texturaVinieta != null) {
-            g2d.drawImage(texturaVinieta, pantallaX - radioVinieta, pantallaY - radioVinieta, null);
+        // 1. DIBUJAR LUZ (Solo si está prendida)
+        if (linternaEncendida && texturaAura != null) {
+            actualizarIntensidad();
+            Composite original = g2d.getComposite();
+            g2d.setComposite(AlphaComposite.SrcOver.derive(intensidad));
+            g2d.drawImage(texturaAura, pantallaX - radioAura, pantallaY - radioAura, null);
+            g2d.setComposite(original);
+        }
 
-            // Relleno negro de los bordes sobrantes de la pantalla
+        // 2. ELEGIR QUÉ VIÑETA DIBUJAR SEGÚN EL ESTADO DE LA LINTERNA
+        BufferedImage vinietaAUsar = linternaEncendida ? texturaVinietaLuz : texturaVinietaOscura;
+
+        if (vinietaAUsar != null) {
+            g2d.drawImage(vinietaAUsar, pantallaX - radioVinieta, pantallaY - radioVinieta, null);
+
+            // Relleno negro fuera de los bordes del círculo
             g2d.setColor(Color.BLACK);
             if (pantallaX - radioVinieta > 0) {
                 g2d.fillRect(0, 0, pantallaX - radioVinieta, alto);
@@ -113,60 +123,68 @@ public class AuraVisual implements InterfazVisual {
                 g2d.fillRect(0, pantallaY + radioVinieta, ancho, alto - (pantallaY + radioVinieta));
             }
         }
-        
-        //luz de la linterna
-        if (linternaEncendida && texturaAura != null) {
-            actualizarIntensidad();
-            Composite original = g2d.getComposite();
-            g2d.setComposite(AlphaComposite.SrcOver.derive(intensidad));
-            g2d.drawImage(texturaAura, pantallaX - radioAura, pantallaY - radioAura, null);
-            g2d.setComposite(original);
-        }
+    }
 
-}
-    // Dibuja los gradientes en memoria una sola vez
     private void prepararTexturas(int radioVinieta, int radioAura) {
-        if (texturaVinieta == null || radioVinietaCache != radioVinieta) {
+        if (texturaVinietaLuz == null || radioVinietaCache != radioVinieta) {
             radioVinietaCache = radioVinieta;
-            texturaVinieta = new BufferedImage(radioVinieta * 2,  radioVinieta * 2, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D gV = texturaVinieta.createGraphics();
 
-            float[] distVinieta = {0.0f,0.3f, 1.0f};
-            Color[] coloresVinieta = {
-                    new Color(0,0,0,110),
-                    new Color(0, 0, 0, 215),
-                    new Color(0, 0, 0, 255)
+            // --- VIÑETA SUAVE (Cuando la linterna está prendida) ---
+            texturaVinietaLuz = new BufferedImage(radioVinieta * 2, radioVinieta * 2, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D gVL = texturaVinietaLuz.createGraphics();
+            float[] distLuz = {0.0f, 0.5f, 1.0f};
+            Color[] coloresLuz = {
+                    new Color(0, 0, 0, 0),     // Centro despejado
+                    new Color(0, 0, 0, 200),   // Penumbra suave
+                    new Color(0, 0, 0, 255)    // Negro en bordes
             };
+            gVL.setPaint(new RadialGradientPaint(new Point2D.Float(radioVinieta, radioVinieta), radioVinieta, distLuz, coloresLuz));
+            gVL.fillRect(0, 0, radioVinieta * 2, radioVinieta * 2);
+            gVL.dispose();
 
-            RadialGradientPaint rgp = new RadialGradientPaint(
-                    new Point2D.Float(radioVinieta, radioVinieta),
-                    radioVinieta, distVinieta, coloresVinieta
-            );
-            gV.setPaint(rgp);
-            gV.fillRect(0, 0, radioVinieta * 2, radioVinieta * 2);
-            gV.dispose();
+            // --- VIÑETA OSCURA Y OPACA (Cuando la linterna está apagada) ---
+            texturaVinietaOscura = new BufferedImage(radioVinieta * 2, radioVinieta * 2, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D gVO = texturaVinietaOscura.createGraphics();
+            float[] distOscura = {0.0f, 0.15f, 0.5f, 1.0f};
+            Color[] coloresOscuros = {
+                    new Color(0, 0, 0, 140),   // Centro opaco incluso cerca del jugador
+                    new Color(0, 0, 0, 220),   // Oscuridad muy pesada pegada al jugador
+                    new Color(0, 0, 0, 250),   // Casi negro total
+                    new Color(0, 0, 0, 255)    // Negro absoluto
+            };
+            gVO.setPaint(new RadialGradientPaint(new Point2D.Float(radioVinieta, radioVinieta), radioVinieta, distOscura, coloresOscuros));
+            gVO.fillRect(0, 0, radioVinieta * 2, radioVinieta * 2);
+            gVO.dispose();
         }
 
-        if (texturaAura == null || radioAuraCache != radioAura) {
+        if (texturaAura == null || radioAuraCache != radioAura || estadoCentroOscuroCache != centroOscuro) {
             radioAuraCache = radioAura;
+            estadoCentroOscuroCache = centroOscuro;
+            
             texturaAura = new BufferedImage(radioAura * 2, radioAura * 2, BufferedImage.TYPE_INT_ARGB);
             Graphics2D gA = texturaAura.createGraphics();
 
-            float[] distAura = { 0.0f, 0.4f, 1.0f };
-            Color[] coloresAura = {
-                    new Color(255, 230, 160, 100),
-                    new Color(255, 210, 130, 20),
-                    new Color(0, 0, 0, 0)
-            };
+            if (centroOscuro) {
+                float[] distAura = { 0.0f, 0.25f, 0.55f, 1.0f };
+                Color[] coloresAura = {
+                        new Color(0, 0, 0, 210),
+                        new Color(50, 40, 20, 150),
+                        new Color(255, 220, 140, 160),
+                        new Color(0, 0, 0, 0)
+                };
+                gA.setPaint(new RadialGradientPaint(new Point2D.Float(radioAura, radioAura), radioAura, distAura, coloresAura));
+            } else {
+                float[] distAura = { 0.0f, 0.4f, 1.0f };
+                Color[] coloresAura = {
+                        new Color(255, 230, 160, 140),
+                        new Color(255, 210, 130, 40),
+                        new Color(0, 0, 0, 0)
+                };
+                gA.setPaint(new RadialGradientPaint(new Point2D.Float(radioAura, radioAura), radioAura, distAura, coloresAura));
+            }
 
-            RadialGradientPaint rgpAura = new RadialGradientPaint(
-                    new Point2D.Float(radioAura, radioAura),
-                    radioAura, distAura, coloresAura
-            );
-            gA.setPaint(rgpAura);
             gA.fillRect(0, 0, radioAura * 2, radioAura * 2);
             gA.dispose();
         }
     }
 }
-
