@@ -406,7 +406,7 @@ public class ControladorNivel {
                 vista
         );
 
-        controladorEntidades.actualizar(nivelActual, personaje, vista);
+        controladorEntidades.actualizar(controladorEspacio.getEspacioActivo(), personaje, vista);
         actualizarTension(personaje); 
 
         if (controladorMando != null) controladorMando.actualizar();

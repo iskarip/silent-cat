@@ -61,19 +61,28 @@ public abstract class Acertijo implements Interactuable, Posicionable {
     public boolean validarRespuesta(String respuesta, Personaje personaje) {
         return validarRespuesta(respuesta);
     }
-
     public boolean responder(String respuesta, Personaje personaje) {
         if (validarRespuesta(respuesta, personaje)) {
             return true;
         }
 
-        intentosRestantes--;
-        if (intentosRestantes <= 0 && personaje != null) {
-            personaje.recibirDanio(DANIO_FALLO);
+        // Restamos el intento (si todavía son mayores a 0)
+        if (intentosRestantes > 0) {
+            intentosRestantes--;
         }
+
+        // Si ya está en 0 o menos (o acaba de llegar a 0), cada fallo posterior aplica daño directo
+        if (intentosRestantes <= 0) {
+            if (personaje != null) {
+                personaje.recibirDanio(DANIO_FALLO);
+            }
+            if (observador != null) {
+                observador.acertijoSinIntentos(this);
+            }
+        }
+
         return false;
     }
-
     protected abstract boolean verificarRespuesta(String respuesta);
 
     @Override
