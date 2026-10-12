@@ -5,7 +5,6 @@ import Vista.*;
 
 import javax.swing.Timer;
 import java.awt.Toolkit;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +39,9 @@ public class ControladorNivel {
     private final InventarioVisual inventarioVisual;
     private final AvisoInteraccion avisoInteraccion;
     private final ControladorGameOver controladorGameOver;
+
+    private final PanelPista pistaVisual;
+    private final ControladorPista controladorPista;
 
     private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
@@ -162,11 +164,20 @@ public class ControladorNivel {
             this.vista.agregarCapaVisual(barraVida);
         }
 
+        this.pistaVisual = new PanelPista();
+        this.vista.agregarCapaVisual(pistaVisual);
+        this.controladorPista = new ControladorPista(pistaVisual);
+
         // Asignación de interacción con 'E'
 
         this.controladorTeclado.setAccionInteraccionar(() -> {
             Personaje personaje = partida.getPersonaje();
             Nivel nivel = partida.getNivelActual();
+
+            if (controladorPista.estaActivo()) {
+                controladorPista.cerrar();
+                return; // la E se usó para cerrar, no para interactuar
+            }
 
             if (controladorEspacio.estaEnHabitacion()) {
                 Habitacion actual = partida.getHabitacionActiva();
@@ -184,6 +195,13 @@ public class ControladorNivel {
             }
         });
 
+        this.controladorTeclado.setAccionSlot(indice -> {
+                if (!pausado && !personajeMuerto && !controladorAcertijo.estaActivo()
+                        && inventarioVisual.isVisible()) {
+                    controladorPista.leerSlot(partida.getPersonaje(), indice);
+                }
+            });
+
         // Asignación de acción de Linterna
         this.controladorTeclado.setAccionLinterna(() -> {
             if (!pausado && !personajeMuerto) {
@@ -199,6 +217,8 @@ public class ControladorNivel {
 
         this.vista.addKeyListener(controladorTeclado);
         this.bucleDeJuego = new Timer(16, e -> cicloPrincipal());
+
+        this.controladorTeclado.setAccionPausa(controladorPausa::alternarPausa);
     }
 
     // -- SINCRONIZACIÓN DE INVENTARIO DESACOPLADO --
@@ -355,7 +375,7 @@ public class ControladorNivel {
     }
 
     private void actualizarJuego() {
-        if (pausado || controladorAcertijo.estaActivo()) return;
+        if (pausado || controladorAcertijo.estaActivo() || controladorPista.estaActivo()) return;
 
         Personaje personaje = partida.getPersonaje();
         Nivel nivelActual = partida.getNivelActual();

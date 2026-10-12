@@ -10,12 +10,15 @@ public class ControladorTeclado extends KeyAdapter implements CicloDeVida {
     private final Set<Integer> teclasPresionadas = new HashSet<>();
     // Teclas "virtuales" que mantiene apretadas el mando (separadas del teclado físico)
     private final Set<Integer> teclasMando = new HashSet<>();
+    
+    private java.util.function.IntConsumer accionSlot;
 
     private Runnable accionAtaque;
     private Runnable accionDebugFlashback;
     private Runnable accionLinterna;
     private Runnable accionInventario;
     private Runnable accionInteraccionar;
+    private Runnable accionPausa;
 
     public void setAccionAtaque(Runnable accionAtaque) {
         this.accionAtaque = accionAtaque;
@@ -35,6 +38,14 @@ public class ControladorTeclado extends KeyAdapter implements CicloDeVida {
 
     public void setAccionInteraccionar(Runnable accionInteraccionar) {
         this.accionInteraccionar = accionInteraccionar;
+    }
+
+    public void setAccionPausa(Runnable accionPausa) {
+        this.accionPausa = accionPausa;
+    }
+
+    public void setAccionSlot(java.util.function.IntConsumer accionSlot) {
+        this.accionSlot = accionSlot;
     }
 
     @Override
@@ -60,7 +71,15 @@ public class ControladorTeclado extends KeyAdapter implements CicloDeVida {
         if (keyCode == KeyEvent.VK_E && accionInteraccionar != null) {
             accionInteraccionar.run();
         }
+        if (keyCode == KeyEvent.VK_ESCAPE && accionPausa != null) {
+            accionPausa.run();
+        }
+        if (keyCode >= KeyEvent.VK_1 && keyCode <= KeyEvent.VK_5 && accionSlot != null) {
+            accionSlot.accept(keyCode - KeyEvent.VK_1); // 0 a 4
+        }
+
     }
+
 
     @Override
     public void keyReleased(KeyEvent e) {

@@ -27,7 +27,7 @@ public class NivelFactory {
 
     private Nivel crearNivel1() {
         // 1. Se declara e instancia el acertijo
-        Acertijo candadoPlantaBaja = new AcertijoNumerico(1, "Necesito una clave...", 14, 8, 1234, "/Recursos/UI/Acertijos/Candado/Fondo/candado.png", 0.48);
+        Acertijo candadoPlantaBaja = new AcertijoNumerico(1, "Necesito una clave...", 14, 8, 4271, "/Recursos/UI/Acertijos/Candado/Fondo/candado.png", 0.48);
        
         // 2. Se le pasa 'acertijo' al constructor de Nivel
         Nivel nivel = new Nivel(1, candadoPlantaBaja, "Recursos/Mapas/Grid/grid_planta_baja.txt", "/Recursos/Mapas/Imagen/mapa_planta_baja2.png", 16, 14);
@@ -73,6 +73,11 @@ public class NivelFactory {
             nivel.agregarZona(new ZonaMensaje(2, 8, 2, "El aire se siente muy pesado."));
             nivel.agregarZona(new ZonaMensaje(10, 2, 1, "Este ascensor parece funcionar, pero la puerta está atascada. \n Necesito algo para hacer palanca."));
             agregarVarias(nivel, (columna, fila) -> new EnemigoFotosensible(100, 20, nextId++, columna, fila, SPRITES_WATCHER), new int[]{19, 4});
+
+            ItemPista nota2 = new ItemPista("nota2", "/Recursos/Sprites/Items/nota2.png", "/Recursos/Sprites/Items/nota2.png", 4, 6);
+            nota2.setMensajeRecoger("Una nota arrugada...");
+            nivel.agregarItem(nota2);
+
             return nivel;
         }
         
@@ -105,12 +110,18 @@ public class NivelFactory {
                     "llave")
 ;
 
-            return new Habitacion("Cuarto de la puerta",
+           Habitacion habitacion = new Habitacion("Cuarto de la puerta",
                     acertijoPuerta,
                     "Recursos/Mapas/Grid/grid_habitacion_sotano.txt",
                     "/Recursos/Mapas/Imagen/habitacion_sotano.png",
                     7, 6,        // posicionInicial: tile donde aparece el personaje adentro
                     22, 9);     // puerta
+
+            ItemPista nota1 = new ItemPista("nota1", "/Recursos/Sprites/Items/nota1.png", "/Recursos/Sprites/Items/nota1.png", 3, 5);
+            nota1.setMensajeRecoger("Una nota arrugada...");
+            habitacion.agregarItem(nota1);
+
+            return habitacion;
         }
 
     private void agregarVarias(Nivel nivel, BiFunction<Integer, Integer, Entidad> creador, int[]... posiciones) {
