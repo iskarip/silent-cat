@@ -19,6 +19,7 @@ public class ControladorTeclado extends KeyAdapter implements CicloDeVida {
     private Runnable accionInventario;
     private Runnable accionInteraccionar;
     private Runnable accionPausa;
+    private Runnable accionInteractuar; 
 
     public void setAccionAtaque(Runnable accionAtaque) {
         this.accionAtaque = accionAtaque;
@@ -48,10 +49,19 @@ public class ControladorTeclado extends KeyAdapter implements CicloDeVida {
         this.accionSlot = accionSlot;
     }
 
+    public void setAccionInteractuar(Runnable accionInteractuar) {
+        this.accionInteractuar = accionInteractuar;
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
         teclasPresionadas.add(e.getKeyCode());
         ejecutarAccion(e.getKeyCode());
+
+        if (e.getKeyCode() == KeyEvent.VK_E && accionInteractuar != null) {
+    accionInteractuar.run();
+        }
+
     }
 
     // Acciones de pulso único. Las usan el teclado (keyPressed) y el mando.

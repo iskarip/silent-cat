@@ -11,7 +11,7 @@ import Persistencia.GestorConexionBd;
 import Persistencia.ProgresoDAOMemoria;
 import Persistencia.ProgresoDAOSQLite;
 import Vista.JuegoFrame; 
-
+    
 public class Main {
     public static void main (String [] args) {
 
