@@ -8,6 +8,8 @@ import Modelo.ObservadorAmbiente;
 import Modelo.Personaje;
 import Vista.AcertijoPanel;
 import Vista.NivelPanel;
+import Vista.ReproductorSonido;
+
 import java.awt.event.ActionListener;
 
 /**
@@ -78,6 +80,7 @@ public class ControladorAcertijo implements ObservadorAcertijo {
         ambiente.ocultarAvisoInteraccion(); // <- nueva
         vista.mostrarEnunciado(acertijo.getDescripcion(), acertijo.getLargoRespuesta(),
                     acertijo.getRutaImagen(), acertijo.getDistanciaCasilla());
+        
         nivelPanel.mostrarAcertijo();
     }
 

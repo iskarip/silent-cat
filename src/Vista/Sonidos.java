@@ -18,4 +18,7 @@ public final class Sonidos {
         public static final String MUSICA_NIVEL_1 = null;
         public static final String MUSICA_NIVEL_2 = "Recursos/Sonidos/Musica/nivel2.wav";
         public static final String MUSICA_NIVEL_3 = null;
+
+    // -- SONIDO DE PUERTA -- 
+    public static final String EFECTO_PUERTA = "Recursos/Sonidos/Objetos/puerta.wav";
 }

@@ -3,6 +3,7 @@ package Controlador;
 import Modelo.Habitacion;
 import Modelo.Nivel;
 import Modelo.Personaje;
+import Vista.ReproductorSonido;
 
 public class ControladorInteraccion {
 
@@ -35,18 +36,20 @@ public class ControladorInteraccion {
         }
 
         // 2. Si está en una habitación, verifica si sale
-        if (controladorEspacio.estaEnHabitacion()) {
+       if (controladorEspacio.estaEnHabitacion()) {
             Habitacion actual = partida.getHabitacionActiva();
             if (actual.salidaAlAlcance(personaje)) {
+                ReproductorSonido.reproducir("Recursos/Sonidos/Objetos/puerta.wav");
                 controladorEspacio.salir();
                 controladorTeclado.limpiarTeclas();
             }
             return;
         }
-
+        
         // 3. Si está en el nivel, busca entrar a habitación o interactuar con acertijo
-        Habitacion habitacion = nivel.getHabitacionAlAlcance(personaje);
+       Habitacion habitacion = nivel.getHabitacionAlAlcance(personaje);
         if (habitacion != null) {
+            ReproductorSonido.reproducir("Recursos/Sonidos/Objetos/puerta.wav");
             controladorEspacio.entrar(habitacion);
             controladorTeclado.limpiarTeclas();
         } else {

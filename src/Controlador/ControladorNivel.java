@@ -424,4 +424,7 @@ public class ControladorNivel {
     private void detenerComponentes() {
         for (CicloDeVida c : componentes) c.alDetener();
     }
-}
+
+} 
+
+
