@@ -112,12 +112,12 @@ public class NivelFactory {
 
            Habitacion habitacion = new Habitacion("Cuarto de la puerta",
                     acertijoPuerta,
-                    "Recursos/Mapas/Grid/grid_habitacion_sotano.txt",
-                    "/Recursos/Mapas/Imagen/habitacion_sotano.png",
-                    7, 6,        // posicionInicial: tile donde aparece el personaje adentro
+                    "Recursos/Mapas/Grid/grid_habitacion_planta_baja.txt",
+                    "/Recursos/Mapas/Imagen/habitacion_planta_baja.png",
+                    9, 6,        // posicionInicial: tile donde aparece el personaje adentro
                     22, 9);     // puerta
 
-            ItemPista nota1 = new ItemPista("nota1", "/Recursos/Sprites/Items/nota1.png", "/Recursos/Sprites/Items/nota1.png", 3, 5);
+            ItemPista nota1 = new ItemPista("nota1", "/Recursos/Sprites/Items/nota1.png", "/Recursos/Sprites/Items/nota1.png", 8, 5);
             nota1.setMensajeRecoger("Una nota arrugada...");
             habitacion.agregarItem(nota1);
 
