@@ -20,6 +20,8 @@ public class NivelFactory {
                 return crearNivel1(); //la planta baja 
             case 2:
                 return crearNivel2(); //el sotano
+            case 3:
+                return crearNivel3(); //la planta alta
             default:
                 throw new NivelInvalidoException("No existe el nivel " + numeroNivel);
         }
@@ -56,7 +58,7 @@ public class NivelFactory {
     private Nivel crearNivel2() {
             Acertijo palancaAscensor = new AcertijoObjeto (2, "Si encuentro algo para hacer palanca, quizás ceda.",10, 2, "palanca");
             
-            Nivel nivel = new Nivel(2, palancaAscensor, "Recursos/Mapas/Grid/grid_sotano.txt","/Recursos/Mapas/Imagen/mapa_sotano.jpg", 12, 6);
+            Nivel nivel = new Nivel(2, palancaAscensor, "Recursos/Mapas/Grid/grid_sotano.txt","/Recursos/Mapas/Imagen/mapa_sotano.png", 12, 6);
             nivel.setTipoSuelo(TipoSuelo.METAL);
 
             agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 20), new int[]{20, 9}, new int[]{10, 9}, new int[]{2, 11});
@@ -80,6 +82,16 @@ public class NivelFactory {
 
             return nivel;
         }
+
+        private Nivel crearNivel3 (){
+
+            Nivel nivel = new Nivel(3, "Recursos/Mapas/Grid/grid_planta_alta.txt","/Recursos/Mapas/Imagen/mapa_planta_alta.png", 3, 5);
+
+            return nivel;
+
+        }
+
+
         
         private Habitacion crearHabitacionPalanca() {
             Acertijo acertijoPuerta = new AcertijoNumerico(3,
@@ -94,7 +106,7 @@ public class NivelFactory {
                     "/Recursos/Mapas/Imagen/habitacion_sotano.png",
                     7, 6,        // posicionInicial
                     19, 2);      // puerta
-
+            habitacion.setTipoSuelo(TipoSuelo.METAL);
             Item palanca = new Item("palanca", "/Recursos/Sprites/Items/palanca.png", 1, 3);
             habitacion.agregarZona(new ZonaMensaje(1, 3, 1, "Una tuberia rota. Quizás sea de ayuda."));
             palanca.setEscala(0.5);
@@ -112,12 +124,12 @@ public class NivelFactory {
 
            Habitacion habitacion = new Habitacion("Cuarto de la puerta",
                     acertijoPuerta,
-                    "Recursos/Mapas/Grid/grid_habitacion_sotano.txt",
-                    "/Recursos/Mapas/Imagen/habitacion_sotano.png",
-                    7, 6,        // posicionInicial: tile donde aparece el personaje adentro
+                    "Recursos/Mapas/Grid/grid_habitacion_planta_baja.txt",
+                    "/Recursos/Mapas/Imagen/habitacion_planta_baja.png",
+                    9, 6,        // posicionInicial: tile donde aparece el personaje adentro
                     22, 9);     // puerta
 
-            ItemPista nota1 = new ItemPista("nota1", "/Recursos/Sprites/Items/nota1.png", "/Recursos/Sprites/Items/nota1.png", 3, 5);
+            ItemPista nota1 = new ItemPista("nota1", "/Recursos/Sprites/Items/nota1.png", "/Recursos/Sprites/Items/nota1.png", 8, 5);
             nota1.setMensajeRecoger("Una nota arrugada...");
             habitacion.agregarItem(nota1);
 

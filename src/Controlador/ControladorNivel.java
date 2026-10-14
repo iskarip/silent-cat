@@ -3,8 +3,6 @@ package Controlador;
 import Modelo.*;
 import Vista.*;
 
-import javax.swing.Timer;
-import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +24,7 @@ public class ControladorNivel {
     private final ControladorMando controladorMando;
     private final ControladorEspacio controladorEspacio;
     private final Pasos pasos;
+   
     // Componentes visuales desacoplados (reciben tipos planos / primitivos)
     private final FlashbackGato flashbackGato;
     private final MensajeAmbiental mensajeAmbiental;
@@ -43,16 +42,11 @@ public class ControladorNivel {
     private final PanelPista pistaVisual;
     private final ControladorPista controladorPista;
 
-    private Timer bucleDeJuego;
     private boolean personajeMuerto = false;
     private boolean pausado = false;
     private int contadorBateria = 0;
 
-    // Control de tiempo para 60 FPS estables
-    private static final double TIEMPO_OPTIMO_NS = 1_000_000_000.0 / 60.0;
-    private long tiempoAnterior = 0;
-    private double acumulador = 0.0;
-
+    private final BucleDeJuego bucleDeJuego;
     private final List<CicloDeVida> componentes = new ArrayList<>();
 
     // -- CONSTRUCTOR CONTROLADOR --
@@ -75,11 +69,11 @@ public class ControladorNivel {
             }
             this.controladorMando = mando;
 
+            
         this.controladorMusica = new ControladorMusica();
         componentes.add(this.controladorMusica);
 
         this.pasos = new Pasos();
-
         ControladorPasos controladorPasos = new ControladorPasos(pasos);
         this.pasos.agregarObservador(controladorPasos);
         componentes.add(controladorPasos);
@@ -110,12 +104,43 @@ public class ControladorNivel {
         this.vista.agregarCapaVisual(this.flashbackGato);
         this.vista.agregarCapaVisual(this.mensajeAmbiental);
         this.vista.agregarCapaVisual(this.avisoInteraccion);
+        
         this.inventarioVisual = new InventarioVisual();
         this.vista.agregarCapaVisual(inventarioVisual);
+        
         this.controladorTeclado.setAccionInventario(() -> {
             actualizarInventarioVisual();
             inventarioVisual.alternar();
         });
+        
+        this.pistaVisual = new PanelPista();
+        this.vista.agregarCapaVisual(pistaVisual);
+        this.controladorPista = new ControladorPista(pistaVisual);
+
+        ControladorInteraccion controladorInteraccion = new ControladorInteraccion(
+        controladorPista, controladorEspacio, controladorAcertijo, controladorTeclado, partida
+        );
+
+        // Asignación de interacción con 'E' delegada al nuevo controlador
+        this.controladorTeclado.setAccionInteraccionar(() -> {
+            controladorInteraccion.manejarInteraccion();
+        });
+
+// Inicialización del Bucle de Juego delegando actualización y renderizado
+        this.bucleDeJuego = new BucleDeJuego(
+            this::actualizarJuego,
+            () -> {
+                Personaje jugador = partida.getPersonaje();
+                if (jugador != null) {
+                    linternaOverlay.setPosicionJugador(jugador.getPosicionX(), jugador.getPosicionY());
+                }
+                vista.repaint();
+            },
+            () -> (pausado || controladorAcertijo.estaActivo() || controladorPista.estaActivo())
+        );
+        componentes.add(this.bucleDeJuego);
+
+
 
         this.barraBateria = new BarraBateria();
         this.vista.agregarCapaVisual(barraBateria);
@@ -164,37 +189,6 @@ public class ControladorNivel {
             this.vista.agregarCapaVisual(barraVida);
         }
 
-        this.pistaVisual = new PanelPista();
-        this.vista.agregarCapaVisual(pistaVisual);
-        this.controladorPista = new ControladorPista(pistaVisual);
-
-        // Asignación de interacción con 'E'
-
-        this.controladorTeclado.setAccionInteraccionar(() -> {
-            Personaje personaje = partida.getPersonaje();
-            Nivel nivel = partida.getNivelActual();
-
-            if (controladorPista.estaActivo()) {
-                controladorPista.cerrar();
-                return; // la E se usó para cerrar, no para interactuar
-            }
-
-            if (controladorEspacio.estaEnHabitacion()) {
-                Habitacion actual = partida.getHabitacionActiva();
-                if (actual.salidaAlAlcance(personaje)) {
-                    salirDeHabitacion();
-                }
-                return;
-            }
-
-            Habitacion habitacion = nivel.getHabitacionAlAlcance(personaje);
-            if (habitacion != null) {
-                entrarAHabitacion(habitacion);
-            } else {
-                controladorAcertijo.intentarInteraccion(nivel, personaje, controladorTeclado);
-            }
-        });
-
         this.controladorTeclado.setAccionSlot(indice -> {
                 if (!pausado && !personajeMuerto && !controladorAcertijo.estaActivo()
                         && inventarioVisual.isVisible()) {
@@ -216,7 +210,6 @@ public class ControladorNivel {
         this.controladorTeclado.setAccionAtaque(this::atacar);
 
         this.vista.addKeyListener(controladorTeclado);
-        this.bucleDeJuego = new Timer(16, e -> cicloPrincipal());
 
         this.controladorTeclado.setAccionPausa(controladorPausa::alternarPausa);
     }
@@ -243,16 +236,12 @@ public class ControladorNivel {
         if (nivelInicial != null) {
             controladorMusica.reproducirParaNivel(nivelInicial.getNumeroNivel());
         }
-        this.tiempoAnterior = System.nanoTime();
-        this.acumulador = 0.0;
-        bucleDeJuego.start();
+
+        bucleDeJuego.iniciar();
     }
 
     public void detener() {
-        if (bucleDeJuego != null) {
-            bucleDeJuego.stop();
-            detenerComponentes();
-        }
+        detenerComponentes();
         vista.removeKeyListener(controladorTeclado);
         controladorPausa.desconectar();
         controladorAcertijo.desconectar();
@@ -260,16 +249,10 @@ public class ControladorNivel {
 
     public void setPausado(boolean pausado) {
         this.pausado = pausado;
-        if (bucleDeJuego != null) {
             if (pausado) {
                 pausarComponentes(); 
-                bucleDeJuego.stop();
             } else {
                 reanudarComponentes(); 
-                this.tiempoAnterior = System.nanoTime();
-                this.acumulador = 0.0;
-                bucleDeJuego.start();
-            }
         }
     }
 
@@ -306,15 +289,13 @@ public class ControladorNivel {
             personaje.revivirEn(xMuerte, yMuerte);
             barraVida.actualizarVida(100);
 
+            reanudarComponentes();
+
             this.vista.requestFocusInWindow();
             this.vista.actualizarCamara();
             this.vista.repaint();
 
-            if (bucleDeJuego != null && !bucleDeJuego.isRunning()) {
-                this.tiempoAnterior = System.nanoTime();
-                this.acumulador = 0.0;
-                bucleDeJuego.start();
-            }
+                bucleDeJuego.iniciar();
         }
     }
 
@@ -332,46 +313,6 @@ public class ControladorNivel {
             }
             actualizarInventarioVisual();
         }
-        if (personaje.getLinterna() != null) {
-            barraBateria.actualizarBateria(personaje.getLinterna().getBateria());
-            linternaOverlay.setBateria(personaje.getLinterna().getBateria());   
-        }
-}
-
-    private void cicloPrincipal() {
-        if (pausado || controladorAcertijo.estaActivo()) {
-            tiempoAnterior = System.nanoTime();
-            return;
-        }
-
-        long tiempoActual = System.nanoTime();
-        double transcurrido = (double) (tiempoActual - tiempoAnterior);
-        tiempoAnterior = tiempoActual;
-
-        if (transcurrido > 100_000_000.0) {
-            transcurrido = 100_000_000.0;
-        }
-
-        acumulador += transcurrido;
-
-        int pasos = 0;
-        while (acumulador >= TIEMPO_OPTIMO_NS && pasos < 2) {
-            actualizarJuego();
-            acumulador -= TIEMPO_OPTIMO_NS;
-            pasos++;
-        }
-
-        if (acumulador > TIEMPO_OPTIMO_NS) {
-            acumulador = 0.0;
-        }
-    // El aura de la linterna necesita saber donde esta el jugador (se lo pasamos como numeros)
-        Personaje jugador = partida.getPersonaje();
-        if (jugador != null) {
-            linternaOverlay.setPosicionJugador(jugador.getPosicionX(), jugador.getPosicionY());
-        }
-
-        vista.repaint();
-        Toolkit.getDefaultToolkit().sync();
     }
 
     private void actualizarJuego() {
@@ -406,7 +347,7 @@ public class ControladorNivel {
                 vista
         );
 
-        controladorEntidades.actualizar(nivelActual, personaje, vista);
+        controladorEntidades.actualizar(controladorEspacio.getEspacioActivo(), personaje, vista);
         actualizarTension(personaje); 
 
         if (controladorMando != null) controladorMando.actualizar();
@@ -483,4 +424,7 @@ public class ControladorNivel {
     private void detenerComponentes() {
         for (CicloDeVida c : componentes) c.alDetener();
     }
-}
+
+} 
+
+

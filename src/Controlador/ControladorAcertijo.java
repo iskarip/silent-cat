@@ -8,6 +8,8 @@ import Modelo.ObservadorAmbiente;
 import Modelo.Personaje;
 import Vista.AcertijoPanel;
 import Vista.NivelPanel;
+import Vista.ReproductorSonido;
+
 import java.awt.event.ActionListener;
 
 /**
@@ -78,12 +80,13 @@ public class ControladorAcertijo implements ObservadorAcertijo {
         ambiente.ocultarAvisoInteraccion(); // <- nueva
         vista.mostrarEnunciado(acertijo.getDescripcion(), acertijo.getLargoRespuesta(),
                     acertijo.getRutaImagen(), acertijo.getDistanciaCasilla());
+        
         nivelPanel.mostrarAcertijo();
     }
 
     // Se agotaron los intentos (el modelo ya aplicó el daño al personaje): avisa y cierra la pantalla
     @Override
-    public void acertijoSinIntentos(AcertijoNumerico acertijo) {
+    public void acertijoSinIntentos(Acertijo acertijo) {
         ambiente.mostrarMensaje("Sin intentos restantes. Recibiste daño.");
         volverAlNivel();
     }
@@ -97,7 +100,7 @@ public class ControladorAcertijo implements ObservadorAcertijo {
     // Falta algo para resolverlo (por ejemplo, no tiene el objeto necesario)
     @Override
     public void acertijoBloqueado(Acertijo acertijo) {
-        ambiente.mostrarMensaje("Me falta algo para esto...");
+        ambiente.mostrarMensaje("Mmm me falta algo para esto...");
     }
 
     // -- ACCIONES DE LOS BOTONES --

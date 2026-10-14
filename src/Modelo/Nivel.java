@@ -30,6 +30,21 @@ public class Nivel extends EspacioBase {
         this.checkpointY = posicionInicialY * MapaColision.TILE;
     }
 
+    public Nivel(int numeroNivel, String rutaGrid, String rutaImagenFondo,
+                 int posicionInicialX, int posicionInicialY) {
+        // Se pasan exactamente los 5 parámetros requeridos por EspacioBase
+        super(rutaGrid, rutaImagenFondo, posicionInicialX, posicionInicialY, null);
+        this.numeroNivel = numeroNivel;
+        this.nivelSuperado = false;
+        this.checkpoint = false;
+        this.habitaciones = new ArrayList<>();
+
+        // Checkpoint inicial configurado en el spawn
+        this.checkpointX = posicionInicialX * MapaColision.TILE;
+        this.checkpointY = posicionInicialY * MapaColision.TILE;
+    }
+
+
     // -- GETTERS Y SETTERS --
 
     public boolean getNivelSuperado() { return this.nivelSuperado; }

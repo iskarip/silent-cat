@@ -22,8 +22,26 @@ public class ReproductorSonido {
     public static void reproducir(String ruta) {
         Thread hiloSonido = new Thread(() -> {
             try {
-                AudioInputStream audioIn = AudioSystem.getAudioInputStream(
-                        ReproductorSonido.class.getClassLoader().getResource(ruta));
+                java.net.URL url = ReproductorSonido.class.getClassLoader().getResource(ruta);
+                if (url == null && !ruta.startsWith("/")) {
+                    url = ReproductorSonido.class.getResource("/" + ruta);
+                }
+
+                AudioInputStream audioIn;
+                if (url != null) {
+                    audioIn = AudioSystem.getAudioInputStream(url);
+                } else {
+                    java.io.File archivo = new java.io.File(ruta.startsWith("src/") ? ruta : "src/" + ruta);
+                    if (!archivo.exists()) {
+                        archivo = new java.io.File(ruta);
+                    }
+                    if (archivo.exists()) {
+                        audioIn = AudioSystem.getAudioInputStream(archivo);
+                    } else {
+                        System.err.println("[ReproductorSonido] No se encontró el archivo de sonido: " + ruta);
+                        return;
+                    }
+                }
 
                 Clip clip = AudioSystem.getClip();
                 clip.addLineListener(event -> {
@@ -37,14 +55,15 @@ public class ReproductorSonido {
                 aplicarVolumen(clip, volumenEfectos);
                 clip.start();
             } catch (Exception e) {
-                System.out.println("No se pudo reproducir el sonido: " + e.getMessage());
+                System.out.println("No se pudo reproducir el sonido (" + ruta + "): " + e.getMessage());
+                e.printStackTrace();
             }
         }, "hilo-sonido");
 
         hiloSonido.setDaemon(true);
         hiloSonido.start();
     }
-
+    
     public static void reproducirEnLoop(String ruta) {
         Thread hiloMusica = new Thread(() -> {
             try {

@@ -1,7 +1,6 @@
 package Controlador;
 
 import Modelo.Entidad;
-import Modelo.Nivel;
 import Modelo.Personaje;
 import Vista.NivelPanel;
 import Modelo.EspacioBase;
@@ -11,12 +10,12 @@ public class ControladorEntidades {
 //distancia dentro de la cual la entidad cuenta para la tension
 private static final int RADIO_TENSION = 350;
 
-    public void actualizar(Nivel nivelActual, Personaje personaje, NivelPanel vista) {
-        if (nivelActual == null || personaje == null) return;
+    public void actualizar(EspacioBase espacio, Personaje personaje, NivelPanel vista) {
+        if (espacio == null || personaje == null) return;
 
-        for (Entidad e : nivelActual.getListaEntidades()) {
+        for (Entidad e : espacio.getListaEntidades()) {
             if (e.estaVivo()) {
-                e.actualizar(personaje, nivelActual.getMapaColision());
+                e.actualizar(personaje, espacio.getMapaColision());
             }
         }
     }
