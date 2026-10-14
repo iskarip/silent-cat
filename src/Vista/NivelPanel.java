@@ -57,6 +57,8 @@ static {
     private final PausaPanel pausaPanel;
     private final AcertijoPanel acertijoPanel;
 
+    private static final boolean DEBUG_HITBOX = true; // ponelo en false para apagarlo
+
     // CONSTRUCTOR
 
     public NivelPanel() {
@@ -286,6 +288,12 @@ static {
                     int ey = e.getPosicionY();
 
                     dibujarSprite(g2d, sprites, estado, e.getDireccion(), frame, ex, ey, escE);
+
+                    if (DEBUG_HITBOX) {
+                        Rectangle hbE = e.getHitbox();
+                        g2d.setColor(Color.CYAN);
+                        g2d.drawRect(hbE.x, hbE.y, hbE.width, hbE.height);
+                    }
 
                     if (e.mostrarBarraVida()) {
                         // el tope del sprite bajó al achicarlo, la barra lo acompaña

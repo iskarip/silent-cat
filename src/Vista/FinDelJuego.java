@@ -27,9 +27,8 @@ public class FinDelJuego extends JPanel {
 
     private void crearComponentes() {
         botonReintentar = new BotonJuego(
-                "/Recursos/UI/Pausa/Botones/ReanudarPartida.png",
-                "/Recursos/UI/Pausa/Botones/ReanudarPartidaHover.png",
-                180, 55
+                "/Recursos/UI/GameOver/Botones/Reintentar.png",
+                "/Recursos/UI/GameOver/Botones/ReintentarHover.png","Recursos/Sonidos/UI/sonido3.wav"
         );
 
         botonVolverMenu = new BotonJuego(
@@ -54,15 +53,20 @@ public class FinDelJuego extends JPanel {
 
         // 1. Botón Reanudar / Reintentar: debajo de la calavera
         if (botonReintentar != null) {
+            Dimension tamIntentar = botonReintentar.getPreferredSize();
             botonReintentar.setBounds(centroX - (anchoBoton / 2), centroY + 105, anchoBoton, altoBoton);
+            int w = (tamIntentar != null && tamIntentar.width > 0) ? tamIntentar.width : anchoBoton;
+            int h = (tamIntentar!= null && tamIntentar.height > 0) ? tamIntentar.height : altoBoton;
+            botonReintentar.setBounds(centroX - (w / 2), centroY + 130, w, h);
         }
+
 
         // 2. Botón Volver al Menú: debajo de Reanudar
         if (botonVolverMenu != null) {
             Dimension tamVolver = botonVolverMenu.getPreferredSize();
             int w = (tamVolver != null && tamVolver.width > 0) ? tamVolver.width : anchoBoton;
             int h = (tamVolver != null && tamVolver.height > 0) ? tamVolver.height : altoBoton;
-            botonVolverMenu.setBounds(centroX - (w / 2), centroY + 175, w, h);
+            botonVolverMenu.setBounds(centroX - (w / 2), centroY + 185, w, h);
         }
     }
 

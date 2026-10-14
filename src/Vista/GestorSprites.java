@@ -50,7 +50,9 @@ public class GestorSprites {
     }
 
     public BufferedImage obtener(EstadoAnimacion estado) {
-        return spritesFijos.get(estado);
+        BufferedImage hoja = spritesFijos.get(estado);
+        return (hoja != null) ? hoja : spritesFijos.get(EstadoAnimacion.CAMINANDO);
+
     }
 
     // -- CARGA DE RECURSOS (antes le correspondia a NivelPanel) --

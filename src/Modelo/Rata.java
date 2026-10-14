@@ -6,10 +6,10 @@ import java.util.Random;
 public class Rata extends EntidadPasiva {
 
     // Ajustalos mirando el sprite de la rata
-    private static final int ANCHO_HITBOX = (int) (16 * ESCALA);
-    private static final int ALTO_HITBOX = (int) (8 * ESCALA);
-    private static final int OFFSET_X_HITBOX = (int) (8 * ESCALA);
-    private static final int OFFSET_Y_HITBOX = (int) (20 * ESCALA);
+    private static final int ANCHO_HITBOX = (int) (6 * ESCALA);
+    private static final int ALTO_HITBOX = (int) (2 * ESCALA);
+    private static final int OFFSET_X_HITBOX = (int) (7 * ESCALA);
+    private static final int OFFSET_Y_HITBOX = (int) (18 * ESCALA);
 
     private final Random random = new Random();
     private int dx = 0;

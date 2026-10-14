@@ -56,7 +56,7 @@ public class NivelFactory {
     private Nivel crearNivel2() {
             Acertijo palancaAscensor = new AcertijoObjeto (2, "Si encuentro algo para hacer palanca, quizás ceda.",10, 2, "palanca");
             
-            Nivel nivel = new Nivel(2, palancaAscensor, "Recursos/Mapas/Grid/grid_sotano.txt","/Recursos/Mapas/Imagen/mapa_sotano.png", 12, 6);
+            Nivel nivel = new Nivel(2, palancaAscensor, "Recursos/Mapas/Grid/grid_sotano.txt","/Recursos/Mapas/Imagen/mapa_sotano.jpg", 12, 6);
             nivel.setTipoSuelo(TipoSuelo.METAL);
 
             agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 20), new int[]{20, 9}, new int[]{10, 9}, new int[]{2, 11});

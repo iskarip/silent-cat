@@ -81,7 +81,7 @@ public class PausaPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
 
         // Rojo semitransparente (Rojo: 255, Verde: 0, Azul: 0, Transparencia: 150)
-        Color fondoRojoTransparente = new Color(255, 0, 0, 50); 
+        Color fondoRojoTransparente = new Color(150, 0, 0, 50); 
 
         g2d.setColor(fondoRojoTransparente);
         

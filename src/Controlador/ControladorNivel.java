@@ -465,12 +465,12 @@ public class ControladorNivel {
     }
 
     private void actualizarAvisoInteraccion() {
-    if (controladorEspacio.hayInteraccionAlAlcance()) {
-        controladorAmbiente.mostrarAvisoInteraccion("[E] Interactuar");
-    } else {
-        controladorAmbiente.ocultarAvisoInteraccion();
+        if (controladorEspacio.hayInteraccionAlAlcance()) {
+            controladorAmbiente.mostrarAvisoInteraccion("[E] Interactuar");
+        } else {
+            controladorAmbiente.ocultarAvisoInteraccion();
+        }
     }
-}
 
     private void pausarComponentes() {
         for (CicloDeVida c : componentes) c.alPausar();
