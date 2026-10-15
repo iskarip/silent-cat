@@ -236,6 +236,9 @@ https://docs.google.com/document/d/1oiAt7oy5ClhZ2OPFTxYV2c4uRL7WencAi1H2_CcWGb0/
 
 uml actualizado: Enlace a draw.io: https://drive.google.com/file/d/1OYlUqmkDSLBpF4yocw-xF3axblk_VoJx/view?usp=sharing
 
+## 7. Patrones
+
+Link al documento -> https://docs.google.com/document/d/1_GrS-vZNLKal-O5K6VbnyVhthoWHjBSJEv2pU4A7FdI/edit?usp=sharing
 
 
 
