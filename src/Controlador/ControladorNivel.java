@@ -170,16 +170,19 @@ public class ControladorNivel {
             });
 
             // Sincronizar estado inicial de linterna
-            Linterna linterna = personajeActual.getLinterna();
+           Linterna linterna = personajeActual.getLinterna();
             if (linterna != null) {
                 barraBateria.actualizarBateria(linterna.getBateria());
 
+                // La BarraBateria se suscribe directamente como Observador de la Linterna (Modelo)
+                linterna.agregarObservador(barraBateria);
+
+                // linternaOverlay también observa los cambios de encendido y batería
                 linterna.agregarObservador(new ObservadorLinterna() {
                     @Override 
                     public void linternaCambio(int bateriaActual, boolean encendida) {
                         linternaOverlay.setEncendida(encendida);
                         linternaOverlay.setBateria(bateriaActual);
-                        barraBateria.actualizarBateria(bateriaActual);
                     }
                 });
             }
