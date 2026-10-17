@@ -5,19 +5,21 @@ import java.awt.Rectangle;
 
 public abstract class Enemigo extends EntidadCombatible {
 
-    private static final int ANCHO_HITBOX = (int) (10 * ESCALA);
-    private static final int ALTO_HITBOX = (int) (6 * ESCALA);
-    private static final int OFFSET_X_HITBOX = (int) (5 * ESCALA);
-    private static final int OFFSET_Y_HITBOX = (int) (11 * ESCALA);
+    private static final int ANCHO_HITBOX = (int) (6 * ESCALA);
+    private static final int ALTO_HITBOX = (int) (2 * ESCALA);
+    private static final int OFFSET_X_HITBOX = (int) (7 * ESCALA);
+    private static final int OFFSET_Y_HITBOX = (int) (15 * ESCALA);
+    private static final int MARGEN_CONTACTO = 4;
 
     private int idEnemigo;
     private int danioBase;
-    private int radioDeteccion = 200;
+    private int radioDeteccion = 50;
     private boolean alertado = false;
     private int ticksEnfriamientoAtaque = 0;
     private int ticksEnContacto = 0;
-    private static final int ENFRIAMIENTO_ATAQUE = 60;
-
+    private static final int ENFRIAMIENTO_ATAQUE = 30;
+    private static final int DURACION_ANIMACION_ATAQUE = 30; 
+    private int ticksAtacando = 0;
     private int spawnX;
     private int spawnY;
     private static final int RADIO_PATRULLA = 60;
@@ -78,16 +80,6 @@ public abstract class Enemigo extends EntidadCombatible {
         return new Rectangle(x + OFFSET_X_HITBOX, y + OFFSET_Y_HITBOX, ANCHO_HITBOX, ALTO_HITBOX);
     }
 
-    @Override
-    public void atacar(EntidadCombatible objetivo) {
-        if (ticksEnfriamientoAtaque > 0) return;
-
-        if (objetivo != null) {
-            System.out.println("El enemigo " + this.idEnemigo + " ataca y hace" + this.danioBase + " de daño. ");
-            objetivo.recibirDanio(this.danioBase);
-            ticksEnfriamientoAtaque = getEnfriamientoAtaque();
-        }
-    }
 
     public void moverHaciaJugador(Personaje jugador, MapaColision mapa) {
         if (ticksEsquivando > 0) {
@@ -97,7 +89,7 @@ public abstract class Enemigo extends EntidadCombatible {
             return;
         }
 
-        int deltaX = 1;
+        int deltaX = 0;
         int deltaY = 0;
 
         if (jugador.getPosicionX() > this.getPosicionX()) {
@@ -234,10 +226,33 @@ public abstract class Enemigo extends EntidadCombatible {
     }
 
     @Override
+    public void atacar(EntidadCombatible objetivo) {
+        if (ticksEnfriamientoAtaque > 0) return;
+
+        if (objetivo != null) {
+            System.out.println("El enemigo " + this.idEnemigo + " ataca y hace" + this.danioBase + " de daño. ");
+            objetivo.recibirDanio(this.danioBase);
+            ticksEnfriamientoAtaque = getEnfriamientoAtaque();
+            ticksAtacando = DURACION_ANIMACION_ATAQUE;   // <- nuevo
+        }
+    }
+
+    @Override
+    public boolean estaAtacando() {
+        return ticksAtacando > 0;
+    }
+
+    @Override
     public void actualizar(Personaje jugador, MapaColision mapa) {
+
+        if (ticksAtacando > 0) {   // <- nuevo, al principio
+            ticksAtacando--;
+        }
         actualizarComportamiento(jugador, mapa);
 
-        boolean enContacto = puedeAtacar(jugador) && jugador.getHitbox().intersects(getHitbox());
+        Rectangle alcance = getHitbox();
+        alcance.grow(MARGEN_CONTACTO, MARGEN_CONTACTO);
+        boolean enContacto = puedeAtacar(jugador) && jugador.getHitbox().intersects(alcance);
 
         if (enContacto) {
             ticksEnContacto++;
@@ -245,7 +260,7 @@ public abstract class Enemigo extends EntidadCombatible {
                 atacar(jugador);
             }
         } else {
-            ticksEnContacto = 0;   // si te alejás, la cuenta vuelve a empezar
+            ticksEnContacto = 0;
         }
     }
     

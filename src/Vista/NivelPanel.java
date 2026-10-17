@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -56,8 +57,6 @@ static {
     private JButton botonPausa;
     private final PausaPanel pausaPanel;
     private final AcertijoPanel acertijoPanel;
-
-    private static final boolean DEBUG_HITBOX = true; // ponelo en false para apagarlo
 
     // CONSTRUCTOR
 
@@ -252,60 +251,21 @@ static {
             }
         }
 
-        // 3. DIBUJAR SPRITE DEL PROTAGONISTA
-        BufferedImage hoja = (gestorSprites != null) ? gestorSprites.obtener(estadoActual) : null;
-        int posX = personaje.getPosicionX();
-        int posY = personaje.getPosicionY();
-
-        if (hoja != null) {
-            int frame = cuadroAnimacion % 6;
-            // Se delega el recorte exacto a GestorSprites
-            int fila = (personaje.getDireccion() != null) ? personaje.getDireccion().getFila() : 0;
-            gestorSprites.dibujarCuadro(g2d, estadoActual, fila, frame,
-                    posX, posY, ANCHO_CUADRO, ALTO_CUADRO, ESCALA);
-
-            Rectangle hb = personaje.getHitbox();
-            g2d.setColor(Color.RED);
-            g2d.drawRect(hb.x, hb.y, hb.width, hb.height);
-        } else {
-            g2d.setColor(Color.RED);
-            g2d.fillOval(posX, posY, 40, 40);
-        }
-
-        // 4. DIBUJAR ENTIDADES (enemigos, ratas, etc.)
+        // 3. PERSONAJE Y ENTIDADES, ordenados por los pies: el de más abajo se dibuja encima
+        List<Entidad> porProfundidad = new ArrayList<>();
+        porProfundidad.add(personaje);
         if (espacioActual != null && espacioActual.getListaEntidades() != null) {
-            for (Entidad e : espacioActual.getListaEntidades()) {
-                if (!e.estaVivo()) continue;
+            for (Entidad ent : espacioActual.getListaEntidades()) {
+                if (ent.estaVivo()) porProfundidad.add(ent);
+            }
+        }
+        porProfundidad.sort(Comparator.comparingInt(ent -> ent.getHitbox().y + ent.getHitbox().height));
 
-                    GestorSprites sprites = obtenerSprites(e.getRutaSprites());
-                    EstadoAnimacion estado = estadoDe(e);
-                    int total = obtenerTotalFrames(sprites, estado);
-                    int frame = e.getPostura().esTransicion()
-                     ? Math.min(total - 1, (int) (e.getProgresoPostura() * total))
-                    : (contadorTick / 6) % total;
-                    double escE = e.getEscalaSprite();
-                    int ex = e.getPosicionX();
-                    int ey = e.getPosicionY();
-
-                    dibujarSprite(g2d, sprites, estado, e.getDireccion(), frame, ex, ey, escE);
-
-                    if (DEBUG_HITBOX) {
-                        Rectangle hbE = e.getHitbox();
-                        g2d.setColor(Color.CYAN);
-                        g2d.drawRect(hbE.x, hbE.y, hbE.width, hbE.height);
-                    }
-
-                    if (e.mostrarBarraVida()) {
-                        // el tope del sprite bajó al achicarlo, la barra lo acompaña
-                        int ajusteY = (int) (ALTO_CUADRO * ESCALA * (1 - escE));
-                        int anchoBarra = (int) (20 * ESCALA);
-                        g2d.setColor(Color.BLACK);
-                        g2d.fillRect(ex + (int) (14 * ESCALA), ey + ajusteY - 6, anchoBarra, 4);
-                        
-                        g2d.setColor(Color.RED);
-                        int anchoVida = (int) (anchoBarra * (e.getPorcentajeVida() / 100.0));
-                        g2d.fillRect(ex + (int) (14 * ESCALA), ey + ajusteY - 6, Math.max(0, anchoVida), 4);
-                    }
+        for (Entidad ent : porProfundidad) {
+            if (ent == personaje) {
+                dibujarPersonaje(g2d);
+            } else {
+                dibujarEntidad(g2d, ent);
             }
         }
 
@@ -332,6 +292,47 @@ static {
             int totalFrames = obtenerTotalFrames(gestorSprites, estadoActual);
 
             cuadroAnimacion = (cuadroAnimacion + 1) % totalFrames;
+        }
+    }
+
+    private void dibujarPersonaje(Graphics2D g2d) {
+        BufferedImage hoja = (gestorSprites != null) ? gestorSprites.obtener(estadoActual) : null;
+        int posX = personaje.getPosicionX();
+        int posY = personaje.getPosicionY();
+
+        if (hoja != null) {
+            int frame = cuadroAnimacion % 6;
+            int fila = (personaje.getDireccion() != null) ? personaje.getDireccion().getFila() : 0;
+            gestorSprites.dibujarCuadro(g2d, estadoActual, fila, frame,
+                    posX, posY, ANCHO_CUADRO, ALTO_CUADRO, ESCALA);
+        } else {
+            g2d.setColor(Color.RED);
+            g2d.fillOval(posX, posY, 40, 40);
+        }
+    }
+
+    private void dibujarEntidad(Graphics2D g2d, Entidad e) {
+        GestorSprites sprites = obtenerSprites(e.getRutaSprites());
+        EstadoAnimacion estado = estadoDe(e);
+        int total = obtenerTotalFrames(sprites, estado);
+        int frame = e.getPostura().esTransicion()
+                ? Math.min(total - 1, (int) (e.getProgresoPostura() * total))
+                : (contadorTick / 6) % total;
+        double escE = e.getEscalaSprite();
+        int ex = e.getPosicionX();
+        int ey = e.getPosicionY();
+
+        dibujarSprite(g2d, sprites, estado, e.getDireccion(), frame, ex, ey, escE);
+
+        if (e.mostrarBarraVida()) {
+            int ajusteY = (int) (ALTO_CUADRO * ESCALA * (1 - escE));
+            int anchoBarra = (int) (20 * ESCALA);
+            g2d.setColor(Color.BLACK);
+            g2d.fillRect(ex + (int) (14 * ESCALA), ey + ajusteY - 6, anchoBarra, 4);
+
+            g2d.setColor(Color.RED);
+            int anchoVida = (int) (anchoBarra * (e.getPorcentajeVida() / 100.0));
+            g2d.fillRect(ex + (int) (14 * ESCALA), ey + ajusteY - 6, Math.max(0, anchoVida), 4);
         }
     }
 

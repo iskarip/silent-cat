@@ -1,5 +1,7 @@
 package Controlador;
 
+import java.util.List;
+import java.awt.Rectangle;
 import Modelo.Entidad;
 import Modelo.Personaje;
 import Vista.NivelPanel;
@@ -7,18 +9,67 @@ import Modelo.EspacioBase;
 
 public class ControladorEntidades {
 
-//distancia dentro de la cual la entidad cuenta para la tension
-private static final int RADIO_TENSION = 350;
+    //distancia dentro de la cual la entidad cuenta para la tension
+    private static final int RADIO_TENSION = 350;
 
-    public void actualizar(EspacioBase espacio, Personaje personaje, NivelPanel vista) {
+        public void actualizar(EspacioBase espacio, Personaje personaje, NivelPanel vista) {
         if (espacio == null || personaje == null) return;
 
-        for (Entidad e : espacio.getListaEntidades()) {
-            if (e.estaVivo()) {
-                e.actualizar(personaje, espacio.getMapaColision());
+        List<Entidad> todas = espacio.getListaEntidades();
+        for (Entidad e : todas) {
+            if (!e.estaVivo()) continue;
+
+            int xAntes = e.getPosicionX();
+            int yAntes = e.getPosicionY();
+            e.actualizar(personaje, espacio.getMapaColision());
+            evitarSolapamiento(e, xAntes, yAntes, todas, personaje);
+        }
+    }
+
+    private void evitarSolapamiento(Entidad e, int xAntes, int yAntes, List<Entidad> todas, Personaje jugador) {
+        int xNuevo = e.getPosicionX();
+        int yNuevo = e.getPosicionY();
+
+        e.setPosicionX(xAntes);
+        e.setPosicionY(yAntes);
+
+        if (xNuevo != xAntes) {
+            e.setPosicionX(xNuevo);
+            if (chocaAlAcercarse(e, xAntes, yAntes, todas, jugador)) {
+                e.setPosicionX(xAntes);
+            }
+        }
+        if (yNuevo != yAntes) {
+            int xActual = e.getPosicionX();
+            e.setPosicionY(yNuevo);
+            if (chocaAlAcercarse(e, xActual, yAntes, todas, jugador)) {
+                e.setPosicionY(yAntes);
             }
         }
     }
+
+    private boolean chocaAlAcercarse(Entidad e, int xPrevio, int yPrevio, List<Entidad> todas, Personaje jugador) {
+        Rectangle ahora = e.getHitbox();
+        Rectangle antes = new Rectangle(ahora);
+        antes.translate(xPrevio - e.getPosicionX(), yPrevio - e.getPosicionY());
+
+        if (acercaYToca(ahora, antes, jugador.getHitbox())) return true;
+
+        for (Entidad otra : todas) {
+            if (otra == e || !otra.estaVivo()) continue;
+            if (acercaYToca(ahora, antes, otra.getHitbox())) return true;
+        }
+        return false;
+    }
+
+    private boolean acercaYToca(Rectangle ahora, Rectangle antes, Rectangle otro) {
+        return ahora.intersects(otro) && distancia(ahora, otro) < distancia(antes, otro);
+    }
+
+    private double distancia(Rectangle a, Rectangle b) {
+        return Math.hypot(a.getCenterX() - b.getCenterX(), a.getCenterY() - b.getCenterY());
+    }
+
 
 // devuelve la mayor amenaza de las entidades cercanas al jugador
 // el polimorfismo aca es que nunca pregunta de que clase es cada entidad, solo llama getNivelAmenaza().
