@@ -36,7 +36,7 @@ public class NivelFactory {
         nivel.setTipoSuelo(TipoSuelo.MADERA);
         agregarVarias(nivel, (columna, fila) -> new EnemigoComun(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{4, 11}, new int[]{22, 4});
         agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
-        agregarVarias(nivel, (columna, fila) -> new Rata(columna, fila), new int[]{27, 14}, new int[]{6, 13});
+        agregarVarias(nivel, (columna, fila) -> new Rata(columna, fila), new int[]{15, 10});
         
         //pruebaenemigo sensible a la luz
         agregarVarias(nivel, (columna, fila) -> new EnemigoWatcher(100, 10, nextId++, columna, fila, SPRITES_WATCHER), new int[]{26, 9});

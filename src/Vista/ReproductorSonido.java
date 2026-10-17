@@ -63,6 +63,34 @@ public class ReproductorSonido {
         hiloSonido.setDaemon(true);
         hiloSonido.start();
     }
+
+    // Permite reproducir un sonido especificando un volumen puntual entre 0.0f y 1.0f
+    public static void reproducir(String ruta, float volumenEspecifico) {
+    Thread hiloSonido = new Thread(() -> {
+        try {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+                ReproductorSonido.class.getClassLoader().getResource(ruta));
+
+            Clip clip = AudioSystem.getClip();
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                    clipsActivos.remove(clip);
+                }
+            });
+
+            clip.open(audioIn);
+            // Aplica el volumen puntual pasado por parámetro
+            aplicarVolumen(clip, limitar(volumenEspecifico));
+            clip.start();
+        } catch (Exception e) {
+            System.out.println("No se pudo reproducir el sonido: " + e.getMessage());
+        }
+    }, "hilo-sonido");
+
+    hiloSonido.setDaemon(true);
+    hiloSonido.start();
+    }
     
     public static void reproducirEnLoop(String ruta) {
         Thread hiloMusica = new Thread(() -> {
