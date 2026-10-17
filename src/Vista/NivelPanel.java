@@ -403,6 +403,8 @@ static {
         if (finDelJuego != null) {
             finDelJuego.setBounds(0, 0, getWidth(), getHeight());
             finDelJuego.setVisible(true);
+
+            ReproductorSonido.reproducir("Recursos/Sonidos/Musica/HazMuerto.wav", 0.21f);
         }
         if (botonPausa != null) botonPausa.setVisible(false);
     }

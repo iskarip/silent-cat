@@ -25,7 +25,7 @@ public class AcertijoPanel extends JPanel {
     private final JLabel etiquetaMensaje;         // muestra el enunciado y el feedback
     private final BotonJuego botonIntentar;
     private final BotonJuego botonSalir;
-    private boolean esCandado = true;             // flag visual para diferenciar tipos de acertijo
+    private boolean esCandado = true;
 
     // -- CONSTRUCTOR --
 
@@ -75,10 +75,7 @@ public class AcertijoPanel extends JPanel {
         
         imagenFondo = GestorSprites.cargarImagen(rutaImagen);
 
-        // Detectamos si es el candado o el teclado numérico digital según la ruta del recurso
         esCandado = (rutaImagen != null && rutaImagen.toLowerCase().contains("candado"));
-
-        // Ajustamos la separación entre dígitos según el tipo de acertijo
         if (esCandado) {
             contenedorCasillas.setLayout(new FlowLayout(FlowLayout.CENTER, 28, 0));
         } else {
@@ -133,7 +130,6 @@ public class AcertijoPanel extends JPanel {
         JTextField campo;
 
         if (esCandado) {
-            // Estilo Gótico en Oro con Sombra / Contorno para el Candado
             final Color colorOro = new Color(235, 195, 80);
             final Color colorSombra = new Color(0, 0, 0, 230);
 
@@ -150,7 +146,7 @@ public class AcertijoPanel extends JPanel {
                         int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
 
                         g2d.setFont(getFont());
-                        // Contorno / Sombra oscura en 360° para recortar el dígito del fondo
+                        // Contorno / Sombra oscura en 360° para recortar el dígito del metal
                         g2d.setColor(colorSombra);
                         g2d.drawString(texto, x + 2, y + 2);
                         g2d.drawString(texto, x - 1, y);
@@ -174,8 +170,7 @@ public class AcertijoPanel extends JPanel {
             campo.setPreferredSize(new Dimension(52, 52));
 
         } else {
-            // Estilo Pantalla LCD / Digital para el Teclado de pared
-            final Color colorLCD = new Color(30, 48, 30); // Verde oscuro fósforo LCD apagado
+            final Color colorLCD = new Color(30, 48, 30);
 
             campo = new JTextField("");
             campo.setFont(new Font("Consolas", Font.BOLD, 26));
@@ -226,22 +221,23 @@ public class AcertijoPanel extends JPanel {
         int h = getHeight();
 
         Rectangle r = calcularRectImagen();
-        int posYCasillas;
 
+        // Calculamos la posición vertical relativa a la imagen escalada (r)
+        // para que en todas las pantallas quede sobre las ranuras
+        int posYCasillas;
         if (esCandado) {
-            // Centro exacto de las ruedas del candado
-            posYCasillas = r.y + (int) (r.height * 0.488);
+            posYCasillas = r.y + (int) (r.height * 0.486);
         } else {
-            // Centro de la pantalla digital LCD superior del teclado
             posYCasillas = r.y + (int) (r.height * 0.315);
         }
 
-        contenedorCasillas.setBounds(r.x, posYCasillas, r.width, (int) (r.height * 0.12));
+        // El contenedor abarca el ancho de la imagen y está centrado horizontalmente
+        contenedorCasillas.setBounds(r.x, posYCasillas, r.width, 60);
 
         Dimension tamIntentar = botonIntentar.getPreferredSize();
         Dimension tamSalir = botonSalir.getPreferredSize();
-        botonIntentar.setBounds(w / 2 - tamIntentar.width - 10, (int) (h * 0.80), tamIntentar.width, tamIntentar.height);
-        botonSalir.setBounds(w / 2 + 10, (int) (h * 0.80), tamSalir.width, tamSalir.height);
+        botonIntentar.setBounds(w / 2 - tamIntentar.width - 10, (int) (h * 0.82), tamIntentar.width, tamIntentar.height);
+        botonSalir.setBounds(w / 2 + 10, (int) (h * 0.82), tamSalir.width, tamSalir.height);
         etiquetaMensaje.setBounds(0, (int) (h * 0.04), w, 60);
     }
 
