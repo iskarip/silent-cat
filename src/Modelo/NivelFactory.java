@@ -97,7 +97,7 @@ public class NivelFactory {
             Acertijo acertijoPuerta = new AcertijoNumerico(3,
                     "Necesito una clave...",
                     18, 2,
-                    1234,
+                    8634,
                     "/Recursos/UI/Acertijos/Panel/panel.png");
 
             Habitacion habitacion = new Habitacion("Cuarto de la palanca",
