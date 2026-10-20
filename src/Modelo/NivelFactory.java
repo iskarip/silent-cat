@@ -42,7 +42,7 @@ public class NivelFactory {
         agregarVarias(nivel, (columna, fila) -> new EnemigoWatcher(100, 10, nextId++, columna, fila, SPRITES_WATCHER), new int[]{26, 9});
         
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
-        nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Falta la mitad de los escalones. Tiene que haber otro camino."));
+        nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Faltan la mitad de los escalones. Tiene que haber otro camino."));
         nivel.agregarZona(new ZonaMensaje(7, 9, 1, "El ascensor no responde. Está muerto."));
         nivel.agregarZona(new PuntoFlashback(25, 8, 2));
 
@@ -87,6 +87,9 @@ public class NivelFactory {
 
             Nivel nivel = new Nivel(3, "Recursos/Mapas/Grid/grid_planta_alta.txt","/Recursos/Mapas/Imagen/mapa_planta_alta.png", 3, 5);
 
+            nivel.agregarEntidad(new Gato(11, 3));
+            nivel.agregarZona(new ZonaMensaje(11, 3, 2, "Te encontre <3 UwU"));
+            
             return nivel;
 
         }
@@ -132,7 +135,9 @@ public class NivelFactory {
             ItemPista nota1 = new ItemPista("nota1", "/Recursos/Sprites/Items/nota1.png", "/Recursos/Sprites/Items/nota1.png", 8, 5);
             nota1.setMensajeRecoger("Una nota arrugada...");
             habitacion.agregarItem(nota1);
-
+            habitacion.agregarZona(new ZonaMensaje(9, 1, 1, "Mmm... esto parece el codigo para algo..."));
+            habitacion.agregarZona(new ZonaMensaje(6,3,2, "..." ));
+            
             return habitacion;
         }
 
