@@ -102,6 +102,14 @@ public class PausaPanel extends JPanel {
 
     public void mostrarMensaje(String texto) { etiquetaMensaje.setText(texto); }
 
+    // mientras se guarda: avisa y deshabilita el boton para que nadie guarde 5 veces seguidas
+    public void cargando(boolean cargando) {
+        botonGuardarPartida.setEnabled(!cargando);
+        if (cargando) {
+            etiquetaMensaje.setText("Guardando...");
+        }
+    }
+
     public void limpiarMensaje() { etiquetaMensaje.setText(" "); }
 
 }

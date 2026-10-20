@@ -1,5 +1,6 @@
 package Modelo;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +57,17 @@ public abstract class EspacioBase implements EspacioJugable {
 
     public void agregarZona(ZonaProximidad zona) {
         if (zona != null) zonas.add(zona);
+    }
+
+    // Golpea a las entidades de ESTE espacio que esten dentro del alcance del ataque
+    public void resolverAtaque(Personaje atacante) {
+        if (listaEntidades == null) return;
+        Rectangle hitboxGolpe = atacante.getHitboxAtaque();
+        for (Entidad e : listaEntidades) {
+            if (e.estaVivo() && hitboxGolpe.intersects(e.getHitbox())) {
+                atacante.atacar(e);
+            }
+        }
     }
 
     @Override public String getRutaImagenFondo() { return rutaImagenFondo; }

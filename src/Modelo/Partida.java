@@ -23,7 +23,7 @@ public class Partida {
 
     // -- SETS Y GETS --
 
-    public static Partida getInstancia() {
+    public static synchronized Partida getInstancia() { //porque dos hilos no pueden crear dos instancias
         if (instancia == null) {
             instancia = new Partida();
         }

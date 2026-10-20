@@ -1,6 +1,6 @@
 package Controlador;
 
-import Modelo.Nivel;
+import Modelo.EspacioBase;
 import Modelo.Personaje;
 import Vista.EstadoAnimacion;
 import Vista.NivelPanel;
@@ -11,8 +11,8 @@ public class ControladorCombate {
 
     private Timer temporizadorAtaque;
 
-    public void ejecutarAtaque(Personaje personaje, Nivel nivelActual, NivelPanel vista) {
-        if (personaje == null || nivelActual == null) return;
+    public void ejecutarAtaque(Personaje personaje, EspacioBase espacio, NivelPanel vista) {
+        if (personaje == null || espacio == null) return;
 
         // el Modelo decide si puede atacar (enfriamiento del arma)
         if (!personaje.intentarAtacar()) return;
@@ -20,7 +20,7 @@ public class ControladorCombate {
         vista.setEstado(EstadoAnimacion.ATACANDO);
         iniciarTimerVueltaAIdle(vista);
 
-        nivelActual.resolverAtaque(personaje);
+        espacio.resolverAtaque(personaje);
     }
 
     private void iniciarTimerVueltaAIdle(NivelPanel vista) {

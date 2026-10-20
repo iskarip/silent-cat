@@ -80,6 +80,12 @@ public class MenuPanel extends JPanel {
     public JButton getBotonAjustes() { return botonAjustes; }
     public JButton getBotonSalir() { return botonSalir; }
 
+    // mientras se lee la partida guardada: deshabilita "Continuar" para evitar doble clic
+    public void cargando(boolean cargando) {
+        botonContinuar.setEnabled(!cargando);
+    }
+
+
     // sin partida guardada el menu queda como antes (sin boton de continuar)
     public void setContinuarVisible(boolean visible) {
         botonContinuar.setVisible(visible);

@@ -74,7 +74,7 @@ public class NivelFactory {
             nivel.agregarZona(new ZonaMensaje(15, 8, 2, "Huele a sangre..."));
             nivel.agregarZona(new ZonaMensaje(2, 8, 2, "El aire se siente muy pesado."));
             nivel.agregarZona(new ZonaMensaje(10, 2, 1, "Este ascensor parece funcionar, pero la puerta está atascada. \n Necesito algo para hacer palanca."));
-            agregarVarias(nivel, (columna, fila) -> new EnemigoFotosensible(100, 20, nextId++, columna, fila, SPRITES_WATCHER), new int[]{19, 4});
+            agregarVarias(nivel, (columna, fila) -> new EnemigoWatcher(100, 20, nextId++, columna, fila, SPRITES_WATCHER), new int[]{19, 4});
 
             ItemPista nota2 = new ItemPista("nota2", "/Recursos/Sprites/Items/nota2.png", "/Recursos/Sprites/Items/nota2.png", 4, 6);
             nota2.setMensajeRecoger("Una nota arrugada...");

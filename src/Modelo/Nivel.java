@@ -2,7 +2,6 @@ package Modelo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Rectangle;
 
 public class Nivel extends EspacioBase {
 
@@ -78,16 +77,6 @@ public class Nivel extends EspacioBase {
 
     public void agregarHabitacion(Habitacion h) {
         if (h != null) this.habitaciones.add(h);
-    }
-
-    public void resolverAtaque(Personaje atacante) {
-        if (listaEntidades == null) return;
-        Rectangle hitboxGolpe = atacante.getHitboxAtaque();
-        for (Entidad e : listaEntidades) {
-            if (e.estaVivo() && hitboxGolpe.intersects(e.getHitbox())) {
-                atacante.atacar(e);
-            }
-        }
     }
 
     public int getCheckpointX() {

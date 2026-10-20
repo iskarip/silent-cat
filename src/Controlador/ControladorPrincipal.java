@@ -10,6 +10,9 @@ import Vista.GestorSprites;
 import Vista.JuegoFrame;
 import Vista.MenuPanel;
 import Vista.NivelPanel;
+import java.util.concurrent.ExecutionException;
+import javax.swing.SwingWorker;
+
 
 public class ControladorPrincipal {
 
@@ -67,11 +70,32 @@ public class ControladorPrincipal {
     }
 
     private void continuarJuego() {
-        Progreso progreso = controladorProgreso.cargar();
-        if (progreso == null) return;
-        comenzarJuego(progreso.getGenero(), progreso);
+     
+        MenuPanel menu = ventana.getMenuPanel();
+        menu.cargando(true);
+
+     //La lectura de la base va en otro hilo; armar la partida 
+     // (modelo y vista) vuelve al hilo de eventos
+             new SwingWorker<Progreso, Void>() {
+            @Override
+            protected Progreso doInBackground() {
+                return controladorProgreso.cargar(); // segundo plano
+            }
+
+            @Override
+            protected void done() { // hilo de eventos
+                menu.cargando(false);
+                try {
+                    Progreso progreso = get();
+                    if (progreso == null) return;
+                    comenzarJuego(progreso.getGenero(), progreso);
+                } catch (InterruptedException | ExecutionException ex) {
+                    System.out.println("No se pudo cargar la partida: " + ex.getMessage());
+                }
+            }
+        }.execute();
     }
-    
+   
     private void comenzarJuego(String genero, Progreso progreso) {
 
         

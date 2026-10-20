@@ -385,7 +385,7 @@ public class ControladorNivel {
 
     private void atacar() {
         if (!pausado && !personajeMuerto) {
-            controladorCombate.ejecutarAtaque(partida.getPersonaje(), partida.getNivelActual(), vista);
+            controladorCombate.ejecutarAtaque(partida.getPersonaje(), partida.getEspacioActivo(), vista);
         }
     }
 

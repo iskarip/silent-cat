@@ -43,6 +43,9 @@ public class ProgresoDAOSQLite implements ProgresoDAO {
                 + "checkpoint_x = excluded.checkpoint_x, checkpoint_y = excluded.checkpoint_y, "
                 + "vida = excluded.vida, bateria = excluded.bateria";
 
+//la connection la comparten los Dao y ahora la usan distintos hilos tambien 
+//una sola operacion a la vez
+        synchronized (conexion) {    
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, progreso.getGenero());
             ps.setInt(2, progreso.getNumeroNivel());
@@ -54,14 +57,15 @@ public class ProgresoDAOSQLite implements ProgresoDAO {
         } catch (SQLException e) {
             System.out.println("No se pudo guardar la partida: " + e.getMessage());
             return false;
+            }
         }
     }
-
     @Override
     public Progreso cargar() {
         String sql = "SELECT genero, nivel, checkpoint_x, checkpoint_y, vida, bateria "
                 + "FROM progreso WHERE id = 1";
 
+        synchronized (conexion) { // mismo lock que en guardar() 
         try (PreparedStatement ps = conexion.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -73,6 +77,7 @@ public class ProgresoDAOSQLite implements ProgresoDAO {
         } catch (SQLException | IllegalArgumentException e) {
             System.out.println("No se pudo cargar la partida: " + e.getMessage());
         }
+    }
         return null;
     }
 

@@ -27,7 +27,7 @@ private static final String URL_BD = "jdbc:sqlite:silentcat.db";
         }
     }
     
-    public static GestorConexionBd getInstancia() {
+    public static synchronized GestorConexionBd getInstancia() { //dos hilos no pueden crear dos intancias
         if (instancia == null) {
             instancia = new GestorConexionBd();
         }
