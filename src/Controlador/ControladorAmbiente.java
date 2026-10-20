@@ -19,6 +19,7 @@ public class ControladorAmbiente implements ObservadorAmbiente {
     private final AvisoInteraccion avisoInteraccion;
     private final MensajeAmbiental mensajeAmbiental;
     private final NivelPanel vista;
+    private Runnable alCompletar;
 
     public ControladorAmbiente(FlashbackGato flashbackGato, MensajeAmbiental mensajeAmbiental,
                            AvisoInteraccion avisoInteraccion, NivelPanel vista) {
@@ -36,6 +37,7 @@ public class ControladorAmbiente implements ObservadorAmbiente {
         }
     }
 
+    public void setAlCompletar(Runnable alCompletar) { this.alCompletar = alCompletar; }
 
     // Pedido de una ZonaMensaje: el texto aparece en pantalla y se desvanece solo
     // (MensajeAmbiental calcula la opacidad al dibujarse).
@@ -55,4 +57,9 @@ public class ControladorAmbiente implements ObservadorAmbiente {
 
     @Override
     public void ocultarAvisoInteraccion() { avisoInteraccion.ocultar(); }
+
+    @Override
+    public void juegoCompletado() {
+    if (alCompletar != null) alCompletar.run();
+    }
 }

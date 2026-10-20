@@ -23,6 +23,7 @@ public class ControladorNivel {
     private final ControladorAmbiente controladorAmbiente;
     private final ControladorMando controladorMando;
     private final ControladorEspacio controladorEspacio;
+    private final ControladorVictoria controladorVictoria;
     private final Pasos pasos;
    
     // Componentes visuales desacoplados (reciben tipos planos / primitivos)
@@ -93,6 +94,8 @@ public class ControladorNivel {
         this.mensajeAmbiental = new MensajeAmbiental();
         this.avisoInteraccion = new AvisoInteraccion();
         this.controladorAmbiente = new ControladorAmbiente(flashbackGato, mensajeAmbiental, this.avisoInteraccion, vista);
+        this.controladorVictoria = new ControladorVictoria(partida, ventanaPrincipal, this);
+        this.controladorAmbiente.setAlCompletar(controladorVictoria::mostrarConDemora); //esta linea le habla al controladorAmbiente que ejecutar 
 
         this.controladorAcertijo = new ControladorAcertijo(vista, controladorAmbiente);
 

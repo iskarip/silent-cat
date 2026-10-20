@@ -16,6 +16,8 @@ package Modelo;
         void mostrarAvisoInteraccion(String texto);
         
         void ocultarAvisoInteraccion();
+    
+        void juegoCompletado();
     }
         
 

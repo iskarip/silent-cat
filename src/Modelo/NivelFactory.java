@@ -88,7 +88,7 @@ public class NivelFactory {
             Nivel nivel = new Nivel(3, "Recursos/Mapas/Grid/grid_planta_alta.txt","/Recursos/Mapas/Imagen/mapa_planta_alta.png", 3, 5);
 
             nivel.agregarEntidad(new Gato(11, 3));
-            nivel.agregarZona(new ZonaMensaje(11, 3, 2, "Te encontre <3 UwU"));
+            nivel.agregarZona(new ZonaFinal(11, 3, 2, "Te encontre <3 UwU"));
             
             return nivel;
 

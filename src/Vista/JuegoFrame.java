@@ -13,7 +13,7 @@ public class JuegoFrame extends JFrame {
     private NivelPanel nivelPanel;
     private PanelFundido panelFundido;
     private AjustesPanel ajustesPanel; 
-
+    private VictoriaPanel victoriaPanel;
 
     public JuegoFrame() {
         setTitle("Silent Cat");
@@ -33,12 +33,14 @@ public class JuegoFrame extends JFrame {
         seleccionPersonajePanel = new SeleccionPersonajePanel();
         nivelPanel = new NivelPanel();
         ajustesPanel = new AjustesPanel();
+        victoriaPanel = new VictoriaPanel();
 
         //Registro en el CardLayout
         panelContenedor.add(menuPanel, "menu");
         panelContenedor.add(seleccionPersonajePanel, "seleccion");
         panelContenedor.add(nivelPanel, "nivel");
         panelContenedor.add(ajustesPanel, "ajustes");
+        panelContenedor.add(victoriaPanel, "victoria");
 
         add(panelContenedor);
 
@@ -59,6 +61,7 @@ public class JuegoFrame extends JFrame {
         if ("nivel".equals(pantalla)) {
             nivelPanel.requestFocusInWindow();
         }
+        if ("victoria".equals(pantalla)) victoriaPanel.requestFocusInWindow();
     }
 
     // Getters de pantallas para los Controladores
@@ -66,7 +69,7 @@ public class JuegoFrame extends JFrame {
     public SeleccionPersonajePanel getSeleccionPersonajePanel() { return seleccionPersonajePanel; }
     public NivelPanel getNivelPanel() { return nivelPanel; }
     public AjustesPanel getAjustesPanel() { return ajustesPanel; }
-
+    public VictoriaPanel getVictoriaPanel() { return victoriaPanel;}
 }
 
 /*  La ventana contenedora principal
