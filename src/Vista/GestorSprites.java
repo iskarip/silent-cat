@@ -14,11 +14,7 @@ import javax.imageio.ImageIO;
 
 public class GestorSprites {
 
-    // EnumMap: un Map para cuando la clave es un enum.
-    // Guarda una imagen fija para cada estado del personaje (excepto IDLE, que es un spritesheet animado).
     private final Map<EstadoAnimacion, BufferedImage> spritesFijos = new EnumMap<>(EstadoAnimacion.class);
-
-    // cache compartido para imagenes.
     private static final Map<String, Image> CACHE_IMAGENES = new HashMap<>();
 
     public GestorSprites(String carpetaBase) {
@@ -34,37 +30,33 @@ public class GestorSprites {
         cargar(EstadoAnimacion.MURIENDO, carpetaBase + "muere.png");
         cargar(EstadoAnimacion.SENTADO, carpetaBase + "sentado.png");
         cargar(EstadoAnimacion.LEVANTANDOSE, carpetaBase + "levantarse.png");
-    
     }
 
     private void cargar(EstadoAnimacion estado, String rutaRecurso) {
         try (InputStream is = getClass().getResourceAsStream(rutaRecurso)) {
             if (is == null) {
-                System.out.println("No se encontro el recurso en: " + rutaRecurso);
+                System.err.println("[GestorSprites] No se encontró el recurso en: " + rutaRecurso);
                 return;
             }
             spritesFijos.put(estado, ImageIO.read(is));
         } catch (IOException e) {
-            System.out.println("Error al leer el sprite de " + estado + ": " + e.getMessage());
+            System.err.println("[GestorSprites] Error al leer sprite de " + estado + ": " + e.getMessage());
         }
     }
 
     public BufferedImage obtener(EstadoAnimacion estado) {
         BufferedImage hoja = spritesFijos.get(estado);
         return (hoja != null) ? hoja : spritesFijos.get(EstadoAnimacion.CAMINANDO);
-
     }
 
-    // -- CARGA DE RECURSOS (antes le correspondia a NivelPanel) --
-
-    public static Image cargarImage(String ruta) {
+    public static Image cargarImagen(String ruta) {
         if (ruta == null || ruta.trim().isEmpty()) {
             return null;
         }
-        return CACHE_IMAGENES.computeIfAbsent(ruta, GestorSprites::leerImagenDesdeOrigenString);
+        return CACHE_IMAGENES.computeIfAbsent(ruta, GestorSprites::leerImagenDesdeOrigen);
     }
 
-    private static Image leerImagenDesdeOrigenString(String ruta) {
+    private static Image leerImagenDesdeOrigen(String ruta) {
         try {
             URL url = GestorSprites.class.getResource(ruta);
             if (url != null) return ImageIO.read(url);
@@ -85,7 +77,7 @@ public class GestorSprites {
         }
     }
 
-    // --- DIBUJADO DE SPRITESHEET (Absorbe el corte de NivelPanel) ---
+ 
     public void dibujarCuadro(Graphics2D g2d, EstadoAnimacion estado, int fila,
                               int frame, int x, int y, int anchoCuadro, int altoCuadro, double escala) {
         BufferedImage hoja = obtener(estado);
@@ -96,39 +88,14 @@ public class GestorSprites {
         int srcX2 = srcX1 + anchoCuadro;
         int srcY2 = srcY1 + altoCuadro;
 
-        int destAncho = (int) (anchoCuadro * escala);
-        int destAlto = (int) (altoCuadro * escala);
+        int anchoBase = anchoCuadro;
+        int altoBase  = altoCuadro;
+        int destAncho = (int) (anchoBase * escala);
+        int destAlto  = (int) (altoBase * escala);
 
-        g2d.drawImage(hoja, x, y, x + destAncho, y + destAlto, srcX1, srcY1, srcX2, srcY2, null);
+        int dx = x + (anchoBase - destAncho) / 2;
+        int dy = y + (altoBase - destAlto);
+
+        g2d.drawImage(hoja, dx, dy, dx + destAncho, dy + destAlto, srcX1, srcY1, srcX2, srcY2, null);
     }
-
-    // Método público que llama NivelPanel
-    public static java.awt.Image cargarImagen(String ruta) {
-        if (ruta == null || ruta.trim().isEmpty()) {
-            return null;
-        }
-        return CACHE_IMAGENES.computeIfAbsent(ruta, GestorSprites::leerImagenDesdeOrigen);
-    }
-
-    private static java.awt.Image leerImagenDesdeOrigen(String ruta) {
-        try {
-            java.net.URL url = GestorSprites.class.getResource(ruta);
-            if (url != null) return javax.imageio.ImageIO.read(url);
-
-            if (!ruta.startsWith("/")) {
-                url = GestorSprites.class.getResource("/" + ruta);
-                if (url != null) return javax.imageio.ImageIO.read(url);
-            }
-
-            java.io.File archivo = new java.io.File(ruta.startsWith("/") ? ruta.substring(1) : ruta);
-            if (archivo.exists()) return javax.imageio.ImageIO.read(archivo);
-
-            System.err.println("[GestorSprites] Recurso no encontrado: " + ruta);
-            return null;
-        } catch (java.io.IOException e) {
-            System.err.println("[GestorSprites] Error al leer imagen: " + e.getMessage());
-            return null;
-        }
-    }
-
 }

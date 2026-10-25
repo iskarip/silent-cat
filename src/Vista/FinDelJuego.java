@@ -21,14 +21,16 @@ public class FinDelJuego extends JPanel {
     }
 
     private void cargarRecursos() {
-        this.imagenCalavera = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/calaveraMuerte.png");
-        this.imagenGameOver = GestorSprites.cargarImage("/Recursos/UI/GameOver/Img/GameOver.png");
+        // Usa cargarImagen con 'n' alineado con el GestorSprites del profesor
+        this.imagenCalavera = GestorSprites.cargarImagen("/Recursos/UI/GameOver/Img/calaveraMuerte.png");
+        this.imagenGameOver = GestorSprites.cargarImagen("/Recursos/UI/GameOver/Img/GameOver.png");
     }
 
     private void crearComponentes() {
         botonReintentar = new BotonJuego(
                 "/Recursos/UI/GameOver/Botones/Reintentar.png",
-                "/Recursos/UI/GameOver/Botones/ReintentarHover.png","Recursos/Sonidos/UI/sonido3.wav"
+                "/Recursos/UI/GameOver/Botones/ReintentarHover.png",
+                "Recursos/Sonidos/UI/sonido3.wav"
         );
 
         botonVolverMenu = new BotonJuego(
@@ -54,12 +56,10 @@ public class FinDelJuego extends JPanel {
         // 1. Botón Reanudar / Reintentar: debajo de la calavera
         if (botonReintentar != null) {
             Dimension tamIntentar = botonReintentar.getPreferredSize();
-            botonReintentar.setBounds(centroX - (anchoBoton / 2), centroY + 105, anchoBoton, altoBoton);
             int w = (tamIntentar != null && tamIntentar.width > 0) ? tamIntentar.width : anchoBoton;
-            int h = (tamIntentar!= null && tamIntentar.height > 0) ? tamIntentar.height : altoBoton;
+            int h = (tamIntentar != null && tamIntentar.height > 0) ? tamIntentar.height : altoBoton;
             botonReintentar.setBounds(centroX - (w / 2), centroY + 130, w, h);
         }
-
 
         // 2. Botón Volver al Menú: debajo de Reanudar
         if (botonVolverMenu != null) {

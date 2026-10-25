@@ -5,6 +5,7 @@ import Vista.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.Timer;
 
 public class ControladorNivel {
 
@@ -50,6 +51,9 @@ public class ControladorNivel {
     private final BucleDeJuego bucleDeJuego;
     private final List<CicloDeVida> componentes = new ArrayList<>();
 
+    // Temporizador gestionado en el Controlador para el parpadeo de daño
+    private Timer timerRetornoDanio;
+
     // -- CONSTRUCTOR CONTROLADOR --
 
     public ControladorNivel(Partida partida, NivelPanel vista, JuegoFrame ventanaPrincipal, ControladorProgreso controladorProgreso) {
@@ -62,15 +66,14 @@ public class ControladorNivel {
         this.controladorTeclado = new ControladorTeclado();
         componentes.add(this.controladorTeclado);
 
-                ControladorMando mando = null;
-            try {
-                mando = new ControladorMando(controladorTeclado);
-            } catch (Throwable t) {
-                System.out.println("Soporte de mando desactivado: " + t);
-            }
-            this.controladorMando = mando;
+        ControladorMando mando = null;
+        try {
+            mando = new ControladorMando(controladorTeclado);
+        } catch (Throwable t) {
+            System.out.println("Soporte de mando desactivado: " + t);
+        }
+        this.controladorMando = mando;
 
-            
         this.controladorMusica = new ControladorMusica();
         componentes.add(this.controladorMusica);
 
@@ -121,7 +124,7 @@ public class ControladorNivel {
         this.controladorPista = new ControladorPista(pistaVisual);
 
         ControladorInteraccion controladorInteraccion = new ControladorInteraccion(
-        controladorPista, controladorEspacio, controladorAcertijo, controladorTeclado, partida
+            controladorPista, controladorEspacio, controladorAcertijo, controladorTeclado, partida
         );
 
         // Asignación de interacción con 'E' delegada al nuevo controlador
@@ -129,7 +132,7 @@ public class ControladorNivel {
             controladorInteraccion.manejarInteraccion();
         });
 
-// Inicialización del Bucle de Juego delegando actualización y renderizado
+        // Inicialización del Bucle de Juego delegando actualización y renderizado
         this.bucleDeJuego = new BucleDeJuego(
             this::actualizarJuego,
             () -> {
@@ -142,8 +145,6 @@ public class ControladorNivel {
             () -> (pausado || controladorAcertijo.estaActivo() || controladorPista.estaActivo())
         );
         componentes.add(this.bucleDeJuego);
-
-
 
         this.barraBateria = new BarraBateria();
         this.vista.agregarCapaVisual(barraBateria);
@@ -162,7 +163,18 @@ public class ControladorNivel {
                 public void vidaCambio(int vidaActual, int vidaMaxima) {
                     barraVida.actualizarVida(vidaActual);
                     if (vidaActual > 0) {
-                        vista.activarDanioRecibido();
+                        // Refactorización MVC: el Controlador orquesta el estado de daño y su temporizador
+                        vista.setEstado(EstadoAnimacion.RECIBIENDO_DANIO);
+                        if (timerRetornoDanio != null && timerRetornoDanio.isRunning()) {
+                            timerRetornoDanio.stop();
+                        }
+                        timerRetornoDanio = new Timer(250, e -> {
+                            if (vista.estaRecibiendoDanio()) {
+                                vista.setEstado(EstadoAnimacion.IDLE);
+                            }
+                        });
+                        timerRetornoDanio.setRepeats(false);
+                        timerRetornoDanio.start();
                     }
                 }
 
@@ -173,7 +185,7 @@ public class ControladorNivel {
             });
 
             // Sincronizar estado inicial de linterna
-           Linterna linterna = personajeActual.getLinterna();
+            Linterna linterna = personajeActual.getLinterna();
             if (linterna != null) {
                 barraBateria.actualizarBateria(linterna.getBateria());
 
@@ -196,11 +208,11 @@ public class ControladorNivel {
         }
 
         this.controladorTeclado.setAccionSlot(indice -> {
-                if (!pausado && !personajeMuerto && !controladorAcertijo.estaActivo()
-                        && inventarioVisual.isVisible()) {
-                    controladorPista.leerSlot(partida.getPersonaje(), indice);
-                }
-            });
+            if (!pausado && !personajeMuerto && !controladorAcertijo.estaActivo()
+                    && inventarioVisual.isVisible()) {
+                controladorPista.leerSlot(partida.getPersonaje(), indice);
+            }
+        });
 
         // Asignación de acción de Linterna
         this.controladorTeclado.setAccionLinterna(() -> {
@@ -255,10 +267,10 @@ public class ControladorNivel {
 
     public void setPausado(boolean pausado) {
         this.pausado = pausado;
-            if (pausado) {
-                pausarComponentes(); 
-            } else {
-                reanudarComponentes(); 
+        if (pausado) {
+            pausarComponentes(); 
+        } else {
+            reanudarComponentes(); 
         }
     }
 
@@ -301,7 +313,7 @@ public class ControladorNivel {
             this.vista.actualizarCamara();
             this.vista.repaint();
 
-                bucleDeJuego.iniciar();
+            bucleDeJuego.iniciar();
         }
     }
 
@@ -329,6 +341,7 @@ public class ControladorNivel {
 
         if (personaje == null || nivelActual == null) return;
 
+        // 1. Estado de muerte del protagonista
         if (!personaje.estaVivo()) {
             if (!personajeMuerto) {
                 personajeMuerto = true;
@@ -337,10 +350,18 @@ public class ControladorNivel {
                 tensionActual = 0;
                 linternaOverlay.setTension(0);
             }
-            vista.avanzarAnimacionMuerte();
+
+            
+            // La vista avisa si la animación concluyó; el Controlador ejecuta las acciones finales
+            if (vista.avanzarAnimacionMuerte()) {
+                vista.mostrarFindelJuego();
+                ReproductorSonido.reproducir("Recursos/Sonidos/Musica/HazMuerto.wav", 0.21f);
+                bucleDeJuego.detener();
+            }
             return;
         }
-                if (nivelActual.verificarSiCompleto() && !nivelActual.getNivelSuperado()) {
+
+        if (nivelActual.verificarSiCompleto() && !nivelActual.getNivelSuperado()) {
             cambiarDeNivel();
             return;
         }
@@ -364,7 +385,7 @@ public class ControladorNivel {
         controladorAmbiente.comprobarZonas(controladorEspacio.getEspacioActivo(), personaje);
         personaje.actualizarEfectos();
         barraEstamina.actualizar(personaje.getNivelEstamina(), personaje.estaAgotado(),
-        personaje.getPosicionX(), personaje.getPosicionY());
+                personaje.getPosicionX(), personaje.getPosicionY());
 
         // Gasto periódico de batería y sincronización con BarraBateria
         contadorBateria++;
@@ -381,8 +402,8 @@ public class ControladorNivel {
     private void actualizarTension(Personaje personaje) {
         int nueva = controladorEntidades.calcularTension(controladorEspacio.getEspacioActivo(), personaje);
         if (nueva != tensionActual) {
-        tensionActual = nueva;
-        linternaOverlay.setTension(nueva);
+            tensionActual = nueva;
+            linternaOverlay.setTension(nueva);
         }
     }
 
@@ -430,7 +451,4 @@ public class ControladorNivel {
     private void detenerComponentes() {
         for (CicloDeVida c : componentes) c.alDetener();
     }
-
-} 
-
-
+}

@@ -1,5 +1,4 @@
 import java.sql.Connection;
-
 import javax.swing.SwingUtilities;
 
 import Controlador.ControladorPrincipal;
@@ -10,37 +9,32 @@ import Persistencia.ConfiguracionDAOSQLite;
 import Persistencia.GestorConexionBd;
 import Persistencia.ProgresoDAOMemoria;
 import Persistencia.ProgresoDAOSQLite;
-import Vista.JuegoFrame; 
-    
+import Vista.JuegoFrame;
+
 public class Main {
-    public static void main (String [] args) {
 
-        // Activa la aceleración nativa por GPU de Windows
-        System.setProperty("sun.java2d." +
-                "d3d", "true");
-        System.setProperty("sun.java2d.ddforcevram", "true");
-        System.setProperty("sun.java2d.render", "speed");
+    public static void main(String[] args) {
 
-    //crea el objeto JuegoFrame y como su constructor ya hace setVisible(true),
-    //la ventana del juego se abre automatico.
+        SwingUtilities.invokeLater(() -> {
+            ConfiguracionDAO configuracionDAO;
+            ProgresoDAO progresoDAO;
 
-    Connection conexion = GestorConexionBd.getInstancia().getConexion();
+            Connection conexion = GestorConexionBd.getInstancia().getConexion();
 
-    ConfiguracionDAO configuracionDAO;
-    ProgresoDAO progresoDAO;
-    if (conexion != null) {
-        configuracionDAO = new ConfiguracionDAOSQLite(conexion);
-        progresoDAO = new ProgresoDAOSQLite(conexion);
-    } else {
-            // sin base de datos el juego igual funciona, pero no guarda nada al cerrar
-        configuracionDAO = new ConfiguracionDAOMemoria();
-        progresoDAO = new ProgresoDAOMemoria();
+            if (conexion != null) {
+                configuracionDAO = new ConfiguracionDAOSQLite(conexion);
+                progresoDAO = new ProgresoDAOSQLite(conexion);
+            } else {
+                System.out.println("Base de datos no disponible: usando almacenamiento en memoria");
+                configuracionDAO = new ConfiguracionDAOMemoria();
+                progresoDAO = new ProgresoDAOMemoria();
+            }
+
+            JuegoFrame ventana = new JuegoFrame();
+            new ControladorPrincipal(ventana, configuracionDAO, progresoDAO);
+        });
     }
 
-    SwingUtilities.invokeLater(() -> {
-        JuegoFrame ventana = new JuegoFrame();
-        new ControladorPrincipal(ventana, configuracionDAO, progresoDAO);
-    });
-
-    }
+    // crea el objeto JuegoFrame y como su constructor ya hace setVisible(true),
+    // la ventana del juego se abre automatico.
 }
