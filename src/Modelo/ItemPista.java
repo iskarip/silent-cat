@@ -12,6 +12,12 @@ public class ItemPista extends Item {
         this.rutaImagenGrande = rutaImagenGrande;
     }
 
+    @Override
+    public boolean esLegible() {
+        return true;
+    }
+
+    @Override
     public String getRutaImagenGrande() {
         return rutaImagenGrande;
     }

@@ -123,7 +123,7 @@ public class ControladorPrincipal {
         // 4. Configuración de NivelPanel
         NivelPanel nivelPanel = ventana.getNivelPanel();
         nivelPanel.reiniciarEstadoNivel();
-        nivelPanel.setPersonaje(personaje);
+        nivelPanel.setJugador(new ControladorEntidadVisual(personaje));
         nivelPanel.setGestorSprites(spritesPersonaje);
 
         // 5. Cambio de pantalla

@@ -47,6 +47,12 @@ public class Item implements Interactuable, Posicionable {
 
     public String getRutaImagen() { return rutaImagen; }
     
+    // Por defecto un item no se puede leer; ItemPista lo sobrescribe
+    public boolean esLegible() { return false; }
+    public String getRutaImagenGrande() { return null; }
+
+
+
     // -- MÉTODOS --
     public void recoger() {
         this.recogido = true;

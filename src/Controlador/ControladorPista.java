@@ -29,11 +29,11 @@ public class ControladorPista {
         if (indice < 0 || indice >= items.size()) return false;
 
         Item item = items.get(indice);
-        if (item instanceof ItemPista pista) {
-            vista.abrir(pista.getRutaImagenGrande());
-            return true;
-        }
-        return false; // el slot tiene otro tipo de item (medicina, llave...)
+        if (!item.esLegible()) return false;   
+        // el slot tiene otro tipo de item (medicina, llave...)
+
+        vista.abrir(item.getRutaImagenGrande());
+        return true;
     }
 
     public void cerrar() {

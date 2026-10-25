@@ -1,13 +1,14 @@
 package Vista;
 
-import Modelo.ObservadorLinterna;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
-// Esta clase dibuja la barra de la batería sin depender de ninguna clase concreta de Modelo (solo de la interfaz ObservadorLinterna).
-public class BarraBateria implements InterfazVisual, ObservadorLinterna {
+// Esta clase dibuja la barra de la batería. No importa nada de Modelo: recibe el valor como int
+// desde el Controlador (que es quien escucha a la Linterna), igual que BarraVida.
+
+public class BarraBateria implements InterfazVisual {
 
     private static final int X = 20;
     private static final int Y = 20;
@@ -24,12 +25,6 @@ public class BarraBateria implements InterfazVisual, ObservadorLinterna {
 
     public int getBateriaActual() {
         return bateriaActual;
-    }
-
-    // Método del contrato ObservadorLinterna: la vista lee del modelo cuando el modelo avisa
-    @Override
-    public void linternaCambio(int bateriaActual, boolean encendida) {
-        actualizarBateria(bateriaActual);
     }
 
     @Override

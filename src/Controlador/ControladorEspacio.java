@@ -1,6 +1,7 @@
 package Controlador;
 
 import Modelo.EspacioBase;
+import Modelo.EspacioJugable;
 import Modelo.Habitacion;
 import Modelo.Partida;
 import Vista.NivelPanel;
@@ -17,6 +18,11 @@ public class ControladorEspacio {
         this.vista = vista;
     }
 
+//traduce el espacio del modelo a lo que la vista sabe dibujar (escenavisual) y se lo entrega
+    private void mostrarEnVista(EspacioJugable espacio) {
+        vista.setEscena(new ControladorEscenaVisual(espacio));
+    }
+
     public EspacioBase getEspacioActivo() {
         return partida.getEspacioActivo();
     }
@@ -28,25 +34,25 @@ public class ControladorEspacio {
     // Al iniciar el nivel: la vista pasa a mostrar el espacio con el que arranca la partida
     public void sincronizarVista() {
         if (partida.getNivelActual() != null) {
-            vista.setNivelActual(partida.getNivelActual());
+            mostrarEnVista(partida.getNivelActual());
         }
     }
 
     public void entrar(Habitacion habitacion) {
         partida.entrarAHabitacion(habitacion);
-        vista.setEspacioActual(habitacion);
+        mostrarEnVista(habitacion);
     }
 
     public void salir() {
         if (!estaEnHabitacion()) return;
         partida.salirDeHabitacion();
-        vista.setEspacioActual(partida.getNivelActual());
+        mostrarEnVista(partida.getNivelActual());
     }
 
     // true si había un nivel siguiente y se pasó a él
     public boolean cambiarDeNivel() {
         if (!partida.avanzarSiguienteNivel()) return false;
-        vista.setNivelActual(partida.getNivelActual());
+        mostrarEnVista(partida.getNivelActual());
         return true;
     }
 

@@ -1,16 +1,15 @@
 package Vista;
 
-import Modelo.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
+
 
 public class NivelPanel extends JPanel {
 
@@ -19,22 +18,15 @@ public class NivelPanel extends JPanel {
     public static final int ANCHO_CUADRO = 48;
     public static final int ALTO_CUADRO = 48;
 
-    private static final Map<PoseEntidadCombatible, EstadoAnimacion> ANIMACION_POR_POSTURA = new EnumMap<>(PoseEntidadCombatible.class);
-    static {
-        ANIMACION_POR_POSTURA.put(PoseEntidadCombatible.SENTADO, EstadoAnimacion.SENTADO);
-        ANIMACION_POR_POSTURA.put(PoseEntidadCombatible.LEVANTANDOSE, EstadoAnimacion.LEVANTANDOSE);
-    }
-
-    // --- MODELO ASOCIADO ---
-    private Nivel nivelActual;
-    private EspacioJugable espacioActual;
+//lo que la vista sabe del juego (Solo interfaces de la propia vista)
+    private EscenaVisual escena;
+    private EntidadVisual jugador;
     private Image imagenFondoNivel;
 
     // --- CAPAS VISUALES ---
     private final List<InterfazVisual> capasVisuales = new ArrayList<>();
 
     // --- ENTIDADES Y RECURSOS VISUALES ---
-    private Personaje personaje;
     private GestorSprites gestorSprites;
     private final Map<String, GestorSprites> cacheSprites = new HashMap<>();
 
@@ -120,10 +112,10 @@ public class NivelPanel extends JPanel {
     }
 
     public void actualizarCamara() {
-        if (personaje == null) return;
+        if (jugador == null) return;
 
-        int centroPersonajeX = personaje.getPosicionX() + (int) ((ANCHO_CUADRO * ESCALA) / 2);
-        int centroPersonajeY = personaje.getPosicionY() + (int) ((ALTO_CUADRO * ESCALA) / 2);
+        int centroPersonajeX = jugador.getX() + (int) ((ANCHO_CUADRO * ESCALA) / 2);
+        int centroPersonajeY = jugador.getY() + (int) ((ALTO_CUADRO * ESCALA) / 2);
 
         int anchoVisible = (int) (getWidth() / ZOOM);
         int altoVisible  = (int) (getHeight() / ZOOM);
@@ -131,13 +123,8 @@ public class NivelPanel extends JPanel {
         int objetivoX = centroPersonajeX - (anchoVisible / 2);
         int objetivoY = centroPersonajeY - (altoVisible / 2);
 
-        int anchoMapaPx = 0;
-        int altoMapaPx = 0;
-        if (espacioActual != null && espacioActual.getMapaColision() != null) {
-            MapaColision mc = espacioActual.getMapaColision();
-            anchoMapaPx = mc.getColumnas() * MapaColision.TILE;
-            altoMapaPx = mc.getFilas() * MapaColision.TILE;
-        }
+        int anchoMapaPx = (escena != null) ? escena.getAnchoPx() : 0;
+        int altoMapaPx = (escena != null) ? escena.getAltoPx() : 0;
 
         int maxCamX = Math.max(0, anchoMapaPx - anchoVisible);
         int maxCamY = Math.max(0, altoMapaPx - altoVisible);
@@ -148,7 +135,7 @@ public class NivelPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (personaje == null) return;
+        if (jugador == null) return;
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
@@ -162,18 +149,15 @@ public class NivelPanel extends JPanel {
         g2d.scale(ZOOM, ZOOM);
         g2d.translate(-camaraX, -camaraY);
 
-        if (imagenFondoNivel != null && espacioActual != null && espacioActual.getMapaColision() != null) {
-            MapaColision mc = espacioActual.getMapaColision();
-            g2d.drawImage(imagenFondoNivel, 0, 0,
-                    mc.getColumnas() * MapaColision.TILE, mc.getFilas() * MapaColision.TILE, this);
+        if (imagenFondoNivel != null && escena != null) {
+            g2d.drawImage(imagenFondoNivel, 0, 0, escena.getAnchoPx(), escena.getAltoPx(), this);
         }
-
-        if (espacioActual != null && espacioActual.getListaItems() != null) {
-            for (Item item : espacioActual.getListaItems()) {
-                if (item.isRecogido()) continue;
-
+        if (escena != null) {
+            int tile = escena.getTamanioTile();
+            // la escena ya entrega solo los items que siguen en el piso
+            for (ItemVisual item : escena.getItems()) {
                 Image imagenItem = GestorSprites.cargarImagen(item.getRutaImagen());
-                int lado = (int) (MapaColision.TILE * item.getEscala());
+                int lado = (int) (tile * item.getEscala());
 
                 if (imagenItem != null) {
                     int anchoOrig = imagenItem.getWidth(this);
@@ -182,29 +166,27 @@ public class NivelPanel extends JPanel {
                     int w = Math.max(1, (int) (anchoOrig * proporcion));
                     int h = Math.max(1, (int) (altoOrig * proporcion));
 
-                    int ix = item.getPosicionX() + (MapaColision.TILE - w) / 2;
-                    int iy = item.getPosicionY() + (MapaColision.TILE - h) / 2;
+                    int ix = item.getX() + (tile - w) / 2;
+                    int iy = item.getY() + (tile - h) / 2;
                     g2d.drawImage(imagenItem, ix, iy, w, h, this);
                 } else {
-                    int ix = item.getPosicionX() + (MapaColision.TILE - lado) / 2;
-                    int iy = item.getPosicionY() + (MapaColision.TILE - lado) / 2;
+                    int ix = item.getX() + (tile- lado) / 2;
+                    int iy = item.getY() + (tile - lado) / 2;
                     g2d.setColor(Color.MAGENTA);
                     g2d.fillRect(ix, iy, lado, lado);
                 }
             }
         }
-
-        List<Entidad> porProfundidad = new ArrayList<>();
-        porProfundidad.add(personaje);
-        if (espacioActual != null && espacioActual.getListaEntidades() != null) {
-            for (Entidad ent : espacioActual.getListaEntidades()) {
-                if (ent.estaVivo()) porProfundidad.add(ent);
-            }
+        // el jugador y las entidades de la escena se ordenan juntos por profundidad
+        List<EntidadVisual> porProfundidad = new ArrayList<>();
+        porProfundidad.add(jugador);
+        if (escena != null) {
+            porProfundidad.addAll(escena.getEntidades());   // la escena ya entrega solo las vivas
         }
-        porProfundidad.sort(Comparator.comparingInt(ent -> ent.getHitbox().y + ent.getHitbox().height));
+        porProfundidad.sort(Comparator.comparingInt(EntidadVisual::getBaseY));
 
-        for (Entidad ent : porProfundidad) {
-            if (ent == personaje) {
+        for (EntidadVisual ent : porProfundidad) {
+            if (ent == jugador) {
                 dibujarPersonaje(g2d);
             } else {
                 dibujarEntidad(g2d, ent);
@@ -232,12 +214,12 @@ public class NivelPanel extends JPanel {
 
     private void dibujarPersonaje(Graphics2D g2d) {
         BufferedImage hoja = (gestorSprites != null) ? gestorSprites.obtener(estadoActual) : null;
-        int posX = personaje.getPosicionX();
-        int posY = personaje.getPosicionY();
+        int posX = jugador.getX();
+        int posY = jugador.getY();
 
         if (hoja != null) {
             int frame = cuadroAnimacion % 6;
-            int fila = (personaje.getDireccion() != null) ? personaje.getDireccion().getFila() : 0;
+            int fila = jugador.getFila();
             gestorSprites.dibujarCuadro(g2d, estadoActual, fila, frame,
                     posX, posY, ANCHO_CUADRO, ALTO_CUADRO, ESCALA);
         } else {
@@ -246,26 +228,27 @@ public class NivelPanel extends JPanel {
         }
     }
 
-    private void dibujarEntidad(Graphics2D g2d, Entidad e) {
+    private void dibujarEntidad(Graphics2D g2d, EntidadVisual e) {
         GestorSprites sprites = obtenerSprites(e.getRutaSprites());
         if (sprites == null) return;
 
-        EstadoAnimacion estado = estadoDe(e);
+
+        //que animacion toca lo que decide la propia entidad visual: aca solo se dibuja
+        EstadoAnimacion estado = e.getEstadoAnimacion();
         int total = obtenerTotalFrames(sprites, estado);
-        int frame = e.getPostura().esTransicion()
-                ? Math.min(total - 1, (int) (e.getProgresoPostura() * total))
+        int frame = e.esTransicion()
+                ? Math.min(total - 1, (int) (e.getProgresoTransicion() * total))
                 : (contadorTick / 6) % total;
 
-        int fila = (e.getDireccion() != null) ? e.getDireccion().getFila() : 0;
-        sprites.dibujarCuadro(g2d, estado, fila, frame, e.getPosicionX(), e.getPosicionY(),
-                ANCHO_CUADRO, ALTO_CUADRO, e.getEscalaSprite());
+        sprites.dibujarCuadro(g2d, estado, e.getFila(), frame, e.getX(), e.getY(),
+                ANCHO_CUADRO, ALTO_CUADRO, e.getEscala());
 
         if (e.mostrarBarraVida()) {
-            double escE = e.getEscalaSprite();
+            double escE = e.getEscala();
             int ajusteY = (int) (ALTO_CUADRO * ESCALA * (1 - escE));
             int anchoBarra = (int) (20 * ESCALA);
-            int ex = e.getPosicionX();
-            int ey = e.getPosicionY();
+            int ex = e.getX();
+            int ey = e.getY();
 
             g2d.setColor(Color.BLACK);
             g2d.fillRect(ex + (int) (14 * ESCALA), ey + ajusteY - 6, anchoBarra, 4);
@@ -287,13 +270,6 @@ public class NivelPanel extends JPanel {
         cuadroAnimacion = 0;
         estadoActual = EstadoAnimacion.IDLE;
         ocultarFindelJuego();
-    }
-
-    private EstadoAnimacion estadoDe(Entidad e) {
-        EstadoAnimacion porPostura = ANIMACION_POR_POSTURA.get(e.getPostura());
-        if (porPostura != null) return porPostura;
-        if (e.estaAtacando()) return EstadoAnimacion.ATACANDO;
-        return e.estaMoviendose() ? EstadoAnimacion.CAMINANDO : EstadoAnimacion.IDLE;
     }
 
     private GestorSprites obtenerSprites(String ruta) {
@@ -337,20 +313,23 @@ public class NivelPanel extends JPanel {
         pausaPanel.setVisible(true);
     }
 
-    public void ocultarPausa() { pausaPanel.setVisible(false); }
+    public void ocultarPausa() { pausaPanel.setVisible(false); 
+    }
 
-    public Personaje getPersonaje() { return personaje; }
-    public void setPersonaje(Personaje personaje) { this.personaje = personaje; repaint(); }
+
+    public void setJugador(EntidadVisual jugador) { this.jugador = jugador; repaint(); 
+    }
 
     public GestorSprites getGestorSprites() { return gestorSprites; }
     public void setGestorSprites(GestorSprites gestorSprites) { this.gestorSprites = gestorSprites; repaint(); }
 
-    public EspacioJugable getEspacioActual() { return espacioActual; }
-    public void setEspacioActual(EspacioJugable espacio) {
-        this.espacioActual = espacio;
-        this.imagenFondoNivel = GestorSprites.cargarImagen(espacio.getRutaImagenFondo());
+//el controlador le entrega lo que hay que mostrar (nivel o habitacion) ya traducido a escenaVisual
+    public void setEscena(EscenaVisual escena) {
+        this.escena = escena;
+        this.imagenFondoNivel = (escena != null) ? GestorSprites.cargarImagen(escena.getRutaImagenFondo()) : null;
         repaint();
     }
+
 
     public void setEstado(EstadoAnimacion nuevoEstado) {
         if (this.estadoActual != nuevoEstado) {
@@ -363,13 +342,6 @@ public class NivelPanel extends JPanel {
 
     public boolean estaAtacando() { return estadoActual == EstadoAnimacion.ATACANDO; }
     public boolean estaRecibiendoDanio() { return estadoActual == EstadoAnimacion.RECIBIENDO_DANIO; }
-
-    public Nivel getNivelActual() { return nivelActual; }
-    public void setNivelActual(Nivel nivel) {
-        this.nivelActual = nivel;
-        if (nivel != null) setEspacioActual(nivel);
-        repaint();
-    }
 
     public int getCamaraX() { return camaraX; }
     public int getCamaraY() { return camaraY; }

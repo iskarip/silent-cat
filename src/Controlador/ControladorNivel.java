@@ -189,16 +189,15 @@ public class ControladorNivel {
             if (linterna != null) {
                 barraBateria.actualizarBateria(linterna.getBateria());
 
-                // La BarraBateria se suscribe directamente como Observador de la Linterna (Modelo)
-                linterna.agregarObservador(barraBateria);
+//observer: el controlador escucha a la linterna(modelo) y actualiza las dos
+
+//capas visuales con primitivos. ninguna de las dos clases de vista conoce al
 
                 // linternaOverlay también observa los cambios de encendido y batería
-                linterna.agregarObservador(new ObservadorLinterna() {
-                    @Override 
-                    public void linternaCambio(int bateriaActual, boolean encendida) {
-                        linternaOverlay.setEncendida(encendida);
-                        linternaOverlay.setBateria(bateriaActual);
-                    }
+                linterna.agregarObservador((bateriaActual, encendida) -> {
+                    barraBateria.actualizarBateria(bateriaActual);
+                    linternaOverlay.setEncendida(encendida);
+                    linternaOverlay.setBateria(bateriaActual);
                 });
             }
 
@@ -323,7 +322,7 @@ public class ControladorNivel {
         controladorEspacio.sincronizarVista();
 
         if (personaje != null) {
-            vista.setPersonaje(personaje);
+            vista.setJugador(new ControladorEntidadVisual(personaje));
             linternaOverlay.setPosicionJugador(personaje.getPosicionX(), personaje.getPosicionY());
             barraVida.actualizarVida(personaje.getPuntosVida());
             if (personaje.getLinterna() != null) {
