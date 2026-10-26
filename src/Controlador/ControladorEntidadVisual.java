@@ -58,9 +58,21 @@ public class ControladorEntidadVisual implements EntidadVisual {
         return entidad.estaMoviendose() ? EstadoAnimacion.CAMINANDO : EstadoAnimacion.IDLE;
     }
 
-    @Override public boolean esTransicion() { return entidad.getPostura().esTransicion(); }
-    @Override public double getProgresoTransicion() { return entidad.getProgresoPostura(); }
-    @Override public boolean mostrarBarraVida() { return entidad.mostrarBarraVida(); }
-    @Override public int getPorcentajeVida() { return entidad.getPorcentajeVida(); }
+    @Override 
+    public boolean esTransicion() { return entidad.getPostura().esTransicion() || entidad.estaAtacando();
+    }
+    
+    @Override 
+    public double getProgresoTransicion() { 
+        return entidad.getPostura().esTransicion()
+        ? entidad.getProgresoPostura()
+        : entidad.getProgresoAtaque(); 
+    }
+    
+    @Override 
+    public boolean mostrarBarraVida() { return entidad.mostrarBarraVida(); }
+    
+    @Override 
+    public int getPorcentajeVida() { return entidad.getPorcentajeVida(); }
 }
  

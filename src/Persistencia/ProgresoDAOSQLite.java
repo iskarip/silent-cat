@@ -36,48 +36,50 @@ public class ProgresoDAOSQLite implements ProgresoDAO {
 
     @Override
     public boolean guardar(Progreso progreso) {
-        if (progreso == null) return false;
+        if (progreso == null)
+            return false;
         String sql = "INSERT INTO progreso (id, genero, nivel, checkpoint_x, checkpoint_y, vida, bateria) "
                 + "VALUES (1, ?, ?, ?, ?, ?, ?) "
                 + "ON CONFLICT(id) DO UPDATE SET genero = excluded.genero, nivel = excluded.nivel, "
                 + "checkpoint_x = excluded.checkpoint_x, checkpoint_y = excluded.checkpoint_y, "
                 + "vida = excluded.vida, bateria = excluded.bateria";
 
-//la connection la comparten los Dao y ahora la usan distintos hilos tambien 
-//una sola operacion a la vez
-        synchronized (conexion) {    
-        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setString(1, progreso.getGenero());
-            ps.setInt(2, progreso.getNumeroNivel());
-            ps.setInt(3, progreso.getCheckpointX());
-            ps.setInt(4, progreso.getCheckpointY());
-            ps.setInt(5, progreso.getVida());
-            ps.setInt(6, progreso.getBateria());
-            return ps.executeUpdate() == 1;
-        } catch (SQLException e) {
-            System.out.println("No se pudo guardar la partida: " + e.getMessage());
-            return false;
+        // la connection la comparten los Dao y ahora la usan distintos hilos tambien
+        // una sola operacion a la vez
+        synchronized (conexion) {
+            try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+                ps.setString(1, progreso.getGenero());
+                ps.setInt(2, progreso.getNumeroNivel());
+                ps.setInt(3, progreso.getCheckpointX());
+                ps.setInt(4, progreso.getCheckpointY());
+                ps.setInt(5, progreso.getVida());
+                ps.setInt(6, progreso.getBateria());
+                return ps.executeUpdate() == 1;
+            } catch (SQLException e) {
+                System.out.println("No se pudo guardar la partida: " + e.getMessage());
+                return false;
             }
         }
     }
+
     @Override
     public Progreso cargar() {
         String sql = "SELECT genero, nivel, checkpoint_x, checkpoint_y, vida, bateria "
                 + "FROM progreso WHERE id = 1";
 
-        synchronized (conexion) { // mismo lock que en guardar() 
-        try (PreparedStatement ps = conexion.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        synchronized (conexion) { // mismo lock que en guardar()
+            try (PreparedStatement ps = conexion.prepareStatement(sql);
+                    ResultSet rs = ps.executeQuery()) {
 
-            if (rs.next()) {
-                return new Progreso(rs.getString("genero"), rs.getInt("nivel"),
-                        rs.getInt("checkpoint_x"), rs.getInt("checkpoint_y"),
-                        rs.getInt("vida"), rs.getInt("bateria"));
+                if (rs.next()) {
+                    return new Progreso(rs.getString("genero"), rs.getInt("nivel"),
+                            rs.getInt("checkpoint_x"), rs.getInt("checkpoint_y"),
+                            rs.getInt("vida"), rs.getInt("bateria"));
+                }
+            } catch (SQLException | IllegalArgumentException e) {
+                System.out.println("No se pudo cargar la partida: " + e.getMessage());
             }
-        } catch (SQLException | IllegalArgumentException e) {
-            System.out.println("No se pudo cargar la partida: " + e.getMessage());
         }
-    }
         return null;
     }
 
@@ -85,5 +87,5 @@ public class ProgresoDAOSQLite implements ProgresoDAO {
     public boolean hayProgreso() {
         return cargar() != null;
     }
-    
+
 }

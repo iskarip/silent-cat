@@ -9,7 +9,6 @@ public class BucleDeJuego implements CicloDeVida {
     private long tiempoAnterior = 0;
     private double acumulador = 0.0;
     private final Timer timer;
-    private boolean pausado = false;
 
     private final Runnable accionActualizar;
     private final Runnable accionPintar;
@@ -32,7 +31,6 @@ public class BucleDeJuego implements CicloDeVida {
     public void iniciar() {
         this.tiempoAnterior = System.nanoTime();
         this.acumulador = 0.0;
-        this.pausado = false;
         timer.start();
     }
 
@@ -40,10 +38,6 @@ public class BucleDeJuego implements CicloDeVida {
         if (timer != null) {
             timer.stop();
         }
-    }
-
-    @Override
-    public void alPausar() {
     }
 
     @Override
@@ -55,23 +49,6 @@ public class BucleDeJuego implements CicloDeVida {
     @Override
     public void alDetener() {
         detener();
-    }
-
-    public void setPausado(boolean pausado) {
-        this.pausado = pausado;
-        if (timer != null) {
-            if (pausado) {
-                timer.stop();
-            } else {
-                this.tiempoAnterior = System.nanoTime();
-                this.acumulador = 0.0;
-                timer.start();
-            }
-        }
-    }
-
-    public boolean isPausado() {
-        return pausado;
     }
 
     private void cicloPrincipal() {

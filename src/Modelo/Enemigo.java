@@ -19,7 +19,8 @@ public abstract class Enemigo extends EntidadCombatible {
     private int ticksEnContacto = 0;
     private static final int ENFRIAMIENTO_ATAQUE = 30;
     private static final int DURACION_ANIMACION_ATAQUE = 30; 
-    private int ticksAtacando = 0;
+    private int ticksAtacando = 0; //ticks que le quedan a la animacion de ataque
+    private boolean golpePendiente = false; //true mientras el golpe del ataque en curso todavia no cayo
     private int spawnX;
     private int spawnY;
     private static final int RADIO_PATRULLA = 60;
@@ -195,6 +196,12 @@ public abstract class Enemigo extends EntidadCombatible {
         return 0;
     }
 
+    // Duracion total de la animacion de ataque. Si el enemigo tarda en pegar (preparacion),
+    // la animacion dura el doble, asi el golpe cae justo a la mitad: con el brazo extendido.
+    protected int getDuracionAnimacionAtaque() {
+        return Math.max(DURACION_ANIMACION_ATAQUE, 2 * getPreparacionAtaque());
+    }
+
     protected int getRadioDeteccion(){
         return radioDeteccion;
     }
@@ -242,6 +249,15 @@ public abstract class Enemigo extends EntidadCombatible {
         return ticksAtacando > 0;
     }
 
+    // Avance de la animacion de ataque: la Vista lo usa para elegir el cuadro,
+    // asi cada enemigo anima su propio golpe sin depender de ningun reloj compartido
+    @Override
+    public double getProgresoAtaque() {
+        if (ticksAtacando <= 0) return 0.0;
+        return 1.0 - (double) ticksAtacando / getDuracionAnimacionAtaque();
+    }
+
+
     @Override
     public void actualizar(Personaje jugador, MapaColision mapa) {
 
@@ -254,13 +270,24 @@ public abstract class Enemigo extends EntidadCombatible {
         alcance.grow(MARGEN_CONTACTO, MARGEN_CONTACTO);
         boolean enContacto = puedeAtacar(jugador) && jugador.getHitbox().intersects(alcance);
 
-        if (enContacto) {
-            ticksEnContacto++;
-            if (ticksEnContacto >= getPreparacionAtaque()) {
-                atacar(jugador);
-            }
-        } else {
-            ticksEnContacto = 0;
+        // si el jugador se alejo (o ya no se lo puede atacar) el golpe en curso se pierde
+        if (!enContacto) {
+            golpePendiente = false;
+        }
+
+        // La animacion arranca ANTES del golpe: cuando falta justo el tiempo de preparacion
+        // para que termine el enfriamiento, asi el golpe cae cuando el enemigo vuelve a estar listo.
+        if (enContacto && ticksAtacando == 0 && ticksEnfriamientoAtaque <= getPreparacionAtaque()) {
+            ticksAtacando = getDuracionAnimacionAtaque();
+            golpePendiente = true;
+        }
+
+        // El golpe cae cuando pasaron los ticks de preparacion desde que arranco la animacion
+        boolean llegoElMomentoDelGolpe =
+                getDuracionAnimacionAtaque() - ticksAtacando >= getPreparacionAtaque();
+        if (golpePendiente && llegoElMomentoDelGolpe) {
+            golpePendiente = false;
+            atacar(jugador);
         }
     }
     

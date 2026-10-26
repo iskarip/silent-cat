@@ -21,6 +21,8 @@ public class FlashbackGato implements InterfazVisual {
         "Recursos/Sonidos/sonidos_gato/flashback4.wav"
     };
 
+    private static final int MS_POR_IMAGEN= 500; //cuanto dura cada imagen en pantalla
+
     private boolean mostrandoFlashback = false;
     private int poseActual = 0;
 
@@ -56,25 +58,35 @@ public class FlashbackGato implements InterfazVisual {
     public boolean getMostrandoFlashback(){
         return mostrandoFlashback;
     }
-//metodo apra activar flashback
-public void activar(NivelPanel panel) {
-    // 1. Elige una postura aleatoria entre las 5 imágenes (0, 1, 2, 3 o 4)
-    this.poseActual = (int) (Math.random() * imagenesFlashback.length);
-    this.mostrandoFlashback = true;
+//metodo apra activar flashback, muestra todas las imagenes una despues de otra, en orden
+//y al termianr la ultima se oculta solo
+
+public void activar(NivelPanel panel, Runnable alTerminar) {
+    if (mostrandoFlashback) return; //si ya hay una secuencia en curso, no se pisa
+
+        this.poseActual= 0;
+        this.mostrandoFlashback = true;
         ReproductorSonido.reproducir(SONIDOS[(int) (Math.random() * SONIDOS.length)]);
 
-    // 2. Muestra la imagen durante 1.5 segundos (1500 ms) y luego la oculta
-    javax.swing.Timer timer = new javax.swing.Timer(1500, e -> {
-        this.mostrandoFlashback = false;
-        if (panel != null) {
-            panel.repaint();
-        }
-        ((javax.swing.Timer) e.getSource()).stop();
-    });
-    timer.setRepeats(false);
-    timer.start();
-
-    // Refresca la pantalla inmediatamente
+    //un solo timer que se repite: cada disparo pasa a la imagen siguiente
+        javax.swing.Timer timer = new javax.swing.Timer(MS_POR_IMAGEN, e -> {
+            poseActual++;
+            if (poseActual >= imagenesFlashback.length) { //ya se mostraron todas
+                mostrandoFlashback = false;
+                poseActual = 0;
+                ((javax.swing.Timer) e.getSource()).stop();
+            
+                if (alTerminar != null){//avisa que el flashback termino
+                    alTerminar.run();
+                }
+            }
+            if (panel != null) {
+                panel.repaint();
+            }
+        });
+        timer.start();   // por defecto se repite hasta que se hace stop()
+    
+        // refresca la pantalla inmediatamente para ver la primera imagen
     if (panel != null) {
         panel.repaint();
     }

@@ -35,7 +35,10 @@ public class NivelFactory {
         Nivel nivel = new Nivel(1, candadoPlantaBaja, "Recursos/Mapas/Grid/grid_planta_baja.txt", "/Recursos/Mapas/Imagen/mapa_planta_baja2.png", 16, 14);
         nivel.setTipoSuelo(TipoSuelo.MADERA);
         agregarVarias(nivel, (columna, fila) -> new EnemigoComun(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{4, 11}, new int[]{22, 4});
+        
         agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 25), new int[]{10, 13}, new int[]{25, 13});
+        agregarVariosItems(nivel, (columna, fila) -> new ItemBateria(columna, fila), new int[]{27, 4}, new int[]{18, 8}, new int[]{4, 13});
+       
         agregarVarias(nivel, (columna, fila) -> new Rata(columna, fila), new int[]{15, 10});
         
         //pruebaenemigo sensible a la luz
@@ -44,7 +47,7 @@ public class NivelFactory {
         nivel.agregarZona(new ZonaMensaje(22, 8, 1, "Esto parece una puerta..."));
         nivel.agregarZona(new ZonaMensaje(18, 6, 2, "Faltan la mitad de los escalones. Tiene que haber otro camino."));
         nivel.agregarZona(new ZonaMensaje(7, 9, 1, "El ascensor no responde. Está muerto."));
-        nivel.agregarZona(new PuntoFlashback(25, 8, 2));
+        nivel.agregarZona(new PuntoFlashback(25, 8, 2, "Necesito encontrar a mi gatito pronto unu..."));
 
         Item llave = new Item("llave", "/Recursos/Sprites/Items/llave.png", 21, 5);
         llave.setEscala(0.5);
@@ -63,13 +66,13 @@ public class NivelFactory {
 
             agregarVariosItems(nivel, (columna, fila) -> new ItemMedicina(columna, fila, 20), new int[]{20, 9}, new int[]{10, 9}, new int[]{2, 11});
 
-            agregarVariosItems(nivel, (columna, fila) -> new ItemBateria(columna, fila), new int[]{4, 7}, new int[]{4, 12}, new int[]{19, 4});
-
+            //agregarVariosItems(nivel, (columna, fila) -> new ItemBateria(columna, fila), new int[]{4, 7}, new int[]{4, 12}, new int[]{19, 4});
+            agregarVariosItems(nivel, (columna, fila) -> new ItemBateria(columna, fila),new int[]{4, 7}, new int[]{4, 12}, new int[]{19, 4},new int[]{26, 8}, new int[]{11, 4});
             agregarVarias(nivel,(columna, fila) -> new EnemigoComun(100, 10, nextId++, columna, fila, SPRITES_NURSE), new int[]{15, 9}, new int[]{2, 8});
 
             nivel.agregarHabitacion(crearHabitacionPalanca());
 
-            nivel.agregarZona(new PuntoFlashback(25, 9, 2));
+            nivel.agregarZona(new PuntoFlashback(25, 9, 2, "Debe estar asustado..no quiero imaginar cosas..."));
 
             nivel.agregarZona(new ZonaMensaje(15, 8, 2, "Huele a sangre..."));
             nivel.agregarZona(new ZonaMensaje(2, 8, 2, "El aire se siente muy pesado."));

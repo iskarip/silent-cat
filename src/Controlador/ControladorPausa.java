@@ -1,7 +1,6 @@
 package Controlador;
 
 import Vista.ReproductorSonido;
-import Vista.FinDelJuego;
 import Vista.JuegoFrame;
 import Vista.NivelPanel;
 import Vista.PausaPanel;
@@ -53,16 +52,6 @@ public class ControladorPausa {
             pausaPanel.getBotonGuardarPartida().addActionListener(alGuardar);
             pausaPanel.getBotonMenuPrincipal().addActionListener(alVolverAlMenu);
         }
-
-        // Botones y acciones de fin del juego o Game Over.
-       /* FinDelJuego panelFin = nivelPanel.getFinDelJuego();
-        if (panelFin != null) {
-            panelFin.getBotonVolverMenu().addActionListener(e -> {
-                panelFin.setVisible(false);
-                volverAlMenu();
-            });
-
-        */
     }
 
     public void desconectar() {

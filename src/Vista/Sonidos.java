@@ -15,7 +15,7 @@ public final class Sonidos {
     public static final String PASOS_METAL = "Recursos/Sonidos/Pasos/pasos_metal.wav";
 
     // -- MÚSICA DE NIVELES --
-        public static final String MUSICA_NIVEL_1 = null;
+        public static final String MUSICA_NIVEL_1 = "Recursos/Sonidos/Musica/nivel1.wav";
         public static final String MUSICA_NIVEL_2 = "Recursos/Sonidos/Musica/nivel2.wav";
         public static final String MUSICA_NIVEL_3 = null;
 

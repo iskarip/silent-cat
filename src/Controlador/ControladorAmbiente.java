@@ -46,11 +46,17 @@ public class ControladorAmbiente implements ObservadorAmbiente {
         mensajeAmbiental.mostrarMensaje(mensaje);
     }
 
-    // Pedido de un PuntoFlashback: muestra la imagen del flashback.
+    // Pedido de un PuntoFlashback: muestra la imagen del flashback y, cuando termina,
+    // el mensaje del personaje (si el punto tiene uno).
     @Override
-    public void mostrarFlashback() {
-        flashbackGato.activar(vista);
+    public void mostrarFlashback(String mensajeAlTerminar) {
+        flashbackGato.activar(vista, () -> {
+            if (mensajeAlTerminar != null) {
+                mensajeAmbiental.mostrarMensaje(mensajeAlTerminar);
+            }
+        });
     }
+
 
     @Override
     public void mostrarAvisoInteraccion(String texto) { avisoInteraccion.mostrar(texto); }
