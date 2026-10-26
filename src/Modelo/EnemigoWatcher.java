@@ -13,7 +13,7 @@ public class EnemigoWatcher extends EnemigoFotosensible {
     private final StateWatcher levantandose = new WatcherLevantandose();
     private final StateWatcher activo = new WatcherActivo();
  
-    private StateWatcher estado = sentado;
+    private StateWatcher estado = sentado; //Arranca sentado
  
     public EnemigoWatcher(int puntosVida, int danioBase, int idEnemigo,int columna, int fila, String rutaSprites) {
         super(puntosVida, danioBase, idEnemigo, columna, fila, rutaSprites);
@@ -22,6 +22,8 @@ public class EnemigoWatcher extends EnemigoFotosensible {
     // -- Transiciones: solo las usan los estados (visibilidad de paquete).
     //    Los estados piden "despertar", no eligen a que clase concreta pasar. --
  
+    //despertar no es public porque los estados pueden provocar transiciones
+    //es encapsulamiento
     void despertar() {
         cambiarA(levantandose);
     }
@@ -36,7 +38,7 @@ public class EnemigoWatcher extends EnemigoFotosensible {
  
     private void cambiarA(StateWatcher nuevo) {
         estado = nuevo;
-        estado.alEntrar();
+        estado.alEntrar(); //para inicializar algo cada vez que se entra a un esatdo
     }
  
     // -- Todo se delega en el estado actual (polimorfismo) --

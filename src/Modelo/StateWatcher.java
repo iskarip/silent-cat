@@ -3,6 +3,7 @@ package Modelo;
 //patron state. cada estado del enemigo watcher es una clase que decide
 //como se comporta, el enemigo solo delega(polimorfismo)
 
+//state porque el objeto cambia solo desde adentro y los estados se conocen entre si
 public interface StateWatcher {
     
     //que hace el enemigo en cada tick mientras esta en este estado.
@@ -17,6 +18,4 @@ public interface StateWatcher {
     default double getProgreso() { return 0; } // Avance 0.0 a 1.0 de las transiciones (por defecto 0).
     
     default int getNivelAmenaza() { return 0; } // uanto peligro representa en este estado
-
-
 }
