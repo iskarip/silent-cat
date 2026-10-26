@@ -120,7 +120,7 @@ public class ControladorNivel {
         });
         
         this.pistaVisual = new PanelPista();
-        this.vista.agregarCapaVisual(pistaVisual);
+        //this.vista.agregarCapaVisual(pistaVisual);
         this.controladorPista = new ControladorPista(pistaVisual);
 
         ControladorInteraccion controladorInteraccion = new ControladorInteraccion(
@@ -205,6 +205,7 @@ public class ControladorNivel {
             this.barraVida = new BarraVida(100);
             this.vista.agregarCapaVisual(barraVida);
         }
+        this.vista.agregarCapaVisual(pistaVisual);
 
         this.controladorTeclado.setAccionSlot(indice -> {
             if (!pausado && !personajeMuerto && !controladorAcertijo.estaActivo()
