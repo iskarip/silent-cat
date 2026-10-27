@@ -2,10 +2,11 @@ package Controlador;
 
 import Modelo.Configuracion;
 import Modelo.ConfiguracionDAO;
-import Persistencia.ConfiguracionDAOSQLite;
 import Vista.ReproductorSonido;
 import Vista.AjustesPanel;
 import Vista.JuegoFrame;
+import java.util.concurrent.ExecutionException;
+import javax.swing.SwingWorker;
 
 public class ControladorAjustes {
     
@@ -41,16 +42,35 @@ public class ControladorAjustes {
         );
 
         // Guardar en la Base de datos recien al salir
-        vista.getBotonVolver().addActionListener(e -> {
-            guardarConfiguracion();
-            ventanaPrincipal.mostrarPantalla("menu");
-        });
+        vista.getBotonVolver().addActionListener(e -> guardarYVolver());
     }
-
-    private void guardarConfiguracion() {
+    private void guardarYVolver() {
+        // 1. En el hilo de eventos: se leen los sliders y se arma la foto inmutable
         float musica = vista.getSliderMusica().getValue() / 100f;
         float efectos = vista.getSliderEfectos().getValue() / 100f;
-        configuracionDAO.guardar(new Configuracion(musica, efectos));
+        Configuracion configuracion = new Configuracion(musica, efectos);
+ 
+        vista.getBotonVolver().setEnabled(false); // evita clicks repetidos mientras guarda
+ 
+        // 2. En otro hilo: solo se escribe en la base de datos
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                configuracionDAO.guardar(configuracion);
+                return null;
+            }
+ 
+            // 3. Vuelve al hilo de eventos: aca si se puede tocar la vista
+            @Override
+            protected void done() {
+                try {
+                    get(); // si doInBackground fallo, la excepcion sale aca
+                } catch (InterruptedException | ExecutionException ex) {
+                    System.out.println("No se pudo guardar la configuracion: " + ex.getMessage());
+                }
+                vista.getBotonVolver().setEnabled(true);
+                ventanaPrincipal.mostrarPantalla("menu");
+            }
+        }.execute();
     }
 }
-

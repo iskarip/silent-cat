@@ -42,8 +42,7 @@ public class AjustesPanel extends JPanel{
         add(sliderEfectos, gbc);
 
 //el botonVolver usa la imagen de "NuevaPartida" porque es la unica que tiene el mismo tamaño que los sliders
-        botonVolver = new BotonJuego("/Recursos/UI/Menu/Botones/NuevaPartida.png", "/Recursos/UI/Menu/Botones/NuevaPartidaHover.png", "Recursos/Sonidos/UI/sonido3.wav");
-        gbc.gridy = 5;
+botonVolver = new BotonJuego("/Recursos/UI/GameOver/Botones/VolverMenu.png", "/Recursos/UI/GameOver/Botones/VolverMenuHover.png", "Recursos/Sonidos/UI/sonido3.wav");        gbc.gridy = 5;
         add(botonVolver, gbc);
     }
 
