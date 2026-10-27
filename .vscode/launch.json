@@ -6,6 +6,13 @@
         "name": "Main",
         "request": "launch",
         "mainClass": "Main",
+        "projectName": "silent-hill-1_8b3d37c"
+    },
+    {
+        "type": "java",
+        "name": "Main",
+        "request": "launch",
+        "mainClass": "Main",
         "projectName": "silent-cat_51a178a5"
     },
     {
