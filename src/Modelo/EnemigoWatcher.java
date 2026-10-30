@@ -1,11 +1,11 @@
 package Modelo;
  
-/**
- * Enemigo que arranca sentado contra la pared. Al detectar la linterna se
- * levanta y recien ahi persigue y ataca (solo con la linterna encendida).
- * Hereda de EnemigoFotosensible: reutiliza la regla de la linterna.
- * Su comportamiento por fases lo delega en objetos EstadoWatcher (patron State).
- */
+
+ //Enemigo que arranca sentado contra la pared. Al detectar la linterna se
+ //levanta y recien ahi persigue y ataca (solo con la linterna encendida).
+ //Hereda de EnemigoFotosensible: reutiliza la regla de la linterna.
+ //Su comportamiento por fases lo delega en objetos EstadoWatcher (patron State).
+ 
 public class EnemigoWatcher extends EnemigoFotosensible {
  
     // Los estados son del mismo objeto: se crean una vez y se reutilizan
@@ -15,7 +15,7 @@ public class EnemigoWatcher extends EnemigoFotosensible {
  
     private StateWatcher estado = sentado; //Arranca sentado
  
-    public EnemigoWatcher(int puntosVida, int danioBase, int idEnemigo,int columna, int fila, String rutaSprites) {
+    public EnemigoWatcher(int puntosVida, int danioBase, int idEnemigo, int columna, int fila, String rutaSprites) {
         super(puntosVida, danioBase, idEnemigo, columna, fila, rutaSprites);
     }
  
@@ -65,4 +65,3 @@ public class EnemigoWatcher extends EnemigoFotosensible {
     public int getNivelAmenaza() { return estado.getNivelAmenaza(); }
 
 }
- 

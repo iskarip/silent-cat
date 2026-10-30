@@ -6,10 +6,10 @@ import java.util.Random;
 public class Rata extends EntidadPasiva {
 
     // Ajustalos mirando el sprite de la rata
-    private static final int ANCHO_HITBOX = (int) (6 * ESCALA);
-    private static final int ALTO_HITBOX = (int) (2 * ESCALA);
-    private static final int OFFSET_X_HITBOX = (int) (7 * ESCALA);
-    private static final int OFFSET_Y_HITBOX = (int) (18 * ESCALA);
+    private static final int ANCHO_HITBOX_RATA = (int) (6 * ESCALA);
+    private static final int ALTO_HITBOX_RATA = (int) (2 * ESCALA);
+    private static final int OFFSET_X_HITBOX_RATA = (int) (7 * ESCALA);
+    private static final int OFFSET_Y_HITBOX_RATA = (int) (18 * ESCALA);
 
     private final Random random = new Random();
     private int dx = 0;
@@ -23,11 +23,20 @@ public class Rata extends EntidadPasiva {
         colocarEnTile(columna, fila);
     }
 
+    // -- REUTILIZACIÓN DE CÓDIGO (Template Method de Entidad) --
+    // Reutiliza getHitbox() de Entidad definiendo únicamente sus dimensiones específicas
+
     @Override
-    public Rectangle getHitbox() {
-        return new Rectangle(getPosicionX() + OFFSET_X_HITBOX, getPosicionY() + OFFSET_Y_HITBOX,
-                             ANCHO_HITBOX, ALTO_HITBOX);
-    }
+    protected int getAnchoHitbox() { return ANCHO_HITBOX_RATA; }
+
+    @Override
+    protected int getAltoHitbox() { return ALTO_HITBOX_RATA; }
+
+    @Override
+    protected int getOffsetXHitbox() { return OFFSET_X_HITBOX_RATA; }
+
+    @Override
+    protected int getOffsetYHitbox() { return OFFSET_Y_HITBOX_RATA; }
 
     @Override
     public boolean estaMoviendose() {
@@ -51,7 +60,7 @@ public class Rata extends EntidadPasiva {
         if (random.nextInt(5) == 0) return; // 1 de cada 5 veces se queda quieta
 
         Direccion nueva = Direccion.aleatoria(random);
-        direccion = nueva;
+        setDireccion(nueva);
         dx = nueva.getDx();
         dy = nueva.getDy();
     }
