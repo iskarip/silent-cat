@@ -2,7 +2,6 @@ package Controlador;
 
 import Modelo.Configuracion;
 import Modelo.ConfiguracionDAO;
-import Persistencia.ConfiguracionDAOSQLite;
 import Vista.ReproductorSonido;
 import Vista.AjustesPanel;
 import Vista.JuegoFrame;

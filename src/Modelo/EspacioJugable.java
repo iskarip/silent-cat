@@ -14,4 +14,4 @@ public interface EspacioJugable {
     List<Item> getListaItems();
     List<Entidad> getListaEntidades();
     String getRutaImagenFondo();
-}
+} 

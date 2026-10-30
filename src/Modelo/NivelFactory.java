@@ -118,6 +118,9 @@ public class NivelFactory {
             palanca.setEscala(0.5);
             habitacion.agregarItem(palanca);
 
+            agregarVarias(habitacion, (columna, fila) -> new EnemigoWatcher(100, 20, nextId++, columna, fila, SPRITES_WATCHER), new int[]{8, 3});
+
+            
             return habitacion;
         }
 
@@ -144,17 +147,17 @@ public class NivelFactory {
             return habitacion;
         }
 
-    private void agregarVarias(Nivel nivel, BiFunction<Integer, Integer, Entidad> creador, int[]... posiciones) {
-        for (int[] pos : posiciones) {
-            nivel.agregarEntidad(creador.apply(pos[0], pos[1]));
+        private void agregarVarias(EspacioBase espacio, BiFunction<Integer, Integer, Entidad> creador, int[]... posiciones) {
+            for (int[] pos : posiciones) {
+                espacio.agregarEntidad(creador.apply(pos[0], pos[1]));
+            }
         }
-    }
 
-    private void agregarVariosItems(Nivel nivel, BiFunction<Integer, Integer, Item> creador, int[]... posiciones) {
-        for (int[] pos : posiciones) {
-            nivel.agregarItem(creador.apply(pos[0], pos[1]));
+        private void agregarVariosItems(EspacioBase espacio, BiFunction<Integer, Integer, Item> creador, int[]... posiciones) {
+            for (int[] pos : posiciones) {
+                espacio.agregarItem(creador.apply(pos[0], pos[1]));
+            }
         }
-    }
 
 }
 
