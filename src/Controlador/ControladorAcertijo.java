@@ -8,7 +8,6 @@ import Modelo.ObservadorAmbiente;
 import Modelo.Personaje;
 import Vista.AcertijoPanel;
 import Vista.NivelPanel;
-import Vista.ReproductorSonido;
 
 import java.awt.event.ActionListener;
 

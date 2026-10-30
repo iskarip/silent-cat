@@ -9,11 +9,13 @@ import java.sql.SQLException;
 
 public class GestorConexionBd {
     
+    // - Atributo estatico y privado de su propio tipo. 
     private static GestorConexionBd instancia;
     private Connection conexion;
 
 private static final String URL_BD = "jdbc:sqlite:silentcat.db";
 
+    // - Constructor privado
     private GestorConexionBd() { // constructor privado
         try {
             // Fuerza la carga e inicialización del driver JDBC de SQLite
@@ -27,6 +29,7 @@ private static final String URL_BD = "jdbc:sqlite:silentcat.db";
         }
     }
     
+    // - Metodo estatico publico
     public static synchronized GestorConexionBd getInstancia() { //dos hilos no pueden crear dos intancias
         if (instancia == null) {
             instancia = new GestorConexionBd();

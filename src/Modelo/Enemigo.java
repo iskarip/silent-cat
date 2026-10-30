@@ -13,7 +13,7 @@ public abstract class Enemigo extends EntidadCombatible {
 
     private int idEnemigo;
     private int danioBase;
-    private int radioDeteccion = 50;
+    private int radioDeteccion = 70;
     private boolean alertado = false;
     private int ticksEnfriamientoAtaque = 0;
     private int ticksEnContacto = 0;

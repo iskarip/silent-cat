@@ -1,7 +1,6 @@
 package Controlador;
 
 import Modelo.Item;
-import Modelo.ItemPista;
 import Modelo.Personaje;
 import Vista.PanelPista;
 import java.util.List;
