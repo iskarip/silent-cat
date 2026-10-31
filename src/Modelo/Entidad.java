@@ -2,66 +2,96 @@ package Modelo;
 
 import java.awt.Rectangle;
 
-public abstract class Entidad implements Posicionable {
+public abstract class Entidad implements Posicionable { // Entidad es abstracta porque no se puede instanciar directamente, solo a través de sus subclases
+
+    // -- ATRIBUTOS --
 
     public static final double ESCALA = 2.5; 
-
     private int posicionX;
     private int posicionY;
+    private String rutaSprites;
+    private double escalaSprite = 1.0; 
+    
     private Direccion direccion = Direccion.ABAJO;
 
-    protected String rutaSprites;
-    protected double escalaSprite = 1.0; 
+    // -- CONSTRUCTOR --
 
-    // -- GETTERS Y SETTERS BÁSICOS --
+    // -- SET's y GET's --
 
-    public String getRutaSprites() { return rutaSprites; }
-    public void setRutaSprites(String ruta) { this.rutaSprites = ruta; }
-    public int getPosicionX() { return posicionX; }
-    public void setPosicionX(int posicionX) { this.posicionX = posicionX; }
-    public int getPosicionY() { return posicionY; }
-    public void setPosicionY(int posicionY) { this.posicionY = posicionY; }
-    public Direccion getDireccion() { return direccion; }
-    public void setDireccion(Direccion direccion) { this.direccion = direccion; }
-    public double getEscalaSprite() { return escalaSprite; }
-    protected void setEscalaSprite(double escalaSprite) { this.escalaSprite = escalaSprite; }
+    public String getRutaSprites (){
+        return rutaSprites;
+    }
 
-    // -- COMPORTAMIENTO POLIMÓRFICO POR DEFECTO --
+    public void setRutaSprites (String ruta) { 
+        this.rutaSprites = ruta;
+    }
+
+    public int getPosicionX() {
+        return posicionX;
+    }
+
+    public int getPosicionY() {
+        return posicionY;
+    }
+
+    public Direccion getDireccion () {
+        return direccion;
+    }
+
+    public void setPosicionX(int posicionX) {
+        this.posicionX = posicionX;
+    }
+
+    public void setPosicionY(int posicionY) {
+        this.posicionY = posicionY;
+    }
+
+    public double getEscalaSprite() { 
+        return escalaSprite; 
+    }
+
+    public void setEscalaSprite(double escalaSprite) { 
+        this.escalaSprite = escalaSprite; 
+    }
+
+
+    // -- COMPORTAMIENTO POR DEFECTO (las subclases lo sobrescriben) --
 
     public boolean estaVivo() { return true; }
     public boolean estaMoviendose() { return false; }
     public boolean estaAtacando() { return false; }
-    public PoseEntidadCombatible getPostura() { return PoseEntidadCombatible.NORMAL; }
-    public double getProgresoPostura() { return 0.0; }
-    public double getProgresoAtaque() { return 0.0; }
-    public int getNivelAmenaza() { return 0; }
+    public PoseEntidadCombatible getPostura() { return PoseEntidadCombatible.NORMAL; }   // pose especial (sentado, levantandose...) para que la Vista elija la animacion
+    public double getProgresoPostura() { return 0; }   // avance 0.0 a 1.0 si la pose es una transicion
+    public double getProgresoAtaque() { return 0; }    // avance 0.0 a 1.0 de la animacion de ataque (solo si estaAtacando())
+    
+    public int getNivelAmenaza() { return 0; }   //cuanta amenaza representa para el jugador
+    
     public boolean mostrarBarraVida() { return false; }
     public int getPorcentajeVida() { return 100; }
-    public void recibirDanio(int cantidad) { }
-    public void actualizar(Personaje jugador, MapaColision mapa) { }
+    public void recibirDanio(int cantidad) { }                        // una entidad pasiva no recibe daño
+    public void actualizar(Personaje jugador, MapaColision mapa) { }  // por defecto no hace nada
 
-    // -- MÉTODOS GANCHO (HOOKS) DE DIMENSIONES DEL HITBOX --
-    // Medidas base estándar (humanoides). Las subclases las sobrescriben según su sprite.
+
+    public void setDireccion(Direccion direccion) {
+        this.direccion = direccion;
+    }
+
+    // -- DIMENSIONES DEL HITBOX (Template Method) --
+    // Valores por defecto. Las subclases que corresponden los sobrescriben.
     protected int getAnchoHitbox() { return (int) (6 * ESCALA); }
     protected int getAltoHitbox() { return (int) (2 * ESCALA); }
     protected int getOffsetXHitbox() { return (int) (7 * ESCALA); }
     protected int getOffsetYHitbox() { return (int) (15 * ESCALA); }
 
-    /**
-     * REUTILIZACIÓN DE CÓDIGO (Template Method):
-     * La lógica de cálculo geométrico está escrita UNA SOLA VEZ aquí en Entidad.
-     * Toma las medidas dinámicamente de la subclase correspondiente.
-     */
     public Rectangle getHitbox() {
         return getHitboxEnPosicion(getPosicionX(), getPosicionY());
     }
 
     public Rectangle getHitboxEnPosicion(int x, int y) {
-        return new Rectangle(x + getOffsetXHitbox(), y + getOffsetYHitbox(),
-                             getAnchoHitbox(), getAltoHitbox());
+        return new Rectangle(x + getOffsetXHitbox(), y + getOffsetYHitbox(), getAnchoHitbox(), getAltoHitbox());
     }
 
-    // -- MOVIMIENTO Y COLISIÓN CENTRALIZADOS --
+    // -- METODOS --
 
     public void mover(int deltaX, int deltaY) {
         this.posicionX += deltaX;
@@ -88,7 +118,7 @@ public abstract class Entidad implements Posicionable {
     @Override
     public void colocarEnTile(int columna, int fila) {
         Rectangle hb = getHitbox();
-        int offsetX = hb.x - getPosicionX();
+        int offsetX = hb.x - getPosicionX(); // cuánto está corrido el hitbox respecto del sprite
         int offsetY = hb.y - getPosicionY();
         int centroX = columna * MapaColision.TILE + MapaColision.TILE / 2;
         int centroY = fila * MapaColision.TILE + MapaColision.TILE / 2;

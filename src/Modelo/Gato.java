@@ -1,14 +1,11 @@
 package Modelo;
 
-import java.awt.Rectangle;
-
 public class Gato extends EntidadPasiva implements Interactuable {
 
-    // Constantes de escala visual
-    private static final int ANCHO_HITBOX_GATO = (int) (8 * ESCALA);   // ajustar al sprite
-    private static final int ALTO_HITBOX_GATO = (int) (6 * ESCALA);
-    private static final int OFFSET_X_HITBOX_GATO = (int) (4 * ESCALA);
-    private static final int OFFSET_Y_HITBOX_GATO = (int) (8 * ESCALA);
+    private static final int ANCHO_HITBOX = (int) (8 * ESCALA);   // ajustar al sprite
+    private static final int ALTO_HITBOX = (int) (6 * ESCALA);
+    private static final int OFFSET_X_HITBOX = (int) (4 * ESCALA);
+    private static final int OFFSET_Y_HITBOX = (int) (8 * ESCALA);
 
     private boolean encontrado = false;
 
@@ -16,28 +13,24 @@ public class Gato extends EntidadPasiva implements Interactuable {
 
     public Gato(int columna, int fila) {
         colocarEnTile(columna, fila);
-        this.escalaSprite = 0.7; // Ajustar según el sprite real
-        this.rutaSprites = "/Recursos/Sprites/Gato/";
+        setEscalaSprite(0.7); // Ajustar según el sprite real
+        setRutaSprites("/Recursos/Sprites/Gato/");
     }
 
     public boolean getEncontrado() { return encontrado; }
     public void setEncontrado(boolean encontrado) { this.encontrado = encontrado; }
 
-    // -- REUTILIZACIÓN DE CÓDIGO (Template Method de Entidad) --
-    // En lugar de instanciar rectángulos manualmente, sobrescribe los métodos de medidas.
-    // De este modo getHitbox() y getHitboxEnPosicion() se reutilizan de la superclase Entidad.
+    @Override
+    protected int getAnchoHitbox() { return ANCHO_HITBOX; }
 
     @Override
-    protected int getAnchoHitbox() { return ANCHO_HITBOX_GATO; }
+    protected int getAltoHitbox() { return ALTO_HITBOX; }
 
     @Override
-    protected int getAltoHitbox() { return ALTO_HITBOX_GATO; }
+    protected int getOffsetXHitbox() { return OFFSET_X_HITBOX; }
 
     @Override
-    protected int getOffsetXHitbox() { return OFFSET_X_HITBOX_GATO; }
-
-    @Override
-    protected int getOffsetYHitbox() { return OFFSET_Y_HITBOX_GATO; }
+    protected int getOffsetYHitbox() { return OFFSET_Y_HITBOX; }
 
     public void setObservador(ObservadorGato observador) {
         this.observador = observador;
@@ -45,6 +38,7 @@ public class Gato extends EntidadPasiva implements Interactuable {
 
 //implementacion del metodo abstracto de EntidadPasiva, nuestro gato caminaria
 //hacia donde esta el personaje, sin atravesar paredes. Antes de ser encontardo se queda quieto?
+
 
    @Override
     public void moverse(Personaje objetivo, MapaColision mapa) {

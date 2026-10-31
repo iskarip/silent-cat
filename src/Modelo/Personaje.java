@@ -4,9 +4,16 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
+// Representa al jugador. Hereda de EntidadCombatible la vida, daño base, posición y el
+ //método mover()), y le suma todo lo de personaje: arma,
+ //linterna, inventario y la lógica para interactuar con el escenario 
+ 
 public class Personaje extends EntidadCombatible {
 
+    // -- ATRIBUTOS --
+
     private String nombrePersonaje;
+
     private double multiplicadorVelocidad = 1.0;
     private int ticksLentitud = 0;
     private boolean moviendose = false;
@@ -17,20 +24,25 @@ public class Personaje extends EntidadCombatible {
     private double restoY = 0;
 
     private double nivelEstamina;
-    private final Arma arma;
-    private final Linterna linterna;
-    private final Inventario inventario;
 
+    private Arma arma;
+    private Linterna linterna;
+    private Inventario inventario;
+
+    // -- LISTA DE OBSERVADORES --
     private final List<ObservadorPersonaje> observadores = new ArrayList<>();
 
-    private static final int ALCANCE_ATAQUE = (int) (18 * ESCALA);
+    // -- MEDIDAS DEL HITBOX --
+    private static final int ALCANCE_ATAQUE = (int) (22 * ESCALA);
     private static final int VELOCIDAD_BASE = 2;
     private static final double FACTOR_DIAGONAL = 0.7071;
-    private static final double FACTOR_CORRER = 1.6;
+    private static final double FACTOR_CORRER = 1.6;          // corriendo va 60% más rápido
     private static final double ESTAMINA_MAXIMA = 100;
     private static final double GASTO_CORRER = 0.5;
     private static final double RECUPERACION = 0.25;
-    private static final double UMBRAL_RECUPERACION = 40;
+    private static final double UMBRAL_RECUPERACION = 40;     // agotada, necesita 25 para volver a correr
+
+    // -- CONSTRUCTOR --
 
     public Personaje(String nombrePersonaje, Arma arma, Linterna linterna) {
         super(100);
@@ -62,11 +74,13 @@ public class Personaje extends EntidadCombatible {
 
     @Override
     public void recibirDanio(int cantidad) {
-        if (invulnerableRespawn) return;
+        if (invulnerableRespawn) {
+            return;
+        }
         super.recibirDanio(cantidad);
     }
 
-    // -- OBSERVER --
+    // -- GESTION DE OBSERVADORES --
 
     public void agregarObservador(ObservadorPersonaje observador) {
         if (observador != null && !this.observadores.contains(observador)) {
@@ -93,15 +107,38 @@ public class Personaje extends EntidadCombatible {
         this.notificarCambioVida();
     }
 
-    // -- GETTERS Y ACCIONES --
+    // -- GETTERS Y SETTERS --
 
-    public String getNombrePersonaje() { return nombrePersonaje; }
-    public int getNivelEstamina() { return (int) nivelEstamina; }
-    public boolean estaAgotado() { return agotado; }
-    public Arma getArma() { return arma; }
-    public Linterna getLinterna() { return linterna; }
-    public boolean linternaEncendida() { return linterna != null && linterna.getEncendido(); }
-    public Inventario getInventario() { return inventario; }
+    public String getNombrePersonaje() {
+        return nombrePersonaje;
+    }
+
+    public int getNivelEstamina() {
+        return (int) nivelEstamina;
+    }
+
+    public boolean estaAgotado() {
+        return agotado;
+    }
+
+    public Arma getArma() {
+        return arma;
+    }
+
+    public Linterna getLinterna() {
+        return linterna;
+    }
+
+    public boolean linternaEncendida() {
+        return linterna != null && linterna.getEncendido();
+    }
+
+
+    public Inventario getInventario() {
+        return inventario;
+    }
+
+    // -- METODOS DE COMBATE Y HITBOX --
 
     public Rectangle getHitboxAtaque() {
         Rectangle base = getHitbox();
@@ -115,15 +152,30 @@ public class Personaje extends EntidadCombatible {
     }
 
     public boolean intentarAtacar() {
-        return arma != null && arma.usarArma();
+        return arma == null || arma.usarArma();
     }
 
     @Override
     public void atacar(EntidadCombatible objetivo) {
-        if (objetivo != null && arma != null) {
-            objetivo.recibirDanio(arma.calcularDanio());
+        if (objetivo != null) {
+            int danio = (arma != null) ? arma.calcularDanio() : 25;
+            if (danio <= 0) danio = 25;
+            System.out.println("[Silent Cat] El personaje golpea a " + objetivo.getClass().getSimpleName() + " y hace " + danio + " de daño.");
+            objetivo.recibirDanio(danio);
         }
     }
+
+    public void atacar(Entidad objetivo) {
+        if (objetivo instanceof EntidadCombatible combatible) {
+            atacar(combatible);
+        } else if (objetivo != null) {
+            int danio = (arma != null) ? arma.calcularDanio() : 25;
+            if (danio <= 0) danio = 25;
+            objetivo.recibirDanio(danio);
+        }
+    }
+
+    // -- ACCIONES DE LINTERNA Y EFECTOS --
 
     public void usarLinterna() {
         if (linterna == null) return;
@@ -134,8 +186,15 @@ public class Personaje extends EntidadCombatible {
         }
     }
 
-    public boolean revisarBateria() { return linterna != null && linterna.bateriaBaja(); }
-    public void recargarLinterna(int cantidad) { if (linterna != null) linterna.recargarLinterna(cantidad); }
+    public boolean revisarBateria() {
+        return linterna != null && linterna.bateriaBaja();
+    }
+
+    public void recargarLinterna(int cantidad) {
+        if (linterna != null) {
+            linterna.recargarLinterna(cantidad);
+        }
+    }
 
     public void aplicarLentitud(int ticks) {
         this.multiplicadorVelocidad = 0.4;
@@ -147,21 +206,30 @@ public class Personaje extends EntidadCombatible {
             ticksLentitud--;
             if (ticksLentitud == 0) multiplicadorVelocidad = 1.0;
         }
-        if (arma != null) arma.actualizar();
+        if (arma != null) {
+            arma.actualizar();
+        }
     }
 
-    public double getMultiplicadorVelocidad() { return multiplicadorVelocidad; }
+    public double getMultiplicadorVelocidad() {
+        return multiplicadorVelocidad;
+    }
 
-    // -- MOVIMIENTO Y POLIMORFISMO ESTÁTICO  --
+    // -- MOVIMIENTO Y ESTAMINA --
 
     public void mover(int direccionX, int direccionY, boolean quiereCorrer, MapaColision mapa) {
         boolean hayMovimiento = (direccionX != 0 || direccionY != 0);
-        if (hayMovimiento) this.invulnerableRespawn = false;
+
+        if (hayMovimiento) {
+            this.invulnerableRespawn = false;
+        }
 
         corriendo = quiereCorrer && hayMovimiento && !agotado && ticksLentitud == 0;
-        double velocidad = VELOCIDAD_BASE * multiplicadorVelocidad;
-        if (corriendo) velocidad *= FACTOR_CORRER;
 
+        double velocidad = VELOCIDAD_BASE * multiplicadorVelocidad;
+        if (corriendo) {
+            velocidad *= FACTOR_CORRER;
+        }
         double pasoX = direccionX * velocidad;
         double pasoY = direccionY * velocidad;
 
@@ -200,23 +268,39 @@ public class Personaje extends EntidadCombatible {
     private void actualizarEstamina() {
         if (corriendo) {
             nivelEstamina = Math.max(0, nivelEstamina - GASTO_CORRER);
-            if (nivelEstamina == 0) agotado = true;
+            if (nivelEstamina == 0) {
+                agotado = true;
+            }
         } else {
             nivelEstamina = Math.min(ESTAMINA_MAXIMA, nivelEstamina + RECUPERACION);
-            if (agotado && nivelEstamina >= UMBRAL_RECUPERACION) agotado = false;
+            if (agotado && nivelEstamina >= UMBRAL_RECUPERACION) {
+                agotado = false;
+            }
         }
     }
 
     @Override
-    public boolean estaMoviendose() { return moviendose; }
-    public boolean estaCorriendo() { return corriendo; }
+    public boolean estaMoviendose() {
+        return moviendose;
+    }
+
+    public boolean estaCorriendo() {
+        return corriendo;
+    }
+
+    // -- INTERACCIONES E INVENTARIO --
 
     public void interactuarCon(Interactuable objeto) {
-        if (objeto != null) objeto.interactuar(this);
+        if (objeto != null) {
+            objeto.interactuar(this);
+        }
     }
 
     public void usarItem(Item item) {
-        if (item == null || !inventario.getItems().contains(item)) return;
+        if (item == null || !inventario.getItems().contains(item)) {
+            System.out.println("No tenés ese item en el inventario.");
+            return;
+        }
         item.interactuar(this);
         inventario.quitarItem(item);
     }
@@ -224,4 +308,5 @@ public class Personaje extends EntidadCombatible {
     public void agregarAlInventario(Item item) {
         inventario.agregarItem(item);
     }
+
 }

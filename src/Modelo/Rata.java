@@ -1,15 +1,13 @@
 package Modelo;
 
-import java.awt.Rectangle;
 import java.util.Random;
 
 public class Rata extends EntidadPasiva {
 
-    // Ajustalos mirando el sprite de la rata
-    private static final int ANCHO_HITBOX_RATA = (int) (6 * ESCALA);
-    private static final int ALTO_HITBOX_RATA = (int) (2 * ESCALA);
-    private static final int OFFSET_X_HITBOX_RATA = (int) (7 * ESCALA);
-    private static final int OFFSET_Y_HITBOX_RATA = (int) (18 * ESCALA);
+    private static final int ANCHO_HITBOX_RATA = 16;
+    private static final int ALTO_HITBOX_RATA = 8;
+    private static final int OFFSET_X_HITBOX_RATA = 16;
+    private static final int OFFSET_Y_HITBOX_RATA = 18; // Pegada al suelo, no a 45px de distancia
 
     private final Random random = new Random();
     private int dx = 0;
@@ -18,25 +16,32 @@ public class Rata extends EntidadPasiva {
     private boolean moviendose = false;
 
     public Rata(int columna, int fila) {
-        this.rutaSprites = "/Recursos/Sprites/Rata/";
-        this.escalaSprite = 0.3;
+        setRutaSprites("/Recursos/Sprites/Rata/");
+        setEscalaSprite(0.3);
         colocarEnTile(columna, fila);
     }
 
     // -- REUTILIZACIÓN DE CÓDIGO (Template Method de Entidad) --
-    // Reutiliza getHitbox() de Entidad definiendo únicamente sus dimensiones específicas
 
     @Override
-    protected int getAnchoHitbox() { return ANCHO_HITBOX_RATA; }
+    protected int getAnchoHitbox() { 
+        return ANCHO_HITBOX_RATA; 
+    }
 
     @Override
-    protected int getAltoHitbox() { return ALTO_HITBOX_RATA; }
+    protected int getAltoHitbox() { 
+        return ALTO_HITBOX_RATA; 
+    }
 
     @Override
-    protected int getOffsetXHitbox() { return OFFSET_X_HITBOX_RATA; }
+    protected int getOffsetXHitbox() { 
+        return OFFSET_X_HITBOX_RATA; 
+    }
 
     @Override
-    protected int getOffsetYHitbox() { return OFFSET_Y_HITBOX_RATA; }
+    protected int getOffsetYHitbox() { 
+        return OFFSET_Y_HITBOX_RATA; 
+    }
 
     @Override
     public boolean estaMoviendose() {
