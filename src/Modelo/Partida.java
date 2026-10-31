@@ -6,7 +6,6 @@ import java.util.Map;
 public class Partida {
 
     // -- ATRIBUTOS --
-    private static Partida instancia;
     private Personaje personaje;
     private String genero; // distingue el personaje: hace falta para poder guardar y continuar
     private EspacioBase espacioActivo;
@@ -16,19 +15,13 @@ public class Partida {
     private Habitacion habitacionActiva;
 
     // -- CONSTRUCTOR --
-    private Partida() {
+    // Constructor público para permitir la instanciación directa (inyección de dependencias)
+    public Partida() {
         this.niveles = new HashMap<>();
         this.numeroNivelActual = 1;
     }
 
     // -- SETS Y GETS --
-
-    public static synchronized Partida getInstancia() { //porque dos hilos no pueden crear dos instancias
-        if (instancia == null) {
-            instancia = new Partida();
-        }
-        return instancia;
-    }
 
     public Nivel getNivelActual() {
         return niveles.get(numeroNivelActual); // Devuelve el Nivel, o null si la clave no existe en el mapa
@@ -57,7 +50,7 @@ public class Partida {
                 niveles.put(i, factory.crearNivel(i));
             } catch (NivelInvalidoException e) {
                 System.out.println("No se pudo cargar el nivel " + i + ": " + e.getMessage());
-                // el juego sigue — ese numero de nivel simplemente no queda disponible
+                
             }
         }
         numeroNivelActual = 1;
@@ -71,12 +64,29 @@ public class Partida {
         }
     }
 
-    // Arma una foto del estado actual para guardarla (el modelo no sabe cómo ni dónde)
+    // Arma una foto del estado actual para guardarla
     public Progreso crearProgreso() {
         Nivel nivel = getNivelActual();
+        
+        // Guardamos la posición EXACTA en píxeles donde está el jugador en ese momento
+        int posX = (personaje != null) ? personaje.getPosicionX() : nivel.getCheckpointX();
+        int posY = (personaje != null) ? personaje.getPosicionY() : nivel.getCheckpointY();
+
+        // Guardamos los ítems del inventario
+        StringBuilder itemsStr = new StringBuilder();
+        if (personaje != null && personaje.getInventario() != null) {
+            for (Item item : personaje.getInventario().getItems()) {
+                if (itemsStr.length() > 0) itemsStr.append(",");
+                itemsStr.append(item.getNombre());
+            }
+        }
+
+        String nombreHab = (habitacionActiva != null) ? habitacionActiva.getNombreHabitacion() : "";
+
         return new Progreso(genero, numeroNivelActual,
-                nivel.getCheckpointX(), nivel.getCheckpointY(),
-                personaje.getPuntosVida(), personaje.getLinterna().getBateria());
+                posX, posY,
+                personaje.getPuntosVida(), personaje.getLinterna().getBateria(),
+                itemsStr.toString(), nombreHab);
     }
 
     // Lo contrario: después de iniciarPartida(), deja la partida como estaba al guardar
@@ -87,7 +97,7 @@ public class Partida {
 
         for (int i = 1; i < progreso.getNumeroNivel(); i++) {
             if (niveles.containsKey(i)) {
-                niveles.get(i).setNivelSuperado(true); // los anteriores ya estaban superados
+                niveles.get(i).setNivelSuperado(true);
             }
         }
 
@@ -97,11 +107,42 @@ public class Partida {
 
         espacioActivo = nivel;
         habitacionActiva = null;
-        personaje.colocarEnTile(progreso.getCheckpointX() / MapaColision.TILE,
-                                progreso.getCheckpointY() / MapaColision.TILE);
+
+        // Se posiciona al personaje exactamente en los píxeles guardados
+        personaje.setPosicionX(progreso.getCheckpointX());
+        personaje.setPosicionY(progreso.getCheckpointY());
+
+        // Para seguridad: si la hitbox pisa un obstáculo sólido, se ajusta un poco
+        java.awt.Rectangle hb = personaje.getHitbox();
+        if (nivel.getMapaColision() != null &&
+                !nivel.getMapaColision().esRectanguloValido(hb.x, hb.y, hb.width, hb.height)) {
+            personaje.setPosicionY(progreso.getCheckpointY() - 10);
+        }
+
         personaje.setPuntosVida(progreso.getVida());
         personaje.getLinterna().setBateria(progreso.getBateria());
         this.genero = progreso.getGenero();
+
+        // Restaurar inventario recogiendo los ítems del suelo 
+        String guardados = progreso.getItemsInventario();
+        if (guardados != null && !guardados.trim().isEmpty()) {
+            String[] nombres = guardados.split(",");
+            for (String nombre : nombres) {
+                String nombreLimpio = nombre.trim();
+                Item itemEncontrado = null;
+                for (Item it : nivel.getListaItems()) {
+                    if (it.getNombre().equalsIgnoreCase(nombreLimpio)) {
+                        itemEncontrado = it;
+                        break;
+                    }
+                }
+                if (itemEncontrado != null) {
+                    itemEncontrado.recoger();
+                    personaje.getInventario().agregarItem(itemEncontrado);
+                }
+            }
+        }
+
         return true;
     }
 
@@ -145,4 +186,3 @@ public class Partida {
                 || nivel.getAcertijoAlAlcance(personaje) != null;
     }
 }
-

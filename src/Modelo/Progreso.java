@@ -8,9 +8,11 @@ public class Progreso {
     private final int checkpointY;
     private final int vida;
     private final int bateria;
+    private final String itemsInventario; // Para guardar los items en el inventario
+    private final String habitacion; // Para guardar la habitación actual, si es que hay una
 
     public Progreso(String genero, int numeroNivel, int checkpointX, int checkpointY,
-                    int vida, int bateria) {
+                    int vida, int bateria, String itemsInventario, String habitacion) {
         if (genero == null || genero.isBlank()) {
             throw new IllegalArgumentException("Falta el personaje elegido");
         }
@@ -29,6 +31,8 @@ public class Progreso {
         this.checkpointY = checkpointY;
         this.vida = vida;
         this.bateria = bateria;
+        this.itemsInventario = (itemsInventario != null) ? itemsInventario : "";
+        this.habitacion = (habitacion != null) ? habitacion : "";
     }
 
     public String getGenero() { return genero; }
@@ -37,5 +41,7 @@ public class Progreso {
     public int getCheckpointY() { return checkpointY; }
     public int getVida() { return vida; }
     public int getBateria() { return bateria; }
-    
+    public String getItemsInventario() { return itemsInventario; }
+    public String getHabitacion() { return habitacion; }
+
 }

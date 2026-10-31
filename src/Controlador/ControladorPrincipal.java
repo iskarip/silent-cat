@@ -18,14 +18,17 @@ public class ControladorPrincipal {
 
     private JuegoFrame ventana;
     private ControladorNivel controladorNivelActual;
-    private final ControladorProgreso controladorProgreso;
+    private ControladorProgreso controladorProgreso;
+    private final ProgresoDAO progresoDAO;
     public static final String MUSICA_MENU = "Recursos/Sonidos/UI/menu1.wav";
 
     public ControladorPrincipal(JuegoFrame ventana, ConfiguracionDAO configuracionDAO, ProgresoDAO progresoDAO) {
 
         // se crea el controlador de progreso antes de configurar los eventos del menu
         this.ventana = ventana;
-        this.controladorProgreso = new ControladorProgreso(Partida.getInstancia(), progresoDAO);
+        this.progresoDAO = progresoDAO;
+        // Instancia inicial de Partida inyectada directamente por constructor (sin Singleton)
+        this.controladorProgreso = new ControladorProgreso(new Partida(), progresoDAO);
 
         configurarEventosMenu();
         configurarEventosSeleccion();
@@ -96,42 +99,45 @@ public class ControladorPrincipal {
         }.execute();
     }
    
+    // Aca se confirma que el jugador va a jugar. 
     private void comenzarJuego(String genero, Progreso progreso) {
 
         
         ReproductorSonido.detenerMusica(); 
 
-        // Si ya existía un controlador previo, detenemos su Timer viejo
+        // Si ya existía un controlador anterior, paramos su Timer viejo
         if (controladorNivelActual != null) {
             controladorNivelActual.detener();
         }
 
-        // 1. Instanciación de Partida (Singleton)
-        Partida partida = Partida.getInstancia();
+        // Instanciación  de Partida con operador new 
+        Partida partida = new Partida();
         partida.iniciarPartida(3);
         partida.setGenero(genero);
         if (progreso != null) {
             partida.aplicarProgreso(progreso);
         }
 
-        // 2. El personaje ya lo armo la partida
+        // Se actualiza el ControladorProgreso con la instancia activa de la partida actual
+        this.controladorProgreso = new ControladorProgreso(partida, progresoDAO);
+
+        // El personaje ya lo armo la partida
         Personaje personaje = partida.getPersonaje();
         
-        // 3. Configuración de GestorSprites
+        // Configuración de GestorSprites
         GestorSprites spritesPersonaje = new GestorSprites("/Recursos/Sprites/Personajes/" + genero + "/");
 
-        // 4. Configuración de NivelPanel
+        // Configuración de NivelPanel
         NivelPanel nivelPanel = ventana.getNivelPanel();
         nivelPanel.reiniciarEstadoNivel();
         nivelPanel.setJugador(new ControladorEntidadVisual(personaje));
         nivelPanel.setGestorSprites(spritesPersonaje);
 
-        // 5. Cambio de pantalla
+        // Cambio de pantalla
         ventana.mostrarPantallaConFundido("nivel");
 
-        // 6. Asignar e iniciar el ControladorNivel al atributo global
+        // Asignar e iniciar el ControladorNivel al atributo global (inyectando la partida)
         controladorNivelActual = new ControladorNivel(partida, nivelPanel, ventana, controladorProgreso);
         controladorNivelActual.iniciar(); 
     }
 }
-
