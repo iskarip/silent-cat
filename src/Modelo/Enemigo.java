@@ -19,7 +19,6 @@ public abstract class Enemigo extends EntidadCombatible {
     
     private boolean alertado = false;
     private int ticksEnfriamientoAtaque = 0;
-    private int ticksEnContacto = 0;
     private int ticksAtacando = 0; //ticks que le quedan a la animacion de ataque
     private boolean golpePendiente = false; //true mientras el golpe del ataque en curso todavia no cayo
     private int spawnX;
@@ -181,7 +180,7 @@ public abstract class Enemigo extends EntidadCombatible {
     protected abstract boolean puedeAtacar (Personaje jugador);
 
     protected int getEnfriamientoAtaque() {
-        return ENFRIAMIENTO_ATAQUE;   // 60 ticks = 1 segundo
+        return ENFRIAMIENTO_ATAQUE;   // 30 ticks = 0.5 segundos a 60 FPS
     }
 
     // ticks seguidos tocando al jugador antes del primer golpe (0 = pega apenas te toca)
@@ -231,7 +230,6 @@ public abstract class Enemigo extends EntidadCombatible {
         if (ticksEnfriamientoAtaque > 0) return;
 
         if (objetivo != null) {
-            System.out.println("El enemigo " + this.idEnemigo + " ataca y hace" + this.danioBase + " de daño. ");
             objetivo.recibirDanio(this.danioBase);
             ticksEnfriamientoAtaque = getEnfriamientoAtaque();
             ticksAtacando = DURACION_ANIMACION_ATAQUE;   // <- nuevo

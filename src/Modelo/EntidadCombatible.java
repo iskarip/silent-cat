@@ -25,7 +25,6 @@ public abstract class EntidadCombatible extends Entidad {
     public void recibirDanio(int cantidad) {
         if (cantidad > 0) {
             setPuntosVida(this.puntosVida - cantidad);
-            setPuntosVida(this.puntosVida - cantidad);
             System.out.println("[Silent Cat] " + this.getClass().getSimpleName() 
                                + " recibio daño. Vida restante: " + this.puntosVida);
         }

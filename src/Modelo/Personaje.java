@@ -166,9 +166,7 @@ public class Personaje extends EntidadCombatible {
     }
 
     public void atacar(Entidad objetivo) {
-        if (objetivo instanceof EntidadCombatible combatible) {
-            atacar(combatible);
-        } else if (objetivo != null) {
+        if (objetivo != null) {
             int danio = (arma != null) ? arma.calcularDanio() : 25;
             if (danio <= 0) danio = 25;
             objetivo.recibirDanio(danio);
